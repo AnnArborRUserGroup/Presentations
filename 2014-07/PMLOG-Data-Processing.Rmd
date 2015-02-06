@@ -1,0 +1,153 @@
+---
+title: "PMLOG Data Processing"
+author: "Ellis Valentiner"
+date: "July 17, 2014"
+output: html_document
+---
+
+## Background
+
+This project was motivated by a problem I was having after waking my computer from sleep. Briefly, if my computer had been in sleep mode for a long period of time (e.g. overnight, 6+ hours) then waking it would display grey static for about two second. Since this only occurred after long periods of sleep, I wanted to examine the log file to try to identify potential causes. Further, computer log files are a convenient source of data with timestamp information. In this document, I explain the general processing steps for importing and cleaning this data. Analyses of this data are not included here, but I encourage others to explore the data and try to find meaningful information (especially related to my graphics problem!). This document was presented at the July meeting for the Ann Arbor R User Group on July 17, 2014.
+
+## Dataset: Power management log
+
+`pmset` is a commandline utility for power managment settings for the Mac OS X operating system.
+
+In Unix shell run the following code to export the power management log to a text file:
+
+```
+$ pmset -g log >> pmlog.txt
+```
+
+The from visual inspection, the log contains five fields.
+
+Field | Description
+------|--------------
+ `Time stamp` | the time of the event
+ `Domain` | the power state
+ `Message` | detailed power state message
+ `Duration` | length of time in power state (seconds)
+ `Delay` | length of time between power states (ms)
+
+## Reading in the data
+
+```{r, echo = FALSE, results = 'hide'}
+# Remove all objects - start with a clean environment
+rm(list = ls(all.names = TRUE))
+# Garbage collection - tell R to explicitly free up memory if it can
+gc()
+# Get the current working directory - you may need to change this
+getwd()
+
+# Restrict the printed width to 80 char
+options(width = 80)
+getOption("width")
+
+# Load packages
+library(lubridate)
+library(knitr)
+
+# Set the global knitr chunk options
+opts_chunk$set(echo = TRUE, results = 'markup', message = TRUE, warning = TRUE, tidy = TRUE)
+```
+
+In the next chunk I use `readlines()` to import the text file and examine it using the `str()` and `head()` functions.
+
+```{r}
+raw <- readLines("Data/pmlog.txt")
+str(raw)
+head(raw, n = 7)
+```
+
+The dataset contains `r length(raw)` lines of character strings.
+
+## Data processing
+
+Here I remove extraneous rows by using pattern matching with the `grep()` function. The `grep()` function uses regular expressions (see `?regex`) to find each line that starts with a digit and assigns those line numbers to `i`.
+
+```{r}
+i <- grep(pattern = "^[[:digit:]]", x = raw)
+head(i)
+data <- raw[i]
+str(data)
+head(data)
+```
+
+Now we have an object with `r n <- length(data); format(n, big.mark = ',')` lines, containing the information for the five fields.
+
+Next I initialize an empty data frame to store the processed data -- declaring object sizes in advance is often faster than iteratively increasing an object size (although it probably doesn't matter much here).
+
+```{r}
+pmlog <- data.frame(TimeStamp=rep(NA, n), Domain=rep(NA, n), Message=rep(NA, n), Duration=rep(NA, n), Delay=rep(NA, n))
+```
+
+During visual inspection of the raw data, I noticed tab delimiter characters were present between some, but not all, of the fields. In this next step I split lines on the tab delimiter (`\t`).
+
+```{r}
+tmp <- strsplit(data, "\t")
+head(tmp)
+```
+
+Now the object `tmp` is a `r class(tmp)` of length `r length(tmp)` where each element of the list contains results from splitting each line. So in this case, `tmp` is really a list of lists.
+
+Noticing that the information in the first element of each list is of a fixed width, I extract the first element of each list and assign it to an object `fw` (fixed width) using `sapply()`. Note that `sapply()` requires two arguments, where `X` is an object and `FUN` is a function to perform on each piece of that object. In this case we are passing the square bracket (`[`), normally used for indexing (e.g. `data[i, j]`), as a function.
+
+Here I am telling R to index each element of `tmp` and to return the first element. In other words, we are iterating through the first list (`tmp`) and then taking the first item (a character string) from each sublist (there are other ways to index sublists but I think this is a cool and easy way to do it).
+
+```{r}
+fw <- sapply(X = tmp, FUN = "[", 1)
+str(fw)
+head(fw)
+```
+
+In this next code chunk, I extract the timestamp information using `substring()` and convert it to the date-time format with the `parse_date_time()` function from the `lubridate` package.
+
+```{r}
+pmlog$TimeStamp <- parse_date_time(substring(fw, 1, 23), "%m/%d/%y, %H:%M:%S %p", tz = "America/Detroit")
+str(pmlog)
+head(pmlog)
+```
+
+To extract the domain, message, duration, and delay fields, I again use the `substring()` function, and then remove extraneous characters using regular expressions.
+
+Reg. exp. | Description
+----------|-------------
+\\W       | matches any non-word character
+^\\s+     | matches any leading white-space character(s)
+\\s+$     | matches any trailing white-space character(s)
+\\D       | matches any character other than decimial digit
+
+```{r}
+pmlog$Domain <- gsub("\\W", "", substring(fw, 25))
+pmlog$Message <- gsub("^\\s+|\\s+$", "", sapply(tmp, "[", 2))
+pmlog$Duration <- gsub("\\D", "", substr(sapply(tmp, "[", 3), 1, 10))
+pmlog$Delay <- gsub("\\D", "", substr(sapply(tmp, "[", 3), 10, 20))
+```
+
+Lastly I convert variables to appropriate types.
+
+```{r}
+pmlog$Domain <- factor(pmlog$Domain)
+pmlog$Duration <- as.numeric(pmlog$Duration)
+pmlog$Delay <- as.numeric(pmlog$Delay)
+```
+
+## The cleaned dataset
+
+```{r}
+str(pmlog)
+head(pmlog)
+```
+
+## Extracting additional information
+
+From the cleaned dataset, others may want to extract other pieces of information from the message field. For example, the percent charge of the internal battery:
+
+```{r}
+obj <- strsplit(x = pmlog$Message, split = "(Charge:|%)")
+charge <- lapply(obj, '[', 2)
+pmlog$Charge <- as.numeric(unlist(charge))
+head(pmlog)
+```
+
+This is just one example of additional information that could be extracted. Applying text mining techniques or expert knowledge may yield more useful or interesting pieces of information.

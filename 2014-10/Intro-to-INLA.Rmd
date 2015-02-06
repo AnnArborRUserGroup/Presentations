@@ -1,0 +1,157 @@
+---
+title: "Introduction to INLA"
+author: "Ellis Valentiner"
+date: "October 24, 2014"
+output:
+  html_document:
+    css: ~/Dropbox/HomePage/Styles/markdown-css-themes-gh-pages/markdown5.css
+    theme: spacelab
+---
+
+```{r Setup, results='hide', warning=FALSE, message=FALSE}
+rm(list = ls(all.names = TRUE))
+
+library(INLA)
+library(R2BayesX)
+library(RColorBrewer)
+library(stargazer)
+library(ggplot2)
+```
+
+### Overview of Multilevel Modeling
+
+Extension of regression for data with group structures, where coefficients can vary by group.
+
+* Nested data
+* Repeated measures
+* Time-series cross sections
+* Other non-nested structures
+
+Some examples of data with group structures:
+
+- Children within classrooms
+- Patients within a clinical treatment
+- Repeated measures for the same individual
+
+Some advantages:
+
+* accounts for variation at multiple levels when estimating group-level coefficients
+* model variation among subject-level coefficients
+* estimate coefficients for specific groups
+
+### Bayesian Models
+
+Considers parameters as random variables that are characterized by a prior distribution. This prior distribution is combined with the traditional likelihood to obtain the posterior distribution of the parameter of interest on which the statistical inference is based.
+
+### Installing INLA
+
+http://www.r-inla.org/download
+
+```{r, eval=FALSE}
+source("http://www.math.ntnu.no/inla/givemeINLA.R") 
+```
+
+INLA **requires** `sp` and suggests `numDeriv`, `Rgraphviz` (from Bioconductor), `fields`, `rgl`, `mvtnorm`, `multicore`, and `pixmap`
+
+### Latent Models
+
+Model | Name 
+-----------------------------|------
+Independent random variables | `iid`
+Linear | `linear`
+Constrained linear | `clienar`
+Random walk of order 1 | `rw1`
+Random walk of order 2 | `rw2`
+Continuous random walk of order 2 | `crw2`
+Model for seasonal variation | `seasonal`
+Model for spatial effect | `besag`
+Model for spatial effect | `besagproper`
+
+### Example: Sleep Study
+
+```{r}
+#for lmer() and sleepstudy
+library(lme4)
+
+system.time(fm1 <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
+system.time(fm2 <- inla(Reaction ~ Days + f(Subject), data = sleepstudy))
+
+summary(fm1)
+summary(fm2)
+```
+
+### Example: Munich
+
+Semiparametric regression model with Gaussian data and additional spatial effect. Example  4.2.2 from "Gaussian Markov Random Fields: Theory and Applications"  by H. Rue and L. Held
+
+```{r Munich Example}
+#load the data
+data(Munich)
+
+## Note that here we what to have an estimator of the effect of `year`
+## also the for years where we have no observation, therefore we give a
+## vector with all possible values assumed by the covariate `year`, that
+## is seq(1918,2001)
+
+formula <- rent ~ f(location, model="besag", graph = "Munich/munich.graph",
+                      initial = 1, param = c(1, 0.01)) +
+                      f(year, model = "rw2", values = seq(1918, 2001),
+                        param = c(1, 0.01)) +
+                      f(floor.size, model = "rw2", param=c(1, 0.01)) +
+                      Gute.Wohnlage + Beste.Wohnlage + Keine.Wwv + Keine.Zh +
+                      Kein.Badkach  + Besond.Bad + Gehobene.Kueche +
+                      zim1 + zim2 + zim3 + zim4 + zim5 + zim6 -1
+
+mod <- inla(formula, data = Munich, verbose = TRUE,
+                  control.family = list(initial = -1),
+                  control.predictor = list(initial = 12),
+                  control.inla = list(h = 1e-4))
+```
+
+```{r Print fixed effects, results='asis'}
+fixed.effects <- mod$summary.fixed
+colnames(fixed.effects) <- c('Mean', 'SD', 'Q0.025', 'Median', 'Q0.975', 'Mode', 'KLD')
+stargazer(fixed.effects, type = 'html', title = 'Fixed effects')
+```
+
+```{r Print hyperparameters, results='asis'}
+hyperparameters <- mod$summary.hyperpar
+colnames(hyperparameters) <- c('Mean', 'SD', 'Q0.025', 'Median', 'Q0.975', 'Mode')
+stargazer(hyperparameters, type = 'html', title = 'Hyperparameters')
+```
+
+### Example: Zambia
+
+Semiparametric regression on Gaussian data with additional spatial effect. Example taken from the BayesX manual, for details see
+`BayesX`.
+
+```{r Zambia, fig.height=8, fig.width=8, dev='png'}
+data(Zambia)
+
+#load map
+map <- suppressWarnings(read.bnd("Zambia/zambia.bnd"))
+
+plotMap = function(map, x, nbreaks = 5, theme = "Blues", ...){
+  pal  <- brewer.pal(n = nbreaks, name = theme)
+  brks <- quantile(x, probs = seq(0, 1, 1 / nbreaks))
+  cols <- cut(x, breaks = brks, labels = pal)
+  plot(map, col = as.character(cols), ...)
+}
+
+# add one column for the unstructured spatial effect
+Zambia$distr.unstruct  =  Zambia$district
+
+formula <- hazstd ~ f(inla.group(bmi), model = "rw2") + f(agc, model = "rw2") +
+                        f(district, model = "besag", graph = "Zambia/zambia.graph", param = c(1, 0.01)) +
+                        f(distr.unstruct, model = "iid", param = c(1, 0.01)) +
+                        rcw + edu1 + edu2 + tpr + sex
+
+mod.zambia <- inla(formula, data = Zambia, control.fixed = list(prec.intercept = 0.001, prec = 0.001), verbose=TRUE)
+
+#map posterior means
+posterior.means <- mod.zambia$summary.random$district$mean
+plotMap(map, posterior.means)
+title(main = "Posterior means")
+```
+
+

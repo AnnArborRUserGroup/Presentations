@@ -1,0 +1,127 @@
+---
+title: "Timeseries"
+author: "Ellis Valentiner"
+date: "August 17, 2014"
+output: html_document
+---
+
+This is an R Markdown document.
+
+Content is based, in part, on *A First Course on Time Series Analysis with SAS*, an open source project available under the GNU Free Document License, Version 1.3.
+
+The data can be accessed [here](http://www.statistik-mathematik.uni-wuerzburg.de/wissenschaftforschung/time_series/data_sets/). The data is the monthly number of unemployed workers in the building trade in Germany from July 1975 to September 1979.
+
+# US Unemployment dataset
+
+## Setup
+
+I begin by loading the `car` and `forecast` libraries and then importing the dataset. It is good practice to look at the structure of your dataset after you've imported it, so I use the `str` function.
+
+```{r}
+library(car)
+library(forecast)
+unemp <- read.table("/Users/ellisvalentiner/Dropbox/AARUG/Talks/Data/2012-August-01-rawdata/unemployed1.txt")
+str(unemp)
+```
+
+The dataset contains three columns, but they are not labeled so I give them names using the `names` function. It is worth noting that I could have been more explicit by using the `colnames` function instead, but in this case I know that the `names` function will refer to the columns (rather than rows) since the `unemp` object is a data frame.
+
+```{r}
+names(unemp) <- c('Month', 'Period', 'Value')
+unemp$Month <- with(data = unemp, expr = factor(x = Month, levels = month.name, labels = month.abb, ordered = TRUE))
+```
+
+I didn't about this much when I was first looking at this data, but the `Month` variable will generally behave better if I turn it into an ordered factor. This isn't necessary, in fact simply using `factor` without `order = TRUE` will sort of order the factor levels based on the order they appear in the data, but I am being more explicit. The reason that I am doing this is so that R will plot the months in the order they occur, rather than alphabetically.
+
+The `summary` and `head` functions are also useful for getting information about the dataset.
+
+```{r}
+summary(unemp)
+head(unemp)
+```
+
+Now to present an alternative way of doing the same thing. In the last code chunk I ran a series of functions using the same input. In the following code chunk, I use the `sapply` function to reduce this to a single (more complicated) line of code.
+
+In detail, the `sapply` function takes a list of arguments, in this case they are functions, and then passes each of those to a function. Here I have written an anonymous function that takes a single argument `x`, which really will be one of the functions from the list. This is a tricky way of saying, "for each of these functions, do the function with `unemp` as the input".
+
+```{r, eval=FALSE}
+sapply(list(str, summary, head), function(x) {x(unemp)})
+```
+
+### Exploratory analysis
+
+Exploratory analyses are a continuation of understanding the dataset. Here I use the `scatterplotMatrix` function from the `car` package to see the densities of each variable (diagonal elements) and the pairwise plots for each set of variables (off diagonal elements). You can look at these bivariate relationships more closely by using the `boxplot` and `plot` functions.
+
+```{r, fig.height=8, fig.width=10}
+scatterplotMatrix(unemp)
+boxplot(Value ~ Month, data = unemp, las = 1, yaxt = 'n')
+yaxis.values <- seq(15000, 130000, 15000)
+axis(side = 2, at = yaxis.values, labels = format(yaxis.values, big.mark = ','), las = 1)
+plot(Value ~ Period, data = unemp, type = 'b', pch = 20, yaxt = 'n', ylab = NA)
+axis(side = 2, at = yaxis.values, labels = format(yaxis.values, big.mark = ','), las = 1)
+```
+
+From the boxplots we could infer that unemployment tends to be higher in winter months. My guess would be that some people have seasonal work, such as summer construction jobs and holiday jobs, that result in generally lower unemployment during the summer.
+
+### Motivating time series
+
+The core idea of time series is that an observation is somehow influenced by previous observations, which is a violation of a key assumption in regression that errors (residuals) are independent. For example we can fit a linear model to predict unemployment given a month and the period and then check for autocorrelation of the residuals with the `durbinWatsonTest` function.
+
+In this case we have seen that unemployment appears to have a seasonal trend and that the overall trend may be declining. Since I *know* the data have a monthly component, I check the residuals for autocorrelation and set the maximum lag to 12 (number of months in a year).
+
+```{r, fig.height=9, fig.width=10}
+fit <- lm(Value ~ Month + Period, data = unemp)
+summary(fit)
+par(mfrow = c(2, 2))
+plot(fit, las = 1)
+par(mfrow = c(1, 1))
+durbinWatsonTest(fit, max.lag = 12)
+```
+
+We see that residuals are positively correlated with lagged terms up to 3 lags and possibly around 9-11 lags. The interpretation of this is that, on average, the unemployment in a given month is a good indicator of unemployment in the preceeding and following 3 month period. Below we will explicitly look at fitting a time series model that accounts for the dependency between observations.
+
+### Decomposing/Fitting a time series model
+
+ARIMA stands for auto-regressive integrated moving average, and are a class of models for general time series analysis. ARIMA models have three components: autoregressive terms, nonseasonal differences, and lagged forecast errors or the moving average. A time series model can have any or all of these terms.
+
+Term | Symbol | Description
+-----|--------|-------------
+Autoregressive | $p$ | lagged terms of the time series itself
+Differences | $d$ | order of differencing
+Moving average | $q$ | lagged terms of the residuals
+
+The autoregressive term reflects that the values of one observation can be predicted (forecasted) from previous values. The order of differencing accounts for non-stationarity , an evolving structure, in the time series. Any time series that has growth or decay is non-stationary (e.g. the stock market). The moving average process ...
+
+We can use the `acf` and `pacf` to help us determine the terms to include in the model. The `acf` function plots the autocorrelation and the `pacf` plots the partial-autocorrelation. Compare the autocorrelation and partial-autocorrelation functions for unemployment (left) compared to random white noise (right).
+
+```{r, fig.height=8, fig.width=10}
+x <- rnorm(n = 51, mean = 0, sd = 1)
+par(mfrow = c(2, 2))
+acf(unemp$Value, lag = 24, main = "Unemployment", las = 1)
+acf(x, lag = 24, main = "White noise", las = 1)
+pacf(unemp$Value, lag = 24, main = "", las = 1)
+pacf(x, lag = 24, main = "", las = 1)
+par(mfrow = c(1, 1))
+```
+
+The ACF plot helps identify the moving average order term $q$ and the PACF plot helps identify the autoregressive order term $p$. Notice that the unemployment data has high autocorrelation for lags 2, 3, 11, 12, 13, etc. while white noise has no autocorrelation. For monthly and yearly data, it is not surprising that there are correlations between these lag terms. We should not be surprised that unemployment is related to unemployment in the previous month (lag 1) or in the same month the previous year (lag 12) due to *seasonal variation* in unemployment.
+
+While it is important to look at these diagnostic plots, it is easy to fit a univariate time series model using the `auto.arima` function in the `forecast` package. This function compares several models and chooses the one that has the best optimization criteria (AIC, AICc, or BIC). The `auto.arima` function is pretty smart, but it is important to not let R do all of your thinking for you -- you can use either `arima` or `Arima` to fit a time series model with fixed ordering terms.
+
+```{r}
+(myts <- ts(data = unemp$Value, start = c(1950, 7), frequency = 12))
+(fit <- auto.arima(myts, trace = TRUE))
+```
+
+In the `ts` function I specify the start of the first observation as July of 1975. Note that specifying the frequency in rthe `ts` function is super important. If you remove the frequency, or misspecify it, your time series model will perform very poorly.
+
+### Forecasting (predicting) new observations:
+
+Having fit an ARIMA model, we can now easily forecast unemployment for future months. Here I use the `forecast` function to estimate the unemployment for the next 24 months with 95% confidence intervals.
+
+```{r, fig.height=8, fig.width=10}
+(pred <- forecast(fit, h = 128, level = 95))
+plot(pred, las = 1)
+```
+
+Notice that the estimates become worse the further into the future we predict. This is because the uncertainty is compounded from each prediction to the next, since estimates of unemployment depend on previous values.
