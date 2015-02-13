@@ -28,14 +28,7 @@ If you are new to version control using Git, checkout the comprehensive [documen
 
 ### Adding your presentation
 
-Clone the GitHub repository and start a new branch for your presentation:
-
-    $ git clone https://github.com/AnnArborRUserGroup/Presentations.git
-    $ cd Presentations/
-    $ git branch my-presentation-branch
-    $ git checkout my-presentation-branch
-
-Make your presentation or add your files to the `presentations/yyyy-mm-dd` directory (where `yyyy-mm-dd` is the date of the meetup). When you are ready, commit your files locally and push your branch to GitHub:
+Fork this repository and add your files to the `presentations/yyyy-mm-dd` directory (where `yyyy-mm-dd` is the date of the meetup). When you are ready, commit your files locally and push your branch to GitHub:
 
     $ git add -A
     $ git commit -a -m "add your message here"
