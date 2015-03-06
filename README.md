@@ -33,3 +33,5 @@ Fork this repository and add your files to the `presentations/yyyy-mm-dd` direct
     $ git push -u origin my-presentation-branch
 
 If you run into trouble using Git send one of the organizers a message and we will help you out.
+
+If you host your presentation in your own repo, let us know so that we can fork it.
