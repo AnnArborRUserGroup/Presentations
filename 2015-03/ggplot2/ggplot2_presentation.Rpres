@@ -96,9 +96,3 @@ Diamond Smoothing Zooming Label
 ```{r}
 ggplot(diamonds,aes(x=carat, y=price))+ geom_text(label = '@')+ stat_smooth()+xlim(0.2,1)
 ```
-
-```{r}
-ggplot() +
-facet_wrap(~benchmark) +
-geom_boxplot(data=d, mapping=aes(x=opt, y=time, color=opt))
-```
