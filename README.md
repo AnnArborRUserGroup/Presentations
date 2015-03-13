@@ -16,6 +16,8 @@ You can find out more about creating R Markdown files [here](http://rmarkdown.rs
 
 If your code uses random number generation use the `set.seed(some number)` function to make your results reproducible.
 
+If a function takes more than one argument, use the argument names for clarity. For example, use `foo(x = bar, y = qux, z = norf)` instead of `foo(bar, qux, norf)`. This is particularly important for functions that other useRs might not be familiar with. It isn't necessary to use argument names for functions that only take a single argument (ex. `head(x)`) or if you are only passing one argument to a function (ex. `print(x)`).
+
 Try to maintain the same coding style throughout. Consider taking a look at [Hadley Wickham's style guide](http://adv-r.had.co.nz/Style.html) for general guidelines.
 
 ## Instructions for new presenters
