@@ -1,5 +1,5 @@
 ---
-title: "Ann Arbor useR Meetup"
+title: "Ann Arbor R User Meetup"
 author: "Michelle Berry"
 date: "May 7, 2015"
 output: 
@@ -87,27 +87,28 @@ number of separating hyperplanes
 
 Support Vector Classifier
 
+- We allow some points to cross the margin and hyperplane
+
 - Good solution if your classes are *close* to linearly separable
 
 - More robust than the maximal margin classifier because it is **less sensitive** to individual observations   
     + model has lower **variance**
 
-<img src="svc.png" height="250px" width="600px" />
+<img src="svc.png" height="220px" width="570px" />
 
 ## How to construct a Support Vector Classifier
 
 
-Introduce a tuning parameter    **C**    that is like a budget for the amount that data points can violate the margin
+Introduce a **Cost Function** that tells you how expensive it is for training data points to violate the margin
 
-- It is also a property of **C** that no more than **C** observations can be on the wrong side of the hyperplane
+- **Cost** is chosen through a cross-validation method such as   
+k-folds
 
-- **C** is chosen through a cross-validation method such as k-folds
-
-- High **C** = higher bias, lower variance
-- Low **C** = lower bias, higher variance
+- High **Cost** = smaller margin; lower bias, higher variance
+- Low **Cost** = wider margin; higher bias, lower variance
 
 
-## Examples of different "C" values
+## Examples of different **Cost** values
 
  <img src="svc_c.png" height="500px" width="575px" />
  
