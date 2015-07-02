@@ -1,0 +1,214 @@
+---
+title: "Association Rule Mining"
+author: "Brandon Stange"
+date: "July 9, 2015"
+output: 
+  ioslides_presentation: 
+    highlight: pygments
+    keep_md: yes
+---
+
+## My Background
+```{r, echo=F, message=F, cache=T,results='hide',warning=F}
+source('1_DataPrep.R',encoding='UTF-8')
+source('2_RuleGen.R',encoding='UTF-8')
+```
+
+- Currently a Data Scientist at Trinity Health
+- Previously a Data Analyst for a large physician practice
+- MA Economics (Econometrics, Environmental Econ)
+
+Brandon.Stange@gmail.com    
+
+## Accuracy vs. Interpretability
+**Maximally Accurate**
+
+- Non-Linear
+- Feature Engineering/Interaction
+- Boosting/Ensembling
+
+**Maximally Interpretable**
+
+- Rule-Based
+- Single Decision Trees
+- Linear/Logistic Regression
+
+## Association Rule Uses
+
+- Originally used for *market basket analysis*
+    - Find sets of products that are often bought together
+    - Improve product arrangement
+    - Targeted Advertising
+    - {Beer} -> {Pizza}
+- Can be used for any dataset that can be represented as a binary matrix
+- Traditionally unsupervised, but can target specific outcomes
+- Can target more than one outcome at once
+
+## Algorithms and Implimentations
+
+- Apriori
+    - R, Python, SQL Server, Oracle, everywhere
+- Eclat
+    - R, Python, C, others
+- FP Growth
+    - C, Python, mahout
+- Graph Databases
+    - neo4j, Titan, Giraph
+
+## Arules Package Ecosystem {.flexbox .vcenter .hcenter .bigger}
+![Arules Ecosystem](images/ArulesEco.jpg)
+
+## Input Data Structure {.flexbox .vcenter}
+![Input Data Format](images/DataFormat.jpg)
+
+## Rule Interpretation (Apriori Output)
+
+```{r, echo=F, results='asis', cache=T, warning=F,message=FALSE}
+library(arules)
+library(arulesViz)
+t <- data.frame(a=c(1,0,0,0,1),b=c(1,1,0,1,1),c=c(0,1,1,0,1),
+                d=c(0,1,0,0,1),e=c(1,0,1,0,0),row.names=c(1,2,3,4,5))
+t <- data.frame(lapply(t,as.logical))
+rule <- apriori(t,
+                parameter = list(minlen=1, supp=0.4, conf=0.4, maxlen=3),
+                appearance = list(default="both"),
+                control = list(verbose=F))
+rdf<-data.frame(
+  lhs = labels(lhs(rule))$elements,
+  rhs = labels(rhs(rule))$elements,
+  rule@quality)
+rdf<-rdf[order(-rdf$lift),]
+
+knitr::kable(rdf[1,1:5], format='markdown',digits=c(2,3),padding=1, align='c')
+```
+
+<br>
+RHS (Outcome) = **`r rdf[1,2]`**
+
+LHS (Inputs) = **`r rdf[3,1]`**
+LHS occurs in **`r scales::percent(round(rdf[1,3],2))`** of total population.
+
+RHS occurs in **`r scales::percent(rdf[1,4])`** of these transactions, which is **`r round(rdf[1,5],2)`** times the population at large.
+
+## Apriori Function Call {.bigger}
+
+```{r, eval=F}
+apriori(data,
+         parameter = list(minlen=1, 
+                          support=0.05, 
+                          confidence=0.4, 
+                          maxlen=3),
+         appearance = list(rhs=outcomelist, 
+                           default="lhs"),
+         control = list(verbose=T))
+```
+
+## Session Info {.smaller}
+
+```{r, message=F, warning=F}
+library(dplyr)
+library(readr)
+library(tidyr)
+library(arules)
+library(arulesViz)
+print(sessionInfo(),locale=F)
+```
+
+## Real Data Example
+
+**490k records from New York City resturant inspections**
+
+requires readr, dplyr, tidyr, arules, arulesviz
+(https://data.cityofnewyork.us)
+
+**Fields of interest:**
+
+- ID, name, address, phone, etc.
+- Inspection Date
+- Borough
+- Cuisine Description
+- Violation Description
+- Action
+
+## Data Pre-Processing
+
+1. Clean up dates and special characters
+2. Apply custom violation code grouping
+3. Use tidyr::gather to put data in 'long' format
+4. Replace keys and measures with integer IDs
+5. Convert to sparse matrix
+
+
+## Pre-Processing steps 3-5 Code
+
+```{R, eval=F, highlight=T}
+## 3. Use tidyr::gather to put data in 'long' format
+nycs <- nycw %>%
+  select(INSID, BORO, CUISINE_DESCRIPTION, VIOLATION_TYPE) %>%
+  gather(MEASURE, VALUE, -INSID)
+nycs$MEASURE <- nycs$VALUE
+nycs$VALUE <- 1
+
+## 4. Replace keys and measures with integer IDs
+ID <- unique(nycs$INSID)
+ME <- unique(nycs$MEASURE)
+nycs$MEASURE<-match(nycs$MEASURE,ME)
+nycs$INSID<-match(nycs$INSID,ID)
+
+## 5. Convert to sparse matrix
+sm<-sparseMatrix(i=nycs$INSID, j=nycs$MEASURE,x=nycs$VALUE,
+                 dimnames=list(ID,ME),giveCsparse=T)
+```
+
+
+## Example Function Call {.smaller}
+
+```{R, eval=F}
+rules <- apriori(sm2,
+                   parameter = list(minlen=1, supp=0.001, conf=0.4, maxlen=4),
+                   appearance = list(rhs=outcomelist, none="Pass or Not Critical",
+                                     default="lhs"),
+                   control = list(verbose=T))
+```
+```{R}
+outcomelist
+class(sm2)
+```
+
+## Results
+
+`r nrow(rf)` rules were generated.  The top 5 are:
+```{r, echo=FALSE, message=F, warning=F, results='asis'}
+knitr::kable(rf[1:5,1:5], format='markdown',digits=c(3,3),padding=1, align='c')
+```
+
+## arulesViz plots
+```{r, warnings=FALSE, message=FALSE, warning=FALSE}
+plot(rules.sorted,method="grouped")
+```
+
+## arulesViz plots contd
+```{r, warnings=FALSE, message=FALSE, warning=FALSE}
+plot(rules.sorted,method="paracoord")
+```
+
+## arulesViz plots contd
+```{r, warnings=FALSE, message=FALSE, warning=FALSE}
+plot(rules.sorted,method="graph")
+```
+
+## Arules Sequences
+
+- Allows for pattern discovery in ordered sets of discrete data
+- Ordered, not temporal (no measure of time between events)
+- Right-censored, events *after* the event of interest are ignored
+- arulesSequences::cspade()
+- Parameters are similar: support, size, gap, window
+
+## Resources
+
+**Christian Borgelt's website**
+
+Various publications and implementations of Association Rules
+
+[www.borgelt.net](www.borgelt.net)
