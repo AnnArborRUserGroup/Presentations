@@ -25,7 +25,7 @@ Brandon.Stange@gmail.com
 
 - Non-Linear
 - Feature Engineering/Interaction
-- Boosting/Ensembling
+- Ensembling
 
 **Maximally Interpretable**
 
@@ -102,6 +102,9 @@ apriori(data,
                            default="lhs"),
          control = list(verbose=T))
 ```
+
+## Itemset Graph Representation {.flexbox .vcenter}
+![Frequent Item Graph](images/FrequentItems.png)
 
 ## Session Info {.smaller}
 
@@ -212,3 +215,5 @@ plot(rules.sorted,method="graph")
 Various publications and implementations of Association Rules
 
 [www.borgelt.net](www.borgelt.net)
+
+[Efficient Analysis of Pattern and Association Rule Mining Approaches](http://arxiv.org/ftp/arxiv/papers/1402/1402.2892.pdf)

@@ -16,7 +16,7 @@ Brandon.Stange@gmail.com
 
 - Non-Linear
 - Feature Engineering/Interaction
-- Boosting/Ensembling
+- Ensembling
 
 **Maximally Interpretable**
 
@@ -81,6 +81,9 @@ apriori(data,
          control = list(verbose=T))
 ```
 
+## Itemset Graph Representation {.flexbox .vcenter}
+![Frequent Item Graph](images/FrequentItems.png)
+
 ## Session Info {.smaller}
 
 
@@ -104,24 +107,23 @@ print(sessionInfo(),locale=F)
 ## 
 ## other attached packages:
 ## [1] arulesViz_1.0-0 arules_1.1-6    Matrix_1.2-0    tidyr_0.2.0    
-## [5] dplyr_0.4.2     readr_0.1.1    
+## [5] readr_0.1.1     dplyr_0.4.2    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.11.6          highr_0.5            plyr_1.8.3          
-##  [4] formatR_1.2          bitops_1.0-6         iterators_1.0.7     
-##  [7] tools_3.2.0          digest_0.6.8         evaluate_0.7        
-## [10] lattice_0.20-31      foreach_1.4.2        igraph_0.7.1        
-## [13] DBI_0.3.1            registry_0.2         yaml_2.1.13         
-## [16] parallel_3.2.0       seriation_1.1-0      TSP_1.1-1           
-## [19] stringr_1.0.0        knitr_1.10.5         cluster_2.0.1       
-## [22] gtools_3.5.0         caTools_1.17.1       lmtest_0.9-34       
-## [25] vcd_1.4-0            scatterplot3d_0.3-35 R6_2.0.1            
-## [28] rmarkdown_0.7        gdata_2.16.1         reshape2_1.4.1      
-## [31] magrittr_1.5         scales_0.2.5         gplots_2.17.0       
-## [34] codetools_0.2-11     gclus_1.3.1          htmltools_0.2.6     
-## [37] MASS_7.3-40          assertthat_0.1       colorspace_1.2-6    
-## [40] KernSmooth_2.23-14   stringi_0.4-1        munsell_0.4.2       
-## [43] lazyeval_0.1.10      zoo_1.7-12
+##  [1] Rcpp_0.11.6          formatR_1.2          plyr_1.8.3          
+##  [4] bitops_1.0-6         iterators_1.0.7      tools_3.2.0         
+##  [7] digest_0.6.8         evaluate_0.7         lattice_0.20-31     
+## [10] foreach_1.4.2        igraph_0.7.1         DBI_0.3.1           
+## [13] registry_0.2         yaml_2.1.13          parallel_3.2.0      
+## [16] seriation_1.1-0      TSP_1.1-1            stringr_1.0.0       
+## [19] knitr_1.10.5         cluster_2.0.1        gtools_3.5.0        
+## [22] caTools_1.17.1       lmtest_0.9-34        vcd_1.4-0           
+## [25] scatterplot3d_0.3-35 R6_2.0.1             rmarkdown_0.7       
+## [28] gdata_2.16.1         magrittr_1.5         scales_0.2.5        
+## [31] gplots_2.17.0        codetools_0.2-11     gclus_1.3.1         
+## [34] htmltools_0.2.6      MASS_7.3-40          assertthat_0.1      
+## [37] colorspace_1.2-6     KernSmooth_2.23-14   stringi_0.4-1       
+## [40] munsell_0.4.2        zoo_1.7-12
 ```
 
 ## Real Data Example
@@ -254,3 +256,5 @@ plot(rules.sorted,method="graph")
 Various publications and implementations of Association Rules
 
 [www.borgelt.net](www.borgelt.net)
+
+[Efficient Analysis of Pattern and Association Rule Mining Approaches](http://arxiv.org/ftp/arxiv/papers/1402/1402.2892.pdf)
