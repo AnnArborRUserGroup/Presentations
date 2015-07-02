@@ -4,12 +4,12 @@ library(tidyr)
 library(Matrix)
 
 # import csv or download from source
-raw <- 
   if(file.exists('./Data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv')) {
-    read_csv('./Data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv',progress=F)
+    raw <- read_csv('./Data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv',progress=F)
   } else {
-  read_csv("https://data.cityofnewyork.us/api/views/xx67-kt59/rows.csv?accessType=DOWNLOAD",
+  raw <- read_csv("https://data.cityofnewyork.us/api/views/xx67-kt59/rows.csv?accessType=DOWNLOAD",
            progress=F)
+  write_csv(raw, './Data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
   }
 
 # import violation code grouping
@@ -30,6 +30,7 @@ nyc$CUISINE_DESCRIPTION <- gsub( " *\\(.*?\\) *", "", nyc$CUISINE_DESCRIPTION)
 
 # Add manual grouping to violation types
 nyc <- inner_join(nyc, VCwalk, by = c("VIOLATION_CODE"))
+nyc <- nyc[nyc$VIOLATION_TYPE!="Pass or Not Critical",]
 
 nyc$CUISINE_DESCRIPTION[nyc$CUISINE_DESCRIPTION=="CafÃ©/Coffee/Tea"] <- "Cafe/Coffee/Tea"
 

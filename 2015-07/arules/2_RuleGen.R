@@ -5,12 +5,12 @@ sm2<-as(t(sm),"nsparseMatrix")
 sm2<-as(sm2,"transactions")
 
 # Filter RHS to include only rules with outcomes that are violations
-outcomelist <- ME[c(92:98)]
+outcomelist <- ME[c(91:97)]
   
 #rule generation
 rules <- apriori(sm2,
-                   parameter = list(minlen=1, supp=0.008, conf=0.4, maxlen=4),
-                   appearance = list(rhs=outcomelist, none="Pass or Not Critical",
+                   parameter = list(minlen=1, supp=0.008, conf=0.45, maxlen=4),
+                   appearance = list(rhs=outcomelist, 
                                      default="lhs"),
                    control = list(verbose=T))
 rules.sorted<-sort(rules,by="lift")
@@ -32,4 +32,4 @@ rf<-rf[order(-rf$lift),]
 # format for extracting transaction IDs
 st<-supportingTransactions(rules,sm2)
 tids<-as(st,"list")
-rm(subset.matrix, redundant,rules)
+rm(subset.matrix, redundant, rules.sorted)

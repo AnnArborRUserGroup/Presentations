@@ -169,7 +169,7 @@ sm<-sparseMatrix(i=nycs$INSID, j=nycs$MEASURE,x=nycs$VALUE,
 ```{R, eval=F}
 rules <- apriori(sm2,
                    parameter = list(minlen=1, supp=0.001, conf=0.4, maxlen=4),
-                   appearance = list(rhs=outcomelist, none="Pass or Not Critical",
+                   appearance = list(rhs=outcomelist, 
                                      default="lhs"),
                    control = list(verbose=T))
 ```
@@ -187,17 +187,17 @@ knitr::kable(rf[1:5,1:5], format='markdown',digits=c(3,3),padding=1, align='c')
 
 ## arulesViz plots
 ```{r, warnings=FALSE, message=FALSE, warning=FALSE}
-plot(rules.sorted,method="grouped")
+plot(rules,method="grouped")
 ```
 
 ## arulesViz plots contd
 ```{r, warnings=FALSE, message=FALSE, warning=FALSE}
-plot(rules.sorted,method="paracoord")
+plot(rules,method="paracoord")
 ```
 
 ## arulesViz plots contd
 ```{r, warnings=FALSE, message=FALSE, warning=FALSE}
-plot(rules.sorted,method="graph")
+plot(rules,method="graph")
 ```
 
 ## Arules Sequences
