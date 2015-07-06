@@ -5,7 +5,8 @@ sm2<-as(t(sm),"nsparseMatrix")
 sm2<-as(sm2,"transactions")
 
 # Filter RHS to include only rules with outcomes that are violations
-outcomelist <- ME[c(91:97)]
+outcomelist <- c("Food Handling", "Rodents/Pests", "Employee Practices", 
+                 "Temperature", "Adminstrative", "Poor Equipment", "Food Source")
   
 #rule generation
 rules <- apriori(sm2,
