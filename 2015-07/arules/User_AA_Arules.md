@@ -99,7 +99,7 @@ print(sessionInfo(),locale=F)
 ```
 ## R version 3.2.0 (2015-04-16)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-## Running under: Windows 8 x64 (build 9200)
+## Running under: Windows Server 2012 x64 (build 9200)
 ## 
 ## attached base packages:
 ## [1] grid      stats     graphics  grDevices utils     datasets  methods  
@@ -107,21 +107,24 @@ print(sessionInfo(),locale=F)
 ## 
 ## other attached packages:
 ## [1] arulesViz_1.0-0 arules_1.1-6    Matrix_1.2-0    tidyr_0.2.0    
-## [5] dplyr_0.4.1     readr_0.1.0    
+## [5] dplyr_0.4.2     readr_0.1.1    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] igraph_0.7.1         Rcpp_0.11.5          cluster_2.0.1       
-##  [4] knitr_1.10           magrittr_1.5         MASS_7.3-40         
-##  [7] munsell_0.4.2        scatterplot3d_0.3-35 colorspace_1.2-6    
-## [10] lattice_0.20-31      foreach_1.4.2        highr_0.5           
-## [13] stringr_1.0.0        plyr_1.8.2           tools_3.2.0         
-## [16] vcd_1.3-2            parallel_3.2.0       seriation_1.0-14    
-## [19] DBI_0.3.1            iterators_1.0.7      htmltools_0.2.6     
-## [22] yaml_2.1.13          lazyeval_0.1.10      assertthat_0.1      
-## [25] digest_0.6.8         reshape2_1.4.1       formatR_1.2         
-## [28] gclus_1.3.1          codetools_0.2-11     evaluate_0.7        
-## [31] rmarkdown_0.7        TSP_1.1-0            stringi_0.4-1       
-## [34] scales_0.2.4
+##  [1] Rcpp_0.11.6          highr_0.5            formatR_1.2         
+##  [4] plyr_1.8.3           bitops_1.0-6         iterators_1.0.7     
+##  [7] tools_3.2.0          digest_0.6.8         evaluate_0.7        
+## [10] lattice_0.20-31      foreach_1.4.2        igraph_0.7.1        
+## [13] DBI_0.3.1            registry_0.2         yaml_2.1.13         
+## [16] parallel_3.2.0       seriation_1.1-0      TSP_1.1-1           
+## [19] stringr_1.0.0        knitr_1.10.5         cluster_2.0.1       
+## [22] gtools_3.5.0         caTools_1.17.1       lmtest_0.9-34       
+## [25] vcd_1.4-0            scatterplot3d_0.3-35 R6_2.0.1            
+## [28] rmarkdown_0.7        gdata_2.16.1         reshape2_1.4.1      
+## [31] magrittr_1.5         scales_0.2.5         gplots_2.17.0       
+## [34] codetools_0.2-11     gclus_1.3.1          htmltools_0.2.6     
+## [37] MASS_7.3-40          assertthat_0.1       colorspace_1.2-6    
+## [40] KernSmooth_2.23-14   stringi_0.4-1        munsell_0.4.2       
+## [43] lazyeval_0.1.10      zoo_1.7-12
 ```
 
 ## Real Data Example
@@ -205,15 +208,15 @@ class(sm2)
 
 ## Results
 
-29 rules were generated.  The top 5 are:
+30 rules were generated.  The top 5 are:
 
 |   |         lhs          |       rhs       | support | confidence | lift  |
 |:--|:--------------------:|:---------------:|:-------:|:----------:|:-----:|
-|23 | {BROOKLYN,Caribbean} | {Rodents/Pests} |  0.008  |   0.606    | 1.398 |
-|1  |    {Delicatessen}    |  {Temperature}  |  0.010  |   0.599    | 1.354 |
-|5  |     {Caribbean}      | {Rodents/Pests} |  0.016  |   0.570    | 1.316 |
+|23 | {BROOKLYN,Caribbean} | {Rodents/Pests} |  0.008  |   0.605    | 1.396 |
+|1  |    {Delicatessen}    |  {Temperature}  |  0.010  |   0.599    | 1.353 |
+|5  |     {Caribbean}      | {Rodents/Pests} |  0.016  |   0.570    | 1.315 |
 |35 | {MANHATTAN,Chinese}  |  {Temperature}  |  0.015  |   0.575    | 1.299 |
-|2  |   {Pizza/Italian}    |  {Temperature}  |  0.012  |   0.556    | 1.256 |
+|2  |   {Pizza/Italian}    |  {Temperature}  |  0.012  |   0.556    | 1.257 |
 
 ## arulesViz plots
 
