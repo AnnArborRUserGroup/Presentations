@@ -21,7 +21,20 @@ This is some content.
  - notice how these display one-at-a-time?
  - set `incremental: no` in the YAML header to render all bullets at once
 
-# A seperation slide
+# Look, a New Section!
 
-## Now it's like we're in a new section!
+## What about code? {.build}
+The great thing about RMarkdown is including code which will be ran when this document is knit. You can have inline code: tomorrow's date is `r Sys.Date()+1`, or blocks of code ("code chunks"):
+
+````{r}
+today    <- Sys.Date()
+tomorrow <- today + 1
+print(tomorrow)
+````
+
+See how it displays the code and the results? You can add chunk arguments (next to the `r` in brackets) to do many things, like hide the code or output, set figure dimensions, cache results, etc.
+
+Notice the `{.build}` next to the slide title; this acts like the `incremental: yes` header option, but applies to non-bulleted lines as well.
+
+## Further Reading
 Learn more about markdown [here](http://rmarkdown.rstudio.com/)
