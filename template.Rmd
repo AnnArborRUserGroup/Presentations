@@ -1,0 +1,27 @@
+---
+title: "Something about R"
+subtitle: "Ann Arbor R User Group"
+author: "Your Name"
+date: "Jan 1, 1970"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: yes
+---
+
+## This is a slide header
+This is some content.
+
+ - here's
+ - some
+ - more
+
+## This is another slide
+ - nothing to see here
+ - notice how these display one-at-a-time?
+ - set `incremental: no` in the YAML header to render all bullets at once
+
+# A seperation slide
+
+## Now it's like we're in a new section!
+Learn more about markdown [here](http://rmarkdown.rstudio.com/)
