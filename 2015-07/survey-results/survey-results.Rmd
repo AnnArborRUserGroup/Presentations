@@ -1,0 +1,38 @@
+---
+title: "Survey Results"
+output: 
+  ioslides_presentation:
+    widescreen: true
+
+---
+
+## Meeting Time  
+### Equal votes for Tues, Wed, Thurs 7-9 pm
+
+## Topics our group is interested in 
+- Statistical Analysis
+- Causal Inference
+- Shiny
+- Machine Learning  
+- Rcpp
+- Optimization
+- Spatial
+- Data Visualizations
+- Network Analysis
+
+## Topics people would be willing to present on
+- Multilevel modeling
+- Rcpp
+- shiny/shinydashboard
+- Rocker
+- Sage
+- parallel/foreach
+- Text Mining
+- Regularization
+- Record Linkage
+- h2o
+- Feature Engineering
+
+## Suggestions for the future
+- speed topics
+- what fields & projects other people work on
