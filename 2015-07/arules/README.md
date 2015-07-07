@@ -1,11 +1,11 @@
-# Arules Presentation
+## Arules Presentation
 
 Download the html file to view the presentation
 
-# Full Execution of the Example
+## Full Execution of the Example
 
-## Required Packages:
-readr, dplyr, tidyr, arules, arulesViz
+### Required Packages:
+**readr, dplyr, tidyr, arules, arulesViz**
 
 1. Clone the repo to a local folder
 2. Open and execute User_AA_Arules.Rmd
@@ -14,7 +14,7 @@ readr, dplyr, tidyr, arules, arulesViz
 4. The expensive steps of the markdown file are cached
     - Delete the User_AA_Arules_cache file to fully re-run
 
-## Notes
+### Notes
 
 Most of the code to run the example is stored in:
 
