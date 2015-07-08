@@ -65,10 +65,8 @@ the first argument of the right-hand side, or where it finds a *`.`*
 Example using `head(x, ...)`
 
 ```{r}
-df <- data.frame(x1=rnorm(100),x2=rnorm(100),x3=rnorm(100))
-
-df %>% head(1)  # same as using head(df,1)
-df %>% head(.,1)  # same as using head(df,1)
+mtcars %>% head(.,2)  # same as using head(mtcars,2)
+mtcars %>% head(2)     # same as using head(mtcars,2)
 ```
 
 ## Slightly more complicated example
@@ -81,6 +79,7 @@ mtcars %>%
   ggplot(.,aes(x=gear,y=carb,size=Freq)) +
   geom_point()
 ```
+
 ## Even more complicated example
 
 ```{r, eval=FALSE}
@@ -126,6 +125,7 @@ iris %>%
 
 - Similar to `with()` or `attach()`  
 - Useful for functions that don't take a data parameter
+- Can execute several statements by wrapping them in `{}`
 
 ## %$% The exposition operator
 ```{r}
@@ -162,9 +162,9 @@ df %<>% arrange(col1)
 df
 ```
 
-## Issues to be aware of
+## Other things to be aware of
 
-- Shortcut for `%>%`: Ctrl-m
+- Shortcut for `%>%`: Ctrl+Shift+m
 - `?%>%` does not work, use `?'%>%'`
 - `df %>% .something. %>% sytem.time` does not work
 
@@ -177,4 +177,3 @@ df
 
 
 # Thank You
-
