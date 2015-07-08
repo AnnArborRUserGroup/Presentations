@@ -71,7 +71,7 @@ mtcars %>% head(2)     # same as using head(mtcars,2)
 
 ## Slightly more complicated example
 
-```{r,fig.height=5,fig.width=5,fig.align='center'}
+```{r,fig.height=3.5,fig.width=5,fig.align='center'}
 library(ggplot2)
 mtcars %>%
   xtabs(~gear+carb,data=.) %>% 
