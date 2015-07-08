@@ -1,0 +1,133 @@
+body, td {
+   font-family: 'Latin Modern Sans', sans-serif;
+   background-color: white;
+   font-size: 14px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'Latin Modern Mono', monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+   font-size: 48px;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+   font-size: 48px;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+.big-everything .reveal ul,
+.big-everything .reveal li,
+.big-everything .reveal pre code {
+  font-size:38px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+.big-text .reveal ul,
+.big-text .reveal li,
+.big-text .reveal pre code {
+  font-size:38px;
+}
+.big-text .reveal h,
+.big-text .reveal h1,
+.big-text .reveal h2,
+.big-text .reveal h3,
+.big-text .reveal h4 {
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.final-slide .reveal h1 {
+  font-size:250px;
+  text-align:center;
+  vertical-align:center;
+}
+.big-list li {
+  font-size:64px;
+  padding-bottom: 90px;
+  padding-top: 94px;
+}
+.medium-list li {
+  font-size:64px;
+  padding-bottom: 64px;
+  padding-top: 64px;
+}
+.footer {
+    color: black;
+    background: #E8E8E8;
+    position: fixed;
+    top: 90%;
+    text-align:center;
+    width:100%;
+}
+.small-code pre {
+  font-size: 12px;
+}
+.medium-code pre code {
+  font-size: 36px;
+}
+.large-code pre code {
+  font-size: 48px;
+}
+.left-small-code pre code {
+  font-size: 45px;
+  position: fixed;
+  left:0%;
+}
+

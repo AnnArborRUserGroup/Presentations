@@ -1,0 +1,180 @@
+---
+title: "magrittr"
+author: "Rob Weyant"
+date: "robert.weyant@gmail.com"
+output: 
+  ioslides_presentation:
+    widescreen: true
+    css: magrittr_custom.css
+---
+
+
+## Overview
+
+### {magittr} provides 4 special operators
+
+- `%>%` - pipe operators
+- `%T>%` - tee operator
+- `%$%` - exposition operator
+- `%<>%` - compound assignment pipe operator
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+library(magrittr,quietly=T)
+library(dplyr,quietly=T)
+```
+
+## Other Special Operators in R
+
+- `%*%` - matrix multiplication, `x %*% y`
+- `%in%` - compound assignment pipe operator
+- `%o%` - outer product, `outer()`
+- `%x%` - Kronecker product, `kronecker()`
+- `%/%` - integer division
+- `%%` - modulus operator
+
+## The Problem
+#### R code can get hard to read
+  
+<br>
+```{r, eval=FALSE}
+### <b>
+sapply(iris[iris$Sepal.Length < mean(iris$Sepal.Length),-5],FUN = mean)
+### </b>  
+```
+<br>
+```{r,eval=FALSE}
+### <b>
+eval(call(paste("func",as.character(i),as.character(alpha+1),sep=".")),(x*(1+f*odds)))
+### </b>
+```
+
+
+## A (Possible) Solution - the pipe %>% {.build} 
+
+- Similar to Unix pipe <b>|</b>
+- Code can be written in the order of execution, left to right
+- <b>`%>%`</b> will "pipe" information from one statement to the next  
+  * <b>`x %>% f`</b> is equivalent to <b>`f(x)`</b>  
+  * <b>`x %>% f(y)`</b> is equivalent to <b>`f(x,y)`</b>  
+  * <b>`x %>% f %>% g %>% h`</b> is equivalent to <b>`h(g(f(x)))`</b>  
+
+## What %>% is doing
+
+The <b>`%>%`</b> is taking the output of the left-hand side and using that for
+the first argument of the right-hand side, or where it finds a *`.`*  
+
+Example using `head(x, ...)`
+
+```{r}
+df <- data.frame(x1=rnorm(100),x2=rnorm(100),x3=rnorm(100))
+
+df %>% head(1)  # same as using head(df,1)
+df %>% head(.,1)  # same as using head(df,1)
+```
+
+## Slightly more complicated example
+
+```{r,fig.height=5,fig.width=5,fig.align='center'}
+library(ggplot2)
+mtcars %>%
+  xtabs(~gear+carb,data=.) %>% 
+  as.data.frame %>% 
+  ggplot(.,aes(x=gear,y=carb,size=Freq)) +
+  geom_point()
+```
+## Even more complicated example
+
+```{r, eval=FALSE}
+# Generate some sample data.
+df <-
+    data.frame(
+        Price    = 1:100 %>% sample(replace = TRUE),
+        Quantity = 1:10  %>% sample(replace = TRUE),
+        Type     =
+            0:1 %>%
+            sample(replace = TRUE) %>%
+            factor(labels = c("Buy", "Sell"))
+    ) 
+```
+[Source](http://www.r-statistics.com/2014/08/simpler-r-coding-with-pipes-the-present-and-future-of-the-magrittr-package/)
+
+
+## The combination of %>% with {dplyr}
+
+ - `filter()`
+    - `iris[iris$Species=='setosa',]`
+ - `group_by()`
+ - `summarise()`/`summarize()`
+    - `mean(iris$Sepal.Length)`
+ - `arrange()`
+    - `iris[order(iris$Sepal.Length),]`
+ - `mutate()`
+    - `iris$new.var <- iris$Sepal.Length * iris$Sepal.Width`
+ - `select()`
+    - `iris[,c('Sepal.Length','Sepal.Width')]`
+
+## The combination of %>% with {dplyr}
+```{r}
+sapply(iris[iris$Sepal.Length < mean(iris$Sepal.Length),-5],FUN = mean)
+iris %>% 
+  mutate(avg.length=mean(Sepal.Length)) %>% 
+  filter(Sepal.Length<avg.length) %>% 
+  select(-Species,-avg.length) %>%
+  summarise_each(funs(mean))
+```
+
+## %$% The exposition operator
+
+- Similar to `with()` or `attach()`  
+- Useful for functions that don't take a data parameter
+
+## %$% The exposition operator
+```{r}
+library(datasets)
+table(CO2$Treatment,CO2$Type)
+# with(CO2,table(Treatment,Type))
+CO2 %$% table(Treatment,Type)
+```
+
+## %T>% The Tee Operator
+
+- Allows a "break" in the pipe.  
+- Executes right-hand side of `%T>%`, but will continue to pipe through to next statement
+
+## %T>% The Tee Operator
+
+```{r, fig.align='center',fig.height=2.7,fig.width=5}
+iris %>%
+  filter(Species != 'virginica') %>% 
+  select(Sepal.Width,Sepal.Length) %T>%
+  plot %>%  # Make scatterplot and keep going
+  colMeans
+```
+
+## %<>% The Compound Assignment Operator
+- Combines a pipe and an assignment operator
+- Think <b>`i++`</b> or <b>`x+=z`</b> from the C family, Python, Ruby, etc.
+
+## %<>% The Compound Assignment Operator
+```{r}
+df <- rexp(5,.5) %>% data.frame(col1=.)
+df
+df %<>% arrange(col1)
+df
+```
+
+## Issues to be aware of
+
+- Shortcut for `%>%`: Ctrl-m
+- `?%>%` does not work, use `?'%>%'`
+- `df %>% .something. %>% sytem.time` does not work
+
+## Links
+
+- [magrittr on GitHub](https://github.com/smbache/magrittr)  
+- [dplyr and pipes: the basics](http://seananderson.ca/2014/09/13/dplyr-intro.html)
+- [pipeR vs. magrittr](http://renkun.me/blog/2014/08/08/difference-between-magrittr-and-pipeR.html)
+
+
+
+# Thank You
+
