@@ -171,6 +171,7 @@ class(sm2)
 
 `r nrow(rf)` rules were generated.  The top 5 are:
 ```{r, echo=FALSE, message=F, warning=F, results='asis'}
+require(arulesViz)
 knitr::kable(rf[1:5,1:5], format='markdown',digits=c(3,3),padding=1, align='c')
 ```
 
@@ -196,6 +197,10 @@ plot(rules,method="graph")
 - Right-censored, events *after* the event of interest are ignored
 - arulesSequences::cspade()
 - Parameters are similar: support, size, gap, window
+
+<div class="centered">
+![Sequence Pattern](images/sequence.jpg)
+</div>
 
 ## Resources
 

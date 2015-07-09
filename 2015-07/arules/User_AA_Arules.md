@@ -207,6 +207,10 @@ plot(rules,method="graph")
 - arulesSequences::cspade()
 - Parameters are similar: support, size, gap, window
 
+<div class="centered">
+![Sequence Pattern](images/sequence.jpg)
+</div>
+
 ## Resources
 
 **Christian Borgelt's website**

@@ -1,6 +1,6 @@
 ## Arules Presentation
 
-[Arules Presentation Link](https://rawgit.com/AnnArborRUserGroup/Presentations/master/2015-07/arules/User_AA_Arules.html)
+[Arules Presentation Link](https://cdn.rawgit.com/AnnArborRUserGroup/Presentations/master/2015-07/arules/User_AA_Arules.html)
 
 ## Full Execution of the Example
 
