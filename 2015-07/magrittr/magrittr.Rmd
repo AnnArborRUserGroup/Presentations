@@ -25,11 +25,11 @@ library(dplyr,quietly=T)
 ## Other Special Operators in R
 
 - `%*%` - matrix multiplication, `x %*% y`
-- `%in%` - compound assignment pipe operator
+- `%in%` - value matching
+- `%%` - modulus operator
 - `%o%` - outer product, `outer()`
 - `%x%` - Kronecker product, `kronecker()`
 - `%/%` - integer division
-- `%%` - modulus operator
 
 ## The Problem
 #### R code can get hard to read
@@ -39,12 +39,6 @@ library(dplyr,quietly=T)
 ### <b>
 sapply(iris[iris$Sepal.Length < mean(iris$Sepal.Length),-5],FUN = mean)
 ### </b>  
-```
-<br>
-```{r,eval=FALSE}
-### <b>
-eval(call(paste("func",as.character(i),as.character(alpha+1),sep=".")),(x*(1+f*odds)))
-### </b>
 ```
 
 
@@ -100,16 +94,10 @@ df <-
 ## The combination of %>% with {dplyr}
 
  - `filter()`
-    - `iris[iris$Species=='setosa',]`
- - `group_by()`
- - `summarise()`/`summarize()`
-    - `mean(iris$Sepal.Length)`
+ - `summarize()`
  - `arrange()`
-    - `iris[order(iris$Sepal.Length),]`
  - `mutate()`
-    - `iris$new.var <- iris$Sepal.Length * iris$Sepal.Width`
- - `select()`
-    - `iris[,c('Sepal.Length','Sepal.Width')]`
+
 
 ## The combination of %>% with {dplyr}
 ```{r}
