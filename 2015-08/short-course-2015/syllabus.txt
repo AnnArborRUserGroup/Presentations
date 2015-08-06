@@ -1,0 +1,280 @@
+My bits:
+
+SUNDAY
+
+AM: Intro to Bayes (Bob)
+--------------------
+* What is Bayesian Data Analysis?
+* Bayes's Rule: Likelihood, Prior, and Posterior
+* Bayes for Making Predictions and Decisions under Uncertainty
+
+PM: Components of a Stan Program (Bob)
+----------------------------------
+* Basic Data Types and Variable Declarations
+* Variable Constraints and Transform to Unconstrained Scale
+* Program Blocks and Execution: Data, Parameters, Model, 
+  Derived Quantities
+* Functions and Operators
+* Basic Statements: sampling, assignment, loops, conditionals, 
+  blocks
+* Debugging and Error Handling: print and reject statements
+* Matrices, Vectors, and Linear Algebra
+* Probability Function Library and Vectorization
+* User-Defined Functions
+* Solving Ordinary Differential Equations (ODE)
+
+MONDAY
+AM:   Computation with Monte Carlo Methods (Bob)
+------------------------------------------------
+* Monte Carlo Methods and accuracy bounds
+* Markov chain Monte Carlo (MCMC)
+* Convergence and Effective Sample Size
+* Gibbs Sampling
+* Metropolis-Hastings Sampling
+* Hamiltonian Monte Carlo (HMC)
+* No-U-Turn Sampler (NUTS)
+* Riemannian HMC and Geometric NUTS
+
+PM: Computation and Inference in Stan (Bob)
+-------------------------------------------
+* Hamiltonian Monte Carlo for Full Bayesian Inference
+* L-BFGS Optimization for Maximum Likelihood
+* Automatic Differentiation for Gradients
+* Warmup, Adaptation, and Convergence
+* Variable Transforms for Efficiency
+* Identifiability and Problematic Posteriors
+
+TUESDAY
+
+AM: Vectors, matrices, and transformations
+------------------------------------------
+
+PM:  Bayesian Computation for Big Data (Bob)
+---------------------------------------------
+* Maximum a Posteriori Estimation (MAP)
+* Laplace Approximation for Uncertainty
+* Maximum Marginal Likelihood (MML) for Hierarchical Models
+* (Black Box) Expectation Propagation: data parallelism
+* (Black Box) Variational Inference: data streaming
+
+
+
+-----------------------------------------------------------
+
+That's what I was planning on, but I'm ok with the swaps that Bob outlined. 
+
+And for whatever reason, the email has more detail. 
+
+On Thursday, July 16, 2015, Andrew Gelman <gelman@stat.columbia.eduwrote:
+See plan here:
+http://andrewgelman.com/2015/07/07/short-course-on-bayesian-data-analysis-and-stan-19-21-july-in-nyc/
+More details are in Bob’s old email.  I think the plan is, for each 3-hour module:  Bob, Daniel, Andrew in that order.
+A
+
+On Jul 16, 2015, at 3:47 PM, Daniel Lee <bearlee@alum.mit.edu wrote:
+
+On Thu, Jul 16, 2015 at 2:32 PM, Bob Carpenter <carp@alias-i.com wrote:
+Daniel:
+
+Who's teaching which module (Andrew's bits are clear)?
+I'm going to annotate below with what I think it will be, but let
+me know if it's not what you expect.
+
+Sure. I'm adding comments below.
+
+I missed Andrew's email somehow. It has more detail than what I was working off of. Although... I probably just lost it in the move. No matter, we can continue as planned.
+ 
+ 
+Also, I think we need to explicitly have a piece to talk about
+mixtures and marginalization of discrete parameters.  I can
+do that bit if we can figure out where to put it.  Maybe that'd
+be better than naive Bayes?  Naive Bayes is easy for the supervised
+case, but the unsupervised case requires marginalization.
+
+Agreed. Can't we have that with the "mixture models" section?
+
+
+- Bob
+
+P.S.  The talk here at PPAML went really well.  Everyone's
+fascinated by the fact that we have actual users.  And it's
+great to finally be able to put faces to all these people I've
+e-mailed with.
+
+Sweet!
+ 
+
+
+ On Jul 8, 2015, at 11:26 AM, Andrew Gelman <Gelman@stat.columbia.edu wrote:
+
+
+Sunday, July 19: Introduction to Bayes and Stan
+
+Morning:
+
+Intro to Bayes (Bob)
+* What is Bayesian Data Analysis?
+* Bayes's Rule: Likelihood, Prior, and Posterior
+* Bayes for Making Predictions and Decisions under Uncertainty
+
+Intro to Stan (Daniel)
+* Supporting Reproducible Research
+* Imperative Probabilistic Programming
+
+I'll also cover basic use of RStan.
+
+Here are my notes for the intro to Stan:
+- Explain relationship between Bayesian inference and Stan. Stan samples
+  from the posterior distribution.
+- Mechanism. Statistical model -Stan program -C++ class
+    -RStan callable function -correlated draws from the posterior distribution
+- RStan usage.
+- Manual usage.
+Skills:
+- (FTL) Simple bernoulli example
+  + Start R.
+  + library(rstan)
+  + show model
+  + generate data
+  + write the model
+  + fit the model.
+  + analyze the results
+  + repeat the generate and fit process a couple times. (variations: read from data file.)
+  + sampler params
+- (drill) Hand over 10 statistical models.
+  + First 5: Provide Stan programs.
+  + Provide data.
+  + List of questions that can be answered by doing this
+  + Next 5: Provde descriptions, start of Stan programs (data and parameter blocks).
+  +   Goal: Look at manual for parameterizations.
+  + List of questions that can be answered by doing this
+- (exercise) 
+  + take output samples and calculate some integrals?
+
+Teaser:
+- throw up a hierarchical model
+
+ 
+
+The Statistical Crisis in Science (Andrew)
+* Can we use Bayesian methods to resolve the current crisis of statistically significant research findings that don't hold up
+
+Afternoon:
+
+For the afternoon, I had the assignments were swapped, but I'm ok with it. Should we swap the order of the afternoon components so the examples come after the components?
+
+Or... we can break apart the Components of a Stan Program apart into two. That seems like a lot. Are people able to absorb that much in an hour?
+ 
+Stan by Example (Daniel)
+* Simple Binomial Example
+* Naive Bayes Model for Classification
+* Naive Bayes with Semi-Supervised Learning
+* Naive Bayes for Unsupervised Clustering
+* Simple Linear Regression Example
+
+Components of a Stan Program (Bob)
+* Basic Data Types and Variable Declarations
+* Variable Constraints and Transform to Unconstrained Scale
+* Program Blocks and Execution: Data, Parameters, Model, Derived Quantities
+* Functions and Operators
+* Basic Statements: sampling, assignment, loops, conditionals, blocks
+* Debugging and Error Handling: print and reject statements
+* Matrices, Vectors, and Linear Algebra
+* Probability Function Library and Vectorization
+* User-Defined Functions
+* Solving Ordinary Differential Equations (ODE)
+
+Little data (Andrew)
+* how traditional statistical ideas remain relevant in a big data world
+
+
+
+Monday, July 20: Computation, Monte Carlo and Applied Modeling
+
+Morning:
+
+Bob, want Debugging in Stan to go first in the morning? I'm thinking of two reasons:
+1) It's early. It's not going to hurt me to be there early.
+2) It's skills based and it won't require any real math. I think.
+ 
+
+Computation with Monte Carlo Methods (Bob)
+* Monte Carlo Methods and accuracy bounds
+* Markov chain Monte Carlo (MCMC)
+* Convergence and Effective Sample Size
+* Gibbs Sampling
+* Metropolis-Hastings Sampling
+* Hamiltonian Monte Carlo (HMC)
+* No-U-Turn Sampler (NUTS)
+* Riemannian HMC and Geometric NUTS
+
+Debugging in Stan (Daniel)
+
+- compiler vs runtime errors
+- runtime error: print to debug
+- runtime error: reject; effect on code.
+
+- common issues:
+  + support not matching constraint
+  + not defining constrained parameters
+  + checking data
+  + slow sampling: add weakly informative priors
+  + reparameterizations (NCP)
+
+- (FTL): broken code
+- (FTL): broken data
+- (FTL): wrong types
+- (FTL): bad calls to distributions
+ 
+
+Generalizing from Sample to Population (Andrew)
+
+Afternoon:
+
+Multilevel Regression and Generalized Linear Models (Daniel)
+* Models for Scalar Data (linear regression)
+* Models for Boolean Data (logistic regression)
+* Models for Count Data and Overdispersion (Poisson regression)
+* No Pooling, Full Pooling, and Partial Pooling
+* General Multilevel Modeling
+* Recommended Priors for coefficients and (co)variance 
+
+Computation and Inference in Stan (Bob)
+* Hamiltonian Monte Carlo for Full Bayesian Inference
+* L-BFGS Optimization for Maximum Likelihood
+* Automatic Differentiation for Gradients
+* Warmup, Adaptation, and Convergence
+* Variable Transforms for Efficiency
+* Identifiability and Problematic Posteriors
+
+Why We Don't (Usually) Have to Worry about Multiple Comparisons (Andrew)
+
+
+Tuesday, July 21: Advanced Stan and Big Data
+
+Morning:
+
+Vectors, matrices, and transformations (Bob)
+
+Mixture models and complex data structures in Stan (Daniel)
+
+This is where we can discuss marginalization with examples.
+ 
+
+Hierarchical Modeling and prior information (Andrew)
+* an example from toxicology and drug testing
+
+Afternoon:
+
+Bayesian Computation for Big Data (Bob)
+* Maximum a Posteriori Estimation (MAP)
+* Laplace Approximation for Uncertainty
+* Maximum Marginal Likelihood (MML) for Hierarchical Models
+* (Black Box) Expectation Propagation: data parallelism
+* (Black Box) Variational Inference: data streaming
+
+Advanced Stan programming (Daniel) 
+
+Open problems in Bayesian data analysis (Andrew)
+
+
