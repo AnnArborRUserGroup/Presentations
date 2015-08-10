@@ -1,0 +1,70 @@
+\usepackage[
+scale=0.875,
+stdmathitalics=true,
+stdmathdigits=true]{lucimatx}
+\linespread{1.02}
+% \usepackage{helvet}
+
+\usepackage{fancyvrb}
+\usepackage{amsmath}
+% \usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\definecolor{linkcolor}{RGB}{0,0,128}
+\usepackage[pagebackref,pdfpagelabels,plainpages=false,hypertexnames=true,colorlinks=true,linkcolor=linkcolor,anchorcolor=linkcolor,citecolor=linkcolor,filecolor=linkcolor,menucolor=linkcolor,runcolor=linkcolor,urlcolor=linkcolor,pdfborder={0 0 0}]{hyperref}
+
+
+\setlength{\paperheight}{3in}
+\setlength{\paperwidth}{4in}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
+
+\setlength{\textwidth}{3.75in}
+\setlength{\textheight}{2.5in}
+
+\setlength{\oddsidemargin}{-1.0in}
+\setlength{\evensidemargin}{-1.0in}
+\setlength{\topmargin}{-1.25in}
+
+\newcommand{\sld}[1]{\newpage{\noindent\LARGE \ \ \
+    \textcolor{MidnightBlue}{\bfseries #1}}\vspace*{4pt}\normalsize}
+
+\newcommand{\code}[1]{{\tt #1}}
+\newcommand{\spc}{\hspace*{0.25in}}
+
+\newcounter{gmlrx}
+\newcounter{gmlry}
+\newcommand{\gmnode}[3]{\put(#1,#2){\circle{20}}\put(#1,#2){\makebox(0,0){$#3$}}}
+\newcommand{\gmplate}[5]{
+  \setcounter{gmlrx}{#1}\addtocounter{gmlrx}{#3}
+  \setcounter{gmlry}{#2}\addtocounter{gmlry}{-#4}
+  \put(#1,#2){\line(1,0){#3}}
+  \put(#1,#2){\line(0,-1){#4}}
+  \put(\value{gmlrx},\value{gmlry}){\line(-1,0){#3}}
+  \put(\value{gmlrx},\value{gmlry}){\line(0,1){#4}}
+  \setcounter{gmlrx}{#1}\addtocounter{gmlrx}{5}
+  \setcounter{gmlry}{#2}\addtocounter{gmlry}{-6}
+  \put(\value{gmlrx},\value{gmlry}){\makebox(0,0){$#5$}}
+}
+
+\newcommand{\myemph}[1]{{\color{MidnightBlue}{\bfseries #1}}}
+\newcommand{\mypart}[2]{{\newpage 
+    \mbox{ }
+    \vfill
+    \noindent\spc\color{MidnightBlue}{\LARGE\bfseries #1\\[10pt]\spc\Huge{#2}}
+    \vfill\vfill}
+  \mbox{ }}
+
+\newenvironment{subitemize}{\vspace*{-4pt}\begin{itemize}\small}{\end{itemize}}
+\newenvironment{subsubitemize}{\begin{itemize}\footnotesize}{\end{itemize}}
+
+\newcommand{\bigoh}[1]{{\mathcal{O}}(#1)}
+\newcommand{\distro}[1]{\text{\sf #1}}
+\newcommand{\Prob}[1]{\text{\sf Pr}[#1]}
+\newcommand{\range}[2]{#1{:}#2}
+\newcommand{\setcomp}[1]{\{ #1 \}}
+\newcommand{\argmax}{\mbox{arg\,max}}
+\newcommand{\argmin}{\mbox{arg\,min}}
+\newcommand{\expectation}[1]{\mathbb{E}[#1]}
+\newcommand{\Betafun}{{\text B}}
+\newcommand{\indicator}[1]{\text{I}[#1]}
