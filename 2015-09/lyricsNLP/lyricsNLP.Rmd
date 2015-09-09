@@ -164,7 +164,7 @@ get_corpus <- function(artist, apikey){
 #collection <- get_corpus(artist, apikey)
 #write.table(collection$lyrics, file = "lyrics.txt", sep = "", row.names = F, quote = F)
 
-collection <- read_lines("lyrics.txt")
+collection <- read_lines("working/lyrics.txt")
 
 ```
 
@@ -210,7 +210,7 @@ lyrics <- tryCatch(xmlToDataFrame(nodes=getNodeSet(xml, "//lyrics_body")),
 ```
 
 
-##
+## Creating a collection of lyrics
 ```{r, eval=FALSE}
 get_corpus <- function(artist, apikey){
   
@@ -243,7 +243,7 @@ other <- c("instrumental","fuck","fucking","get","shit","fucker","asshole","fuck
 ```{r, eval=FALSE}
 removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
 
-collection %<>% sapply(., function(x) str_replace_all(x, "[^[:alnum:] ]", ""))
+collection$lyrics %<>% sapply(., function(x) str_replace_all(x, "[^[:alnum:] ]", ""))
 
 custom_stopwords <- c(stopwords("english"), other) %>%
   sapply(., function(x) gsub("[[:punct:]]", "", x), simplify = "array", USE.NAMES = F)
