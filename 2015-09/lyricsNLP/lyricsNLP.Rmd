@@ -194,7 +194,7 @@ Then, create functions to access musiXmatch API:
   - requires API key
   - artist search to get ID
   - get all album IDs
-  - using artist ID and track IDs, get track IDs
+  - using artist ID and album IDs, get track IDs
   - get lyrics from track IDs
 
 ```{r, eval=FALSE}
@@ -352,7 +352,7 @@ plot(tdm,
 ## k-means clustering
 
   - unsupervised learning
-  - classify __n__ documents into __k__ clusters  
+  - group __n__ documents into __k__ clusters  
 
 ![kmeans](figs/kmeans.png)
 
@@ -528,6 +528,6 @@ gensim: https://radimrehurek.com/gensim/index.html
 
 word2vec demystified: http://alexminnaar.com/  
 
-major R packages: ```tm```, ```topicmodels```, ```slam```, ```wordcloud```  
+major R packages: ```tm```, ```topicmodels```, ```slam```  
 
 ![comic](figs/xkcd_swiftkey.png)
