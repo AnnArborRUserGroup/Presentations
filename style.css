@@ -1,0 +1,16 @@
+.Results {
+  font-size: 14pt;
+  color:black;
+}
+
+.codefont pre {
+  color: blue;
+  font-size: 12px;
+  line-height: 12px;
+}
+
+.codefont2 pre {
+  color: blue;
+  font-size: 14px;
+  line-height: 14px;
+}

@@ -1,0 +1,384 @@
+---
+title: "Propensity Score Matching"
+author: "Alex Lishinski"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  ioslides_presentation:
+    css: style.css
+  
+---
+
+---
+
+## Matching Packages
+
+MatchIt and optmatch implement matching methods, RItools implements covariate balance checking methods.
+
+```{r, echo = F}
+setwd("/home/alex/Dropbox/R Alex Files")
+```
+
+
+```{r, results = 'hide', warning = FALSE, message = FALSE}
+library(MatchIt)
+library(optmatch)
+library(RItools)
+library(haven)
+library(dplyr)
+library(effsize)
+library(kSamples)
+```
+
+---
+
+## Propensity score matching:
+
+**What is it?**
+
+A method for causal inference in observational studies whereby observations are matched on known covariates to create 'treatment' and 'control' groups that simulate the effects of random assignment (with respect to measured covariates).
+
+**What types of problems is it useful for?**
+
+Causal inference problems where random assignment to treatment groups is infeasible/impossible:
+
+Examples: 
+
+* Honors college vs non-honors college students (Honors college admissions based on covariates)
+* Smokers vs Non-smokers (Can't assign some people to smoke for decades)
+* The effectiveness of alcoholics anonymous (Self-selection bias)
+
+---
+
+## What are propensity scores? {.Results}
+
+**Propensity scores are the conditional probability of exposure to treatment given observed covariates.**
+
+**In random assignment:**
+All individuals have a value of .5 for their propensity scores by definition
+Their covariates are not useful for predicting treatment assignment.  
+This is the benefit of random assignment, that covariate distributions are balanced between treatment and control groups. 
+
+**In Observational studies:**
+It is infeasible to assign individuals to treatments
+Propensity scores for different covariates and combinations thereof are not equal between groups.
+Causal inference is inhibited by unequal covariate balance; covariates may be related to outcomes.
+
+Matching on propensity scores balances observed covariates in the manner that would be expected from random treatment assignment.
+Ability to draw causal inferences on the basis of observational data is improved.
+
+---
+
+## Propensity score estimation 
+
+**How are propensity scores estimated?**
+
+Logistic regression of treatment assignment on the chosen covariates is used to determine the likelihood of selection to treatement based on the observed covariates.
+
+Matching methods also use different distance metrics:
+
+* Mahalanobis distance
+* Euclidean distance 
+* Any other specifiable distance metric
+
+Propensity score calipers often used to control quality of matches when using other distance metrics
+
+---
+
+## Types of propensity score matching techniques:
+
+* Exact Matching (control unit is exactly the same as treatment; often not plausible)
+* Nearest neighbor / Pairmatch
+* K nearest neighbor / Fullmatch / Optmatch
+* Genetic Matching
+* Propensity Score Weighting
+
+---
+
+## Options for PSA in R: {.Results}
+
+**Matchit (easiest to use, most user-friendly package, but nevertheless offers more advanced options, uses greedy matching algorithm by default)**
+
+From Matchit website:
+
+Matchit enables parametric models for causal inference to work better by selecting well-matched subsets of the original treated and control groups. MatchIt implements the suggestions of Ho, Imai, King, and Stuart (2004). MatchIt implements a wide range of sophisticated matching methods, making it possible to greatly reduce the dependence of causal inferences on statistical modeling assumptions. After preprocessing with MatchIt, researchers can use whatever parametric model they would have used, but produce inferences with substantially more robustness and less sensitivity to modeling assumptions.
+
+**Optmatch (less user-friendly, offers more accessibility to functions and customizability, uses optimal matching algorithm by default)**
+
+From optmatch documentation:
+
+Provides routines for distance based bipartite matching to reducecovariate imbalance between treatment and control groups in observational studies. Routines are provided to generate distances from GLM models (propensity score matching) and formulas (Euclidean and Mahalanobis matching), stratified matching (exact matching), and calipers. Results of the fullmatch routine are guaranteed to provide minimum average within matched set distance.
+
+---
+
+## 1-to-1 nearest neighbor matching with Matching:
+
+Dataset: ~22000 students from large university, of whom 266 part of ASP program.  Data on everything from entering characteristics to end of college outcomes. Covariates determine ASP program participation.
+
+```{r, echo = F}
+hcdata <- read_sav(path = "HC v. All MSU Dataset Deidentified ACTRedone.sav")
+```
+
+```{r}
+modeldata <- data.frame(hcdata$ASPSCLR, hcdata$Best_ACT_Comp, 
+                        hcdata$HSGPA, hcdata$incomingcreditstotal, 
+                        hcdata$gndr_flag, hcdata$ID, 
+                        hcdata$CumGPAendmostrecentUNterm, 
+                        hcdata$`@12yrretention`)
+
+colnames(modeldata)[1] <- "ASPSCLR"
+colnames(modeldata)[5] <- "gender"
+modeldataOmitNA <- na.omit(modeldata)
+```
+
+---
+
+## Nearest Neighbor Matching.
+
+matchit function is the main function for matching. 
+
+Arguments include:
+
+* method: matching method ("exact", "genetic", "nearest", "optimal")
+* distance: distance metric ("logit", "mahalanobis", "euclidean")
+
+
+```{r}
+matches <- matchit(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA + 
+                  hcdata.incomingcreditstotal + gender, 
+                  data = modeldataOmitNA)
+
+matchedPairs <- match.data(matches)
+```
+
+match.data function creates new data frame with only the treatment and matched control observations, measured propensity score, distance metric (if different), and weights.
+
+---
+
+## Pair Matching Results {.codefont}
+<div class="columns-2">
+```{r}
+summary(matches)
+```
+</div>
+
+---
+
+## Covariate Balance: before/after {.codefont2 .Results}
+
+Before
+
+```{r}
+RItools::xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + 
+                  hcdata.HSGPA + hcdata.incomingcreditstotal + 
+                  gender, data = modeldataOmitNA)
+```
+
+After
+
+```{r}
+RItools::xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + 
+                  hcdata.HSGPA + hcdata.incomingcreditstotal + 
+                  gender, 
+                  data = matchedPairs)
+```
+
+---
+
+## Checking Covariate Balance: QQ-Plots
+
+```{r, fig.height = 3}
+plot(matches)
+```
+
+---
+
+## Checking Covariate Balance: Jitter Plots
+
+```{r}
+plot(matches, type = "jitter")
+```
+
+---
+
+## Checking Covariate Balance: Histograms
+
+```{r}
+plot(matches, type = "hist")
+```
+
+---
+
+## Comparing propensity score distributions 
+
+Kolmogorov-Smirnov test for distributions of propensity scores
+
+```{r}
+asp <- dplyr::filter(matchedPairs, ASPSCLR == 1)
+nonasp <- dplyr::filter(matchedPairs, ASPSCLR == 0)
+allcont <- dplyr::filter(modeldataOmitNA, ASPSCLR == 0)
+
+#ks.test(asp$pptyScore, allcont$pptyScore)
+#ks.test(asp$pptyScore, nonasp$pptyScore)
+
+#ad.test(asp$pptyScore, allcont$pptyScore)
+#ad.test(asp$pptyScore, nonasp$pptyScore)
+
+```
+
+---
+
+## Follow-up analysis: Outcomes {.codefont2 .Results}
+
+T-test: Cumulative GPA, ASP vs non-ASP, unmatched data
+
+```{r}
+t.test(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, 
+       data = modeldataOmitNA)
+```
+
+T-test: Cumulative GPA, ASP vs non-ASP, matched data
+
+```{r}
+t.test(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR , 
+       data = matchedPairs)
+```
+
+```{r}
+cohen.d(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, modeldataOmitNA)
+cohen.d(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, matchedPairs)
+```
+
+---
+
+## Follow-up analysis: Outcomes {.codefont2 .Results}
+
+<div class="columns-2">
+
+Chi-squared test of 2nd year Retention Outcome
+
+Unmatched
+
+```{r}
+chisq.test(modeldataOmitNA$ASPSCLR, 
+           modeldataOmitNA$hcdata...12yrretention.)
+```
+
+Matched
+
+```{r}
+matchedRetention <- chisq.test(matchedPairs$ASPSCLR, 
+                               matchedPairs$hcdata...12yrretention.)
+```
+
+```{r}
+matchedRetention$expected
+matchedRetention$observed
+```
+</div>
+---
+
+## Optmatch package
+
+Provides a similar set of routines to MatchIt, offering nearest neighbor, 1 to k nearest neigbor, full matching (1 to n), and optimal matching (m to n)
+
+pairmatch: nearest neighbor, 1 - k nearest neighbor, default distance metrics is Mahalanobis distance, but logit propensity scores are available, as are euclidean and user defined distance metrics.
+
+```{r}
+pairs <- pairmatch(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp
+                   + hcdata.HSGPA + hcdata.incomingcreditstotal 
+                   + gender, data = modeldataOmitNA)
+```
+
+---
+
+## Pairmatch Output {.codefont2 .Results}
+
+Output is an optmatch object, with a number of accessible attributes, including the matched.distances and default vector of the groupings.
+
+```{r}
+pairs[!is.na(pairs)][1:50]
+attr(pairs, "matched.distances")[1:50]
+```
+
+--- 
+
+## Covariate Balance Checking {.codefont2 .Results}
+
+```{r, fig.height=3.5, fig.width = 3.5, fig.show = 'hold'}
+modeldataOmitNA$pairings <- pairs
+propScores <- glm(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp 
+                  + hcdata.HSGPA + hcdata.incomingcreditstotal 
+                  + gender, data = modeldataOmitNA, 
+                  family = "binomial")
+modeldataOmitNA$pptyscores <- propScores$fitted.values
+pairedData <- filter(modeldataOmitNA, !is.na(pairings))
+
+boxplot(pptyscores ~ ASPSCLR , data = modeldataOmitNA, 
+        main = "Prop Scores all data")
+boxplot(pptyscores ~ ASPSCLR , data = pairedData, 
+        main = "Prop Scores matched data")
+```
+
+---
+
+## Covariate Balance {.codefont2 .Results}
+
+```{r}
+xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+         + hcdata.incomingcreditstotal + gender, data = modeldataOmitNA)
+xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+         + hcdata.incomingcreditstotal + gender, data = pairedData)
+```
+
+---
+
+## Pair matching with mahalanobis distance and propensity score caliper {.codefont2 .Results}
+
+```{r}
+modeldataOmitNA$ASPSCLR <- as.integer(modeldataOmitNA$ASPSCLR)
+
+ppty <- glm(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA + 
+              hcdata.incomingcreditstotal + gender, 
+            data = modeldataOmitNA, family = binomial)
+
+ppty.dist <- match_on(ppty)
+pptycaliper <- caliper(ppty.dist, width = .2)
+
+mhd.pptyc <- caliper(ppty.dist, width = 1) +
+  match_on(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+           + hcdata.incomingcreditstotal + gender, 
+           data = modeldataOmitNA)
+
+caliperMatch <- pairmatch(mhd.pptyc, data = modeldataOmitNA)
+modeldataOmitNA$calipers <- caliperMatch
+matchedCalipers <- filter(modeldataOmitNA, !is.na(calipers))
+
+xBalance(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+         + hcdata.incomingcreditstotal + gender, data = modeldataOmitNA)
+xBalance(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+         + hcdata.incomingcreditstotal + gender, data = matchedCalipers)
+```
+
+---
+
+## Full Matching with Optmatch
+
+```{r}
+full <- fullmatch(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + 
+                    hcdata.HSGPA + hcdata.incomingcreditstotal 
+                  + gender, data = modeldataOmitNA)
+modeldataOmitNA$fullMatches <- full
+groupings <- data.frame(modeldataOmitNA$fullMatches, 
+                        modeldataOmitNA$ASPSCLR)
+groupings[1:20,]
+```
+
+---
+
+## References:
+
+* Rosenbaum, P. R. (2010). Design of Observational Studies. New York: Springer.
+* Rosenbaum, P. R., & Rubin, D. B. (1985). Constructing a Control Group Using Multivariate Matched Sampling Methods That Incorporate the Propensity Score. The American Statistician.
+* Hansen, B. B., & Bowers, J. (2008). Covariate Balance in Simple, Stratified and Clustered Comparative Studies, 23(2), 219–236. 
+* Using Optmatch and RItools for Observational Studies; http://www.r-bloggers.com/using-optmatch-and-ritools-for-observational-studies/
+* Using xBalance with MatchIt; http://www.r-bloggers.com/using-xbalance-with-matchit/
