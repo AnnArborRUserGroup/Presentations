@@ -1,0 +1,402 @@
+---
+title: "Interactive Web Applications in R with Shiny"
+subtitle: "Ann Arbor R User Group"
+author: "Clayton Yochum"
+date: "June 3, 2015"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: yes
+---
+
+## Who am I? {.build}
+
+- Co-organizer of this Meetup group
+- Business Intelligence Analyst at Barracuda Networks
+- R user for almost 3 years, Shiny user for ~2 years
+
+
+## What is Shiny? {.build}
+
+- It's a web framework for R!
+- Primarily created & maintained by the RStudio Group
+- open source (well, mostly)!
+
+
+## How does it work? {.build}
+
+- You write all your code in R
+- Use a reactive programming paradigm to write both server and client code
+- Shiny abstracts away the HTML, CSS, and Javascript
+
+
+## Examples {.build}
+
+- [almost cool](http://shiny.rstudio.com/gallery/single-file-shiny-app.html)
+- [a little cooler](http://shiny.rstudio.com/gallery/kmeans-example.html)
+- [even cooler than that](http://shiny.rstudio.com/gallery/movie-explorer.html)
+
+
+# My First App
+
+
+## Hello, World! {.build}
+
+- all you need is is the function `shinyApp`, which takes arguments `ui` and `server`
+
+```{r, eval=FALSE}
+install.packages(shiny)
+library(shiny)
+
+shinyApp(ui=fluidPage(), server=function(input, output) {})
+shinyApp(ui=fluidPage("Hello, World!"), server=function(input, output) {})
+shinyApp(ui=fluidPage(h1("Hello, World!")), server=function(input, output) {})
+```
+- yes, it really is that easy!
+- open it in a browser
+- check the console
+
+
+## What's really going on here? {.build}
+
+- let's run some of those ui functions on their own: <br>
+
+```{r, eval=FALSE}
+fluidPage()
+fluidPage("Hello, World!")
+fluidPage(h1("Hello, World!"))
+```
+
+- it's just HTML!
+- the server function takes two inputs and just doesnt do anything: <br>
+
+```{r, eval=FALSE}
+server <- function(input, output) {}
+server("foo", "bar")
+.Last.value
+```
+
+- check out the source of our "Hello, World!" program in the browser
+
+
+## Running from a file {.build}
+
+- rather than stuffing the whole application in a command, let's make a file `app.R`:
+
+```{r, eval=FALSE}
+# app.R
+
+ui <- fluidPage(h1("Hello, World!"))
+
+server <- function(input, output) {}
+
+shinyApp(ui=ui, server=server)
+```
+- run it with `runApp()`
+- send it straight to the browser with `runApp(launch.browser=TRUE)`
+
+
+## Where's the data? {.build .smaller}
+
+- Let's generate some (boring) random data and display it:
+
+```{r, eval=FALSE}
+# app.R
+
+ui <- fluidPage(
+  h1("Hello, World!"),
+  tableOutput("data")
+)
+
+server <- function(input, output) {
+  output$data <- renderTable(
+    data.frame(letter = letters[1:10])
+  )
+}
+
+shinyApp(ui=ui, server=server)
+```
+- notice how we assign to `output$data` in `server`, but use the string `"data"` in `ui`
+
+
+## Adding an input {.build .smaller}
+
+- use `selectInput()`:
+
+```{r, eval=FALSE}
+# app.R
+
+ui <- fluidPage(
+  h1("Hello, World!"),
+  sliderInput("slider", "choose a length for the dataset:", 1, 26, 10),
+  tableOutput("data")
+)
+
+server <- function(input, output) {
+  output$data <- renderTable(
+    data.frame(letter = letters[1:10])
+  )
+}
+
+shinyApp(ui=ui, server=server)
+```
+- run it!
+
+
+## Hey, nothing happened! {.build .smaller}
+
+- well of couse not, we never changed the server function:
+
+```{r, eval=FALSE}
+# app.R
+
+ui <- fluidPage(
+  h1("Hello, World!"),
+  sliderInput("slider", "choose a length for the dataset:", 1, 26, 10),
+  tableOutput("data")
+)
+
+server <- function(input, output) {
+  output$data <- renderTable(
+    data.frame(letter = letters[1:input$slider])
+  )
+}
+
+shinyApp(ui=ui, server=server)
+```
+- now it works!
+
+
+## Better Data Handling {.build .smaller}
+
+- let's generate a more complex dataset, and sample some rows to display:
+
+```{r, eval=FALSE}
+# app.R
+
+ui <- fluidPage(
+  h1("Hello, World!"),
+  sliderInput("slider", "choose a length for the dataset:", 1, 26, 10),
+  tableOutput("data")
+)
+
+server <- function(input, output) {
+  output$data <- renderTable({
+    df <- data.frame(a = runif(10000000), b = rnorm(10000000))
+    rows <- sample(nrow(df), input$slider)
+    df[rows, ]
+  })
+}
+
+shinyApp(ui=ui, server=server)
+```
+- we needed the curly braces in `renderTable` because our expression is more than one line
+- why is the response time so crappy?
+
+
+## Better Data Handling {.build .smaller}
+- we were generating the dataset from scratch each time we moved the slider
+- we can avoid that by generating `df` _before_ calling `renderTable`:
+
+```{r, eval=FALSE}
+# app.R
+
+ui <- fluidPage(
+  h1("Hello, World!"),
+  sliderInput("slider", "choose a length for the dataset:", 1, 26, 10),
+  tableOutput("data")
+)
+
+server <- function(input, output) {
+  df <- data.frame(a = runif(10000000), b = rnorm(10000000))
+  output$data <- renderTable({
+    rows <- sample(nrow(df), input$slider)
+    df[rows, ]
+  })
+}
+
+shinyApp(ui=ui, server=server)
+```
+- so much faster! We only generated `df` *once*, when we first _connected_ to the app
+- only the `renderTable` call runs when `input$slider` changes; that's reactivity!
+
+
+# Best Practices
+
+
+## Separating the Front and Back Ends {.build .smaller}
+
+- put the front end in a file `ui.R`, and the backend in `server.R`:
+
+```{r, eval=FALSE}
+# ui.R
+
+fluidPage(
+  h1("Hello, World!"),
+  sliderInput("slider", "choose a length for the dataset:", 1, 26, 10),
+  tableOutput("data")
+)
+```
+```{r, eval=FALSE}
+# server.R
+
+function(input, output) {
+  df <- data.frame(a = runif(10000000), b = rnorm(10000000))
+  output$data <- renderTable({
+    rows <- sample(nrow(df), input$slider)
+    df[rows, ]
+  })
+}
+```
+- remove the old app.R (`file.remove("app.R")`) and run it the same way as before
+- we don't need to assign the `fluidPage`/function to variables anymore
+
+
+## Global Variables {.build .smaller}
+
+- try refreshing the page; see that delay?
+- currently, our `df` is created when the function in `server.R` runs, which is when a client (browser) connects
+- we can make the variable _global_ by breaking it out of the function inside `server.R`:
+
+```{r, eval=FALSE}
+# server.R
+
+df <- data.frame(a = runif(10000000), b = rnorm(10000000))
+
+function(input, output) {
+  output$data <- renderTable({
+    rows <- sample(nrow(df), input$slider)
+    df[rows, ]
+  })
+}
+```
+- refresh; faster, right?
+- now `df` is generated once when we call `runApp`, instead of each time someone connects
+
+
+## global.R {.build}
+
+- we can also break out global operations into their own file, `global.R`:
+
+```{r, eval=FALSE}
+# global.R
+
+df <- data.frame(a = runif(10000000), b = rnorm(10000000))
+```
+- don't forget to remove that line from `server.R`
+- run it; behaviour hasn't changed
+- why do this?
+
+
+## functions.R {.build .smaller}
+
+- at Barracuda, we like to remove as much code from `server.R` and `global.R` as possible
+- this makes the logic easier to read, particularly when your reactive model becomes complex
+- put all the workhorse code in _functions_ inside a file like `functions.R`:
+
+```{r, eval=FALSE}
+# functions.R
+
+makeData <- function() {
+  data.frame(a = runif(10000000), b = rnorm(10000000))
+}
+
+makeTable <- function(df, n) {
+  rows <- sample(nrow(df), n)
+  df[rows, ]
+}
+```
+- you can call this file whatever you like, as we have to source it in ourselves
+
+## functions.R {.build .smaller}
+
+- source `functions.R` in `global.R`, and replace the old code to make `df`:
+
+```{r, eval=FALSE}
+# global.R
+
+source("functions.R")
+df <- makeDate()
+```
+- and to generate the table in `server.R`:
+
+```{r, eval=FALSE}
+function(input, output) {
+  output$data <- renderTable(makeTable(df, input$slider))
+}
+```
+- can you put the `renderTable` call in `makeTable`? try it out
+
+
+# Deployment
+
+
+## Deploying on the local network {.build}
+
+- so far, the applications we've ran have only been available to our local machine
+- to open it up to your local network, add a `host` arg to `runApp`:
+
+```{r, eval=FALSE}
+runApp(launch.browser=TRUE, host="0.0.0.0")
+```
+- now change the URL in your browser to use your IP address instead of `127.0.0.1`
+- try hitting that URL with a browser on a different device on the same local network
+- great for getting feedback from coworkers & managers during development
+
+
+## Deploying online with shinyapps {.build}
+
+- a hosted service from RStudio
+- uses a special `shinyapps` package to deploy right from the R console
+- free and paid tiers available (more applications and run-hours)
+- see more at their [website](www.shinyapps.io)
+
+
+## Deploying on your own server {.build}
+
+- ShinyServer is a free, open source hosting package from RStudio
+- intended for running on your own linux server
+- Pro (closed source) version adds a ton of things like LDAP integration, management console, and load balancing
+- [Website](http://www.rstudio.com/products/shiny/shiny-server/)
+
+## What else can I do with shiny? {.build}
+
+- better layout (`column`/`fluidRow`, `pageWithSidebar`)
+- more reactivity (chains of dependency, complex behaviours)
+- more inputs (`selectInput`, `checkboxInput`, `checkboxGroupInput`, `radioButtons`)
+- hide or change inputs based on other inputs/outputs (including server-side input generation)
+- enhance shiny with packages like:
+  + `rCharts` & `leaflet` (`D3.js` visualizations)
+  + `datatables` (interactive tabular output)
+  + `shinydashboard` (ui tools for making attractive dashboards)
+- add shiny widgets to an RMarkdown file
+- hack at the HTML/CSS/Javascript
+
+
+## Pros & Cons {.build}
+
+Pros:
+
+- lets you create and share live, interactive web content
+- no knowledge of HTML/CSS/JavaScript needed
+- great extensions available
+- very good documentation and community support
+
+Cons:
+
+- limited options for free deployment
+- harsh learning curve (esp. for complex reactivity)
+
+
+## Resources
+
+- [Official page](http://shiny.rstudio.com/) (lots of articles/tutorials)
+- [Github](https://github.com/rstudio/shiny)
+- [Webinars](http://www.rstudio.com/resources/webinars/)
+- [StackOverflow tag](https://stackoverflow.com/questions/tagged/shiny)
+- [Google Groups](https://groups.google.com/forum/#!forum/shiny-discuss) (ugh)
+- [Official Examples](http://shiny.rstudio.com/gallery/)
+- [Show Me Shiny](http://www.showmeshiny.com/)
+
+
+# Questions? Comments?

@@ -1,0 +1,170 @@
+---
+title: "Ann Arbor useR Meetup"
+subtitle: "Principal Components Analysis and Exploratory Factor Analysis"
+author: "Blake Nicholson, Seelio"
+copyright: 2015, Blake Nicholson. All Rights Reserved.
+date: "March 12, 2015"
+output:
+  slidy_presentation:
+    toc: yes
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+## PCA and EFA
+
+###Principal Components Analysis (PCA):
+  - Dimension reduction technique
+  - Example use case: regression in the presence of multicollinearity
+  - $\textbf{PC} = \mathbf{\alpha x}$
+  - Iteratively select principal component that accounts for the maximum variance
+
+
+###Exploratory Factor Analysis (EFA): 
+  - Latent variable identification
+  - Example use case: indirectly measure concepts such as intelligence that cannot be measured directly
+  - $\mathbf{x} = \mathbf{\Lambda f + u}$
+  - Select $\mathbf{\Lambda}$ to best fit the sample covariance matrix
+
+## Principal Components Analysis (PCA)
+
+- Primary purpose is as a dimension reduction technique
+- Goal is to transform a set of correlated variables into a much smaller set of
+uncorrelated variables
+- Each principal component is a linear combination of the input variables:
+
+$$ \text{PC}_1 = \alpha_{11}x_1 + \alpha_{12}x_2 + \cdot\cdot\cdot + \alpha_{1n}x_n $$
+$$\vdots$$
+$$ \text{PC}_k = \alpha_{k1}x_1 + \alpha_{k2}x_2 + \cdot\cdot\cdot + \alpha_{kn}x_n, $$
+
+where $k << n$
+
+- The principal components are determined iteratively, starting with $\text{PC}_1$, then $\text{PC}_2$, etc.  The coefficients above are chosen to maximize the variance
+explained while satisfying the requirement that the components be uncorrelated.
+
+## PCA Steps
+ 
+1. Run `prcomp` (or `princomp`)
+2. Examine output, summary, and plot of (1)
+3. Determine how many components to keep
+    + Based upon topical knowledge/experience
+    + Account for some threshold cumulative proportion of variance
+    + Locate the "elbow" of the scree plot
+    + Keep all principal components with above average variance (variance > $1$ when working with scaled data)
+
+## Hands-on Example: Raw Data
+
+```{r fig.align="center"}
+library(ggplot2)
+qplot(data=cars, x=speed, y=dist)
+```
+
+## Hands-on Example: PCA Output
+```{r}
+pca <- prcomp(cars)
+print(pca)
+```
+- "Standard deviations" shows the square roots of the eigenvalues
+- "Rotation" shows the eigvenvectors (these provide the $\alpha$ coefficients
+shown earlier in the presentation)
+- You can confirm by computing the inner product that the two principal
+components shown in the "Rotation" output are indeed orthogonal
+
+## Hands-on Example: Summary
+```{r}
+print(summary(pca))
+```
+Principal component 1 accounts for nearly all of the variance due to the fact
+that the variances of the two columns are quite different.  In general, one
+should scale their data to have unit variance by passing "scale.=TRUE" to
+prcomp.
+
+## Hands-on Example: Scree Plot
+```{r fig.width=4, fig.height=3, fig.align="center"}
+plot(pca)
+```
+Normally, you would be considering more than two components and the scree
+plot would look more like:
+```{r fig.width=4, fig.height=3, fig.align="center", echo=FALSE}
+plot(prcomp(mtcars, scale.=TRUE))
+```
+
+## Hands-on Example: First Component
+```{r fig.width=6, fig.height=4.2, fig.align="center"}
+ev.slopes <- pca$rotation[2, ]/pca$rotation[1, ]
+cars.centered <- transform(cars, speed=speed-mean(speed),
+                           dist=dist-mean(dist))
+qplot(data=cars.centered, x=speed, y=dist) +
+        geom_abline(intercept=0, slope=ev.slopes[1])
+```
+
+## Hands-on Example: Commentary
+- Scale input data
+    + Reduce impact of dramatically different variances amongst input variables
+    + Pass `scale.=TRUE` to `prcomp` or `cor=TRUE` to `princomp`
+- Rescale principal components
+    + Enforce that loadings are correlation between variables and components
+- Rotate components
+    + Eases interpretation, but components no longer "principal" components
+    + Orthogonal: varimax, quartimax
+    + Oblique: oblimin, promax
+    + See package `GPArotation`
+- Project original data onto components
+    + Referred to as "scores"
+    + See `princomp$scores` or `prcomp$x`
+
+## Going Further with PCA
+
+Check out the `psych` package
+
+Provides:
+
+- `principal()`
+- `fa.parallel()`
+- `fa()`
+- ...and more!
+
+## Exploratory Factor Analysis (EFA)
+
+- Collection of methods designed to uncover the latent structure in a given set of variables
+- Factors are assumed to underlie the observed variables:
+$$ x_1 = \lambda_{11} f_1 + \lambda_{12} f_2 + \cdot\cdot\cdot + \lambda_{1n} f_n + u_1 $$
+$$ \vdots $$
+$$ x_k = \lambda_{k1} f_1 + \lambda_{k2} f_2 + \cdot\cdot\cdot + \lambda_{kn} f_n + u_k $$
+
+(Recall that in PCA the assumption was that principal components were a linear combination of observed variables)
+
+- Factor loadings and errors aren't directly observable, but are inferred from the correlations among the variables
+- Determine factor loadings as those that most accurately reproduce the sample covariance matrix
+
+## EFA Steps
+1. Choose number of factors
+2. Run `factanal`
+
+## Hands-on Example: Raw Data
+
+```{r}
+head(mtcars)
+```
+
+## Hands-on Example: Determining Number of Factors
+
+```{r}
+sapply(1:3, function(f)
+  factanal(mtcars, factors=f, method="mle")$PVAL)
+```
+
+Find the first number of factors where the p-value is not significant.  The results above suggest that we should use 3 factors.
+
+## Hands-on Example: Running `factanal`
+
+```{r}
+factanal(mtcars, factors=3, method="mle")
+```
+
+## References
+
+- [An Introduction to Applied Multivariate Analysis with R, by Everitt & Hothorn](http://www.amazon.com/Introduction-Applied-Multivariate-Analysis-Use/dp/1441996494/)
+- [R in Action, Second Edition by Robert Kabacoff](http://www.manning.com/kabacoff2)
+- [Wikipedia EFA page](http://en.wikipedia.org/wiki/Exploratory_factor_analysis)
+- [Wikipedia PCA page](http://en.wikipedia.org/wiki/Principal_component_analysis)

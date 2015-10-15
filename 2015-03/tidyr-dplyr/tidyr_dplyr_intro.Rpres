@@ -1,0 +1,166 @@
+
+
+Tidy Data in R
+========================================================
+author: Kun Deng
+date: 2/18/2015
+
+
+Introduction
+========================================================
+
+Examples in this presentation are mostly from Rstudio help
+and online materials.  No copyright is claimed.  
+
+- History of **tidyr** and **dplyr** package
+- Tidy data with **tidyr**
+- Transform data with **dplyr**  (not today)
+
+
+History of tidyr and dplyr
+========================================================
+
+- About **Tidyr**. 
+
+**reshape** $\Longrightarrow$ **reshape2** $\Longrightarrow$ **tidyr**.  
+All three packages are developed by Hadley Wickham. 
+
+- About **dplyr** 
+
+Learning tidyr
+========================================================
+
+
+- read http://blog.rstudio.org/2014/07/22/introducing-tidyr/
+
+- read http://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html
+
+
+
+- keep http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf 
+
+
+
+Cheatsheet
+=========================================================
+![r data wrangling](data-wrangling-cheatsheet_1.png)
+
+
+Common causes of messiness
+========================================================
+
+- Column headers are values, not variable names. $\checkmark$
+- Multiple variables are stored in one column. $\checkmark$
+- Variables are stored in both rows and columns. $\checkmark$
+- Multiple types of observational units are stored in the same table. 
+- A single observational unit is stored in multiple tables.
+
+
+Example 1: column headers are values
+=======================================================
+![exam1_pic1](exam1_pic1.png)
+
+Example 1: column headers are values
+=======================================================
+![exam1_pic2](exam1_pic2.png)
+
+Example 1: column headers are values
+=======================================================
+![exam1_pic2](exam1_pic3.png)
+
+
+Example 1: 
+=======================================================
+```{r}
+library(tidyr)
+library(dplyr)
+
+messy <- data.frame(
+  name = c("Wilbur", "Petunia", "Gregory"),
+  a = c(67, 80, 64),
+  b = c(56, 90, 50)
+)
+messy
+
+```
+a and b are two types of drugs.  
+numeric values are person's heart rates. 
+
+
+Example 1: Solution
+=======================================================
+```{r}
+messy %>%
+  gather(drug, heartrate, a:b)
+```
+ 
+**param 1**: new variable name for the keys (scattered as column headers in old data); 
+**param 2**: new variable name for values. 
+**param 3**: old columns headers.
+
+
+Example 2: multiple variables are stored in one column
+=====================================================
+```{r echo=FALSE}
+set.seed(10)
+messy <- data.frame(
+  id = 1:4,
+  trt = sample(rep(c('control', 'treatment'), each = 2)),
+  work.T1 = runif(4),
+  home.T1 = runif(4),
+  work.T2 = runif(4),
+  home.T2 = runif(4)
+)
+str(messy)
+```
+Time spent on phones, measured at two locations (work and home), at two times. 
+
+Example 2: multiple variables are stored in one column
+=====================================================
+```{r }
+tidier <- messy %>%
+  gather(key, time, -id, -trt)
+tidier %>% head(8)
+```
+
+Example 2: multiple variables are stored in one column
+=====================================================
+```{r }
+tidy <- tidier %>%
+  separate(key, into = c("location", "time"), sep = "\\.") 
+tidy %>% head(8)
+```
+
+
+
+Example 3: Variables are stored in both rows and columns
+=====================================================
+```{r echo=FALSE}
+weather <- tbl_df(read.csv("weather.csv", stringsAsFactors = FALSE))
+str(weather)
+```
+
+Example 3: Variables are stored in both rows and columns 
+=====================================================
+```{r echo=FALSE}
+weather <- tbl_df(read.csv("weather.csv", stringsAsFactors = FALSE))
+weather2 <- weather %>%
+  gather(day, value, d1:d31, na.rm = TRUE)
+weather3 <- weather2 %>% 
+  mutate(day = extract_numeric(day)) %>%
+  select(id, year, month, day, element, value) %>%
+  arrange(id, year, month, day)
+weather3
+```
+
+Example 3: Variables are stored in both rows and columns 
+=====================================================
+```{r}
+weather3 %>% spread(element, value)
+```
+
+What to go from here
+=====================================================
+
+- http://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html
+

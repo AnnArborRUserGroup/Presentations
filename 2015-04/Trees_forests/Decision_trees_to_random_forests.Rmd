@@ -1,0 +1,453 @@
+---
+title: "Classification: trees and random forests"
+author: "Ellis Valentiner"
+date: "April 9, 2015"
+output:
+  slidy_presentation:
+    css: custom_markdown.css
+    fig_height: 7
+    fig_width: 10
+    font_adjustment: +3
+    highlight: pygments
+    incremental: true
+---
+
+```{r Preamble, echo=FALSE, message=FALSE}
+rm(list = ls(all.names = TRUE))
+options(width = 60, stringsAsFactors = FALSE)
+
+library(tree)         # classification trees
+library(randomForest) # random forest
+library(reshape2)     # data manipulation
+library(xtable)       # html output
+library(ggplot2)      # good graphics
+library(RColorBrewer) # nicer color palettes
+library(magrittr)     # piping operator %>%
+library(knitr)        # rendering presentation
+
+opts_chunk$set(echo = FALSE, results = 'hide', fig.align='center')
+cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+```{r Generate data}
+# Reproducibility
+set.seed(1)
+
+R <- seq(-1, 1, 0.05)
+X1 <- list()
+X2 <- list()
+Y <- list()
+for (i in 1:length(R)){
+  r = R[i]
+  N = sample(x = 1:5, size = 1)
+  X1[[i]] = rep(r, N)
+  X2[[i]] = runif(n = N, min = -1, max = 1)
+  Y[[i]] = sin(r * pi*2) > X2[[i]]
+}
+data <- cbind("Group" = unlist(Y), "X1" = unlist(X1), "X2" = unlist(X2))
+
+train_data <- data[sample(1:nrow(data), size = 500, replace = TRUE), ]
+test_data <- data[sample(1:nrow(data), size = 500, replace = TRUE), ]
+train_data <- data.frame(train_data)
+test_data <- data.frame(test_data)
+train_data$Group <- factor(train_data$Group, levels = c(0, 1), labels = c("Orange", "Blue"))
+test_data$Group <- factor(test_data$Group, levels = c(0, 1), labels = c("Orange", "Blue"))
+train_data$X1 <- train_data$X1 + runif(n = 500, min = 0, max = 0.15)
+train_data$X2 <- train_data$X2 + runif(n = 500, min = 0, max = 0.15)
+test_data$X1 <- test_data$X1 + runif(n = 500, min = 0, max = 0.15)
+test_data$X2 <- test_data$X2 + runif(n = 500, min = 0, max = 0.15)
+
+rm(list = c("R", "X1", "X2", "Y", "r", "N", "i", "data"))
+```
+
+## Classification trees
+
+Classification trees are a method commonly used in data mining. They are popular becase they are *easy to interpret* and reflect how (some) decisions are made. 
+
+![image here](http://docs.oracle.com/cd/B28359_01/datamine.111/b28129/img/treediagram.gif)
+
+## Classification trees
+
+The basic idea is to (recursively) divide the feature space into regions and fit a simple 'model' for each region.
+
+**Details:**
+
+> - Grow in top-down fasion (divisive) by choosing the split that optimizies the criterion (greedy).
+> - Grow a large tree and then prune it at the end.
+
+We can estimate the probability that the class label is $k$ given that the feature vector lies in region $M$.
+
+## Some things to consider:
+
+**How do we choose the best splits?**
+
+We want splits that best separate our class labels.
+
+**How large do we grow the tree (when do we stop splitting?)**
+
+We want the number of observations in the terminal node to be reasonably large otherwise we are just modeling noise.
+
+**Stopping rules:**
+
+> 1. If all observations belong to the same class.
+> 2. Too few observations to continue splitting.
+
+## Split criterions
+
+There are several different methods for choosing the best split.
+
+> - Misclassification error
+> - Gini
+> - Cross-entropy (deviance)
+
+## Misclassification error
+
+The proportion of the observations in that region that do not belong to the most common class.
+
+$$\text{Error} =  1 - \text{max}(\hat{p}_{mk})$$
+
+## Gini
+
+Measures the total variance across the $K$ classes.
+
+Small values indicates that a node contains predominantly observations from a single class (i.e. small variation).
+
+Attempts to separate classes by focusing on one class at a time. It will always favor working on the largest or, if you use costs or weights, the most "important" class in a node.
+
+$$\text{Gini} = \overset{K}{\underset{k = 1}{\Sigma}} \hat{p}_{mk} (1 - \hat{p}_{mk})$$
+
+## Cross-entropy (deviance)
+
+Similar measure of node purity where small values also indicate node purity (like Gini).
+
+Instead of separating one class at a time entropy tends to separate groups of classes, each accounting for roughly 50% of the observations.
+
+Results in more evenly balanced trees.
+
+$$\text{Deviance} = -\overset{K}{\underset{k = 1}{\Sigma}} \hat{p}_{mk} \text{log} \hat{p}_{mk}$$
+
+## So which split criterion should you use?
+
+It doesn't really matter. Different split criterions usually give similar performance.
+
+The `tree` package uses defaults to deviance; `random forests` uses Gini.
+
+```{r, message=FALSE, echo=FALSE, results='hide'}
+par(mfrow = c(1, 2))
+sapply(c('gini', 'deviance'), function(x){
+  tree_fit = tree(Group ~ X1 + X2, data = train_data, split = x)
+  plot(tree_fit, type = 'uniform')
+  sm = summary(tree_fit)
+  title(paste(x, '\n(Misclassification: ', 100*sm$misclass[1]/sm$misclass[2], '%)', sep=''))
+  #text(tree_fit, digits = 3, all = TRUE)
+})
+
+par(mfrow = c(1, 1))
+```
+
+## Two-dimensional example
+
+```{r, echo=1:2, results='markup', fig.height=3.75, fig.width=7}
+# Summary of dataset
+summary(train_data)
+ggplot(melt(train_data, id.vars = 'Group'), aes(x = value, group = Group, fill = Group)) +
+  geom_histogram(stat='bin', binwidth=0.1, alpha=1, colour = 'grey') +
+  facet_grid(. ~ variable) +
+  scale_fill_manual(values=cbPalette) +
+  scale_x_continuous('') +
+  scale_y_continuous('Count') +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 16, color = 'black'),
+        panel.background = element_rect(fill = NA),
+        panel.border = element_rect(fill = NA, color = 'black', size = 2),
+        strip.background = element_rect(fill=NA),
+        strip.text = element_text(size = 14))
+```
+
+## Two-dimensional example
+
+```{r, echo=TRUE, results='markup'}
+# Print random 5 rows
+head(train_data[sample(nrow(train_data)),])
+```
+
+## Fitting the tree
+
+```{r, echo=TRUE, fig.show='hide', results='markup'}
+# Load the `tree` package
+library(tree)
+# Fit the classification tree
+tree_fit <- tree(Group ~ X1 + X2, data = train_data)
+# Model summary
+summary(tree_fit)
+# Plot the dendrogram
+plot(tree_fit, type = 'uniform')
+# Add split labels
+text(tree_fit)
+```
+
+## Dendrogram
+
+```{r Dendrogram, echo=-1, fig.height=8, fig.width=8}
+par(mar = c(0.1, 0.1, 0.1, 0.1))
+# Plot the dendrogram
+plot(tree_fit, type = 'uniform')
+# Add split labels
+text(tree_fit, all = TRUE)
+```
+
+```{r Hard coded plots}
+par(mar = c(5.1, 4.1, 4.1, 2.1))
+# no splits
+p1 <- 
+  ggplot(train_data, aes(x = X1, y = X2, fill = Group, color = Group)) +
+  geom_point() +
+  scale_colour_manual(values=cbPalette) +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 16, color = 'black'),
+        panel.background = element_rect(fill = NA),
+        panel.border = element_rect(fill = NA, color = 'black', size = 2))
+
+# 1 split
+p2 <- p1 + geom_segment(y = -2, yend = 2, x = 0.6387, xend = 0.6387, color = 'black')
+
+# 2 splits
+p3 <- p2 + geom_segment(y = -0.322546, yend = -0.322546, x = 0.6387, xend = 2, color = 'black') +
+  annotate(geom = "rect", xmin = 0.6387, xmax = Inf, ymin = -0.322546, ymax = Inf, fill = cbPalette[1], alpha = 0.2)
+
+# 3 splits
+p4 <- p3 + geom_segment(y = -2, yend = -0.322546, x = 0.971542, xend = 0.971542, color = 'black') +
+  annotate(geom = "rect", xmin = 0.971542, xmax = Inf, ymin = -Inf, ymax = -0.322546, fill = cbPalette[2], alpha = 0.2) +
+  annotate(geom = "rect", xmin = 0.6387, xmax = 0.971542, ymin = -Inf, ymax = -0.322546, fill = cbPalette[1], alpha = 0.2) 
+
+# 4 splits
+p5 <- p4 + geom_segment(y = 0.040531, yend = 0.040531, x = -2, xend = 0.6387, color = "black")
+
+# 5 splits
+p6 <- p5 + geom_segment(y = 0.040531, yend = -2, x = -0.3354, xend = -0.3354, color = "black") +
+  annotate(geom = "rect", xmin = -Inf, xmax = -0.3354, ymin = -Inf, ymax = 0.040531, fill = cbPalette[2], alpha = 0.2)
+
+# 8 splits
+p7  <- p6 +
+  geom_segment(y = 0.040531, yend = -2, x = 0.0422141, xend = 0.0422141, color = "black") +
+  geom_segment(y = 0.040531, yend = -2, x = -0.3354, xend = -0.3354, color = "black") +
+  geom_segment(y = 0.040531, yend = -2, x = -0.0646329, xend = -0.0646329, color = "black") +
+  geom_segment(y = -0.578135, yend = -0.578135, x = -0.0646329, xend = 0.0422141, color = "black") + 
+  annotate(geom = "rect", xmin = -0.3354, xmax = -0.0646329, ymin = -Inf, ymax = 0.040531, fill = cbPalette[1], alpha =0.2) +
+  annotate(geom = "rect", xmin = -0.0646329, xmax = 0.0422141, ymin = -0.578135, ymax = 0.040531, fill = cbPalette[1], alpha = 0.2) +
+  annotate(geom = "rect", xmin = -0.0646329, xmax = 0.0422141, ymin = -Inf, ymax = -0.578135, fill = cbPalette[2], alpha = 0.2) +
+  annotate(geom = "rect", xmin = 0.0422141, xmax = 0.6387, ymin = -Inf, ymax = 0.040531, fill = cbPalette[2], alpha = 0.2)
+
+# 16 splits
+p8 <- p7 +
+  geom_segment(y = 0.040531, yend = 2, x = -0.482981, xend = -0.482981, color = "black") +
+  geom_segment(y = 0.040531, yend = 2, x = -0.832383, xend = -0.832383, color = "black") +
+  geom_segment(y = 0.040531, yend = 2, x = -0.553471, xend = -0.553471, color = "black") +
+  geom_segment(y = 0.040531, yend = 2, x = 0.196298, xend = 0.196298, color = "black") +
+  geom_segment(y = 0.040531, yend = 2, x = -0.428983, xend = -0.428983, color = "black") +
+  geom_segment(y = 0.236086, yend = 0.236086, x = -0.482981, xend = -0.428983, color = "black") +
+  geom_segment(y = 0.040531, yend = 2, x = 0.444029, xend = 0.444029, color = "black") +
+  annotate(geom = "rect", xmin = -0.428983, xmax = 0.196298, ymin = 0.040531, ymax = Inf, fill = cbPalette[1], alpha =0.2) +
+  annotate(geom = "rect", xmin = 0.196298, xmax = 0.444029, ymin = 0.040531, ymax = Inf, fill = cbPalette[2], alpha =0.2) +
+  annotate(geom = "rect", xmin = 0.444029, xmax = 0.6387, ymin = 0.040531, ymax = Inf, fill = cbPalette[1], alpha =0.2) +
+  annotate(geom = "rect", xmin = -Inf, xmax = -0.832383, ymin = 0.040531, ymax = Inf, fill = cbPalette[1], alpha =0.2) +
+  annotate(geom = "rect", xmin = -0.832383, xmax = -0.553471, ymin = 0.040531, ymax = Inf, fill = cbPalette[2], alpha =0.2) +
+  annotate(geom = "rect", xmin = -0.553471, xmax = -0.482981, ymin = 0.040531, ymax = Inf, fill = cbPalette[1], alpha =0.2) +
+  annotate(geom = "rect", xmin = -0.482981, xmax = -0.428983, ymin = 0.040531, ymax = 0.236086, fill = cbPalette[2], alpha =0.2) +
+  annotate(geom = "rect", xmin = -0.482981, xmax = -0.428983, ymin = 0.236086, ymax = Inf, fill = cbPalette[1], alpha =0.2)
+
+ref_data <- cbind.data.frame(X = seq(-1, 1, 0.01),
+                             Y = sin(seq(-1, 1, 0.01) * pi * 2),
+                             Group = factor(1))
+
+p9 = p8 + geom_path(data = ref_data, aes(x = X, y = Y, group = Group), col = cbPalette[3])
+```
+
+## Two-dimensional example: No splits
+
+```{r}
+p1
+```
+
+## Two-dimensional example: 1 split
+
+```{r}
+p2
+```
+
+## Two-dimensional example: 2 splits
+
+```{r}
+p3
+```
+
+## Two-dimensional example: 3 splits
+
+```{r}
+p4
+```
+
+## Two-dimensional example: 4 splits
+
+```{r}
+p5
+```
+
+## Two-dimensional example: 8 splits
+
+```{r}
+p7
+```
+
+## Two-dimensional example: 8 splits
+
+```{r}
+p8
+```
+
+## Performance
+
+```{r, echo=TRUE, results='markup'}
+# Get the predicted class labels for the test data
+Yhat_test <- predict(tree_fit, newdata = test_data, type = "class")
+# Confusion matrix
+(tab <- table('Predicted label' = Yhat_test, 'True label' = test_data$Group))
+# Classification error
+1 - (sum(diag(tab)) / sum(tab))
+```
+
+## Classification tree recap
+
+Divide the feature space up into regions by making successive splits on the data and then within each region predict the most commonly occuring class.
+
+**Advantages**
+
+> - Easy to interpret.
+> - Similar to human decision making.
+> - Do well with non-linear problems.
+> - Fast and scalable.
+
+**Disadvantages**
+
+Trees have high variance and are unstable.
+
+> - Single trees may overfit the training data.
+
+> - Small changes in the data will have big changes on the tree.
+
+## Random forests
+
+**Differences**
+
+> - Instead of growing a single tree, grow many trees.
+
+> - For each tree withhold approx. 1/3 of the data as a test set (bagging).
+
+> - For each split consider only some of the predictors (approx. $\sqrt{p}$) which decorrelates the trees by introducing variance.
+
+> - Predictions are made using a majority vote strategy (or sometimes averaged probabilities).
+
+**Advantages**
+
+> - Built-in test set.
+
+> - Built-in measures of variable importance.
+
+> - More stable predictions.
+
+## Out-of-bag (OOB) error
+
+For each tree we have dataset of N randomly selected observations. On average approx. 1/3 of the data is unused.
+
+The out-of-bag, or out-of-sample, error is the misclassification rate when we fit the data to the trees for which it was withheld.
+
+This error is robust, there is no need for cross-validation.
+
+OOB error can be calculated for each tree as you go, so you can find when adding additional trees no longer improves error.
+
+## Variable importance
+
+For a single classification tree, any predictor that is used may be important.
+
+**Mean decrease in accuracy**
+
+Since random forests contains many trees we can measure the the classification error for the OOB data and after permuting each predictor variable. The difference between the two are then averaged over all trees, and normalized by the standard deviation of the differences.
+
+**Mean decrease in Gini**
+
+The total decrease in node impurities (Gini) from splitting on the variable, averaged over all trees.
+
+## `randomForest` package
+
+```{r, echo=TRUE, results='markup'}
+# install.packages("randomForest")
+library(randomForest)
+
+rf_fit <- randomForest(Group ~ X1 + X2,
+                       data = train_data,
+                       xtest = test_data[,c("X1", "X2")],
+                       ytest = test_data$Group,
+                       ntree = 1000,
+                       importance = TRUE)
+```
+
+## Two-dimensional example
+
+```{r, echo=FALSE, results='markup'}
+rf_fit
+```
+
+## Misclassification rates
+
+```{r}
+library(reshape2)
+err.rates <- reshape2::melt(rf_fit$err.rate, measure.vars = c('OOB', 'Orange', 'Blue'), value.name = 'Error')
+ggplot(err.rates, aes(x = Var1, y = Error, group = Var2, color = Var2)) +
+  geom_line() +
+  scale_colour_manual(values=cbPalette[c(3,1,2)]) +
+  scale_x_log10(breaks=c(1, 10, 50, 100, 250, 500, 1000)) +
+  ylab('Error') + 
+  xlab('Number of trees\n(log scale)') +
+  #annotate('text', x= 50, y = 0.10, 'OOB error rate') +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 16, color = 'black'),
+        panel.background = element_rect(fill = NA),
+        panel.border = element_rect(fill = NA, color = 'black', size = 2))
+```
+
+## Variable importance
+
+```{r Variable importance, echo = TRUE, results='markup'}
+importance(rf_fit)
+varImpPlot(rf_fit, main = "Variable importance plot")
+
+varImpPlot(rf_fit, type = 1, class = "Orange", main = "Variable importance for 'Orange'")
+varImpPlot(rf_fit, type = 1, class = "Blue", main = "Variable importance for 'Blue'")
+```
+
+## Summary
+
+
+
+## Additional topics
+
+**Extremely randomized forests** - Geurts, P., Ernst, D., & Wehenkel, L. (2006). Extremely randomized trees. Machine Learning, 63(1), 3–42. doi:10.1007/s10994-006-6226-1
+
+> - available in the `extraTrees` package
+
+**Gradient boosting machines** - Friedman, J. H. (1999). Greedy Function Approximation: A Gradient Boosting Machine.
+
+> - available in the `gbm` package
+
+## Next month
+
+Thursday, May 7, 2015 7:00 PM
+
+Barracuda Networks
+317 Maynard St, Ann Arbor, MI
+
+**R markdown: A tool for code sharing, reproducibility, and more!** by Marian Schmidt 
+
+and 
+
+**Support Vector Machines and their implementation in R** by Michelle Berry
