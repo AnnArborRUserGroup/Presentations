@@ -8,8 +8,6 @@ output:
   
 ---
 
----
-
 ## Matching Packages
 
 MatchIt and optmatch implement matching methods, RItools implements covariate balance checking methods.
@@ -27,11 +25,10 @@ library(haven)
 library(dplyr)
 library(effsize)
 library(kSamples)
+library(weights)
 ```
 
----
-
-## Propensity score matching:
+## Propensity score matching: {.Results}
 
 **What is it?**
 
@@ -46,8 +43,6 @@ Examples:
 * Honors college vs non-honors college students (Honors college admissions based on covariates)
 * Smokers vs Non-smokers (Can't assign some people to smoke for decades)
 * The effectiveness of alcoholics anonymous (Self-selection bias)
-
----
 
 ## What are propensity scores? {.Results}
 
@@ -66,9 +61,7 @@ Causal inference is inhibited by unequal covariate balance; covariates may be re
 Matching on propensity scores balances observed covariates in the manner that would be expected from random treatment assignment.
 Ability to draw causal inferences on the basis of observational data is improved.
 
----
-
-## Propensity score estimation 
+## Propensity score estimation {.Results}
 
 **How are propensity scores estimated?**
 
@@ -82,17 +75,13 @@ Matching methods also use different distance metrics:
 
 Propensity score calipers often used to control quality of matches when using other distance metrics
 
----
-
 ## Types of propensity score matching techniques:
 
 * Exact Matching (control unit is exactly the same as treatment; often not plausible)
 * Nearest neighbor / Pairmatch
-* K nearest neighbor / Fullmatch / Optmatch
+* K nearest neighbor / Fullmatch
 * Genetic Matching
 * Propensity Score Weighting
-
----
 
 ## Options for PSA in R: {.Results}
 
@@ -108,9 +97,7 @@ From optmatch documentation:
 
 Provides routines for distance based bipartite matching to reducecovariate imbalance between treatment and control groups in observational studies. Routines are provided to generate distances from GLM models (propensity score matching) and formulas (Euclidean and Mahalanobis matching), stratified matching (exact matching), and calipers. Results of the fullmatch routine are guaranteed to provide minimum average within matched set distance.
 
----
-
-## 1-to-1 nearest neighbor matching with Matching:
+## 1-to-1 nearest neighbor matching with Matching; An Example: {.codefont2 .Results}
 
 Dataset: ~22000 students from large university, of whom 266 part of ASP program.  Data on everything from entering characteristics to end of college outcomes. Covariates determine ASP program participation.
 
@@ -128,9 +115,12 @@ modeldata <- data.frame(hcdata$ASPSCLR, hcdata$Best_ACT_Comp,
 colnames(modeldata)[1] <- "ASPSCLR"
 colnames(modeldata)[5] <- "gender"
 modeldataOmitNA <- na.omit(modeldata)
-```
 
----
+ppty <- glm(as.integer(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+            + hcdata.incomingcreditstotal + gender, 
+            data = modeldataOmitNA, family = "binomial")
+modeldataOmitNA$pptyScore <- ppty$fitted.values
+```
 
 ## Nearest Neighbor Matching.
 
@@ -150,9 +140,7 @@ matches <- matchit(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA +
 matchedPairs <- match.data(matches)
 ```
 
-match.data function creates new data frame with only the treatment and matched control observations, measured propensity score, distance metric (if different), and weights.
-
----
+match.data function creates new data frame with only the treatment and matched control observations, measured propensity score, distance metric (if different), and weights. 
 
 ## Pair Matching Results {.codefont}
 <div class="columns-2">
@@ -161,11 +149,9 @@ summary(matches)
 ```
 </div>
 
----
-
 ## Covariate Balance: before/after {.codefont2 .Results}
 
-Before
+**Before**
 
 ```{r}
 RItools::xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + 
@@ -173,7 +159,7 @@ RItools::xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp +
                   gender, data = modeldataOmitNA)
 ```
 
-After
+**After**
 
 ```{r}
 RItools::xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + 
@@ -182,15 +168,11 @@ RItools::xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp +
                   data = matchedPairs)
 ```
 
----
-
 ## Checking Covariate Balance: QQ-Plots
 
 ```{r, fig.height = 3}
 plot(matches)
 ```
-
----
 
 ## Checking Covariate Balance: Jitter Plots
 
@@ -198,57 +180,50 @@ plot(matches)
 plot(matches, type = "jitter")
 ```
 
----
-
 ## Checking Covariate Balance: Histograms
 
 ```{r}
 plot(matches, type = "hist")
 ```
 
----
+## Comparing propensity score distributions {.codefont2 .Results}
 
-## Comparing propensity score distributions 
-
-Kolmogorov-Smirnov test for distributions of propensity scores
+Anderson-Darling test for distributions of propensity scores
 
 ```{r}
 asp <- dplyr::filter(matchedPairs, ASPSCLR == 1)
 nonasp <- dplyr::filter(matchedPairs, ASPSCLR == 0)
 allcont <- dplyr::filter(modeldataOmitNA, ASPSCLR == 0)
 
-#ks.test(asp$pptyScore, allcont$pptyScore)
-#ks.test(asp$pptyScore, nonasp$pptyScore)
-
-#ad.test(asp$pptyScore, allcont$pptyScore)
-#ad.test(asp$pptyScore, nonasp$pptyScore)
-
+ad.test(asp$pptyScore, allcont$pptyScore)
 ```
 
----
+## Anderson-Darling test for distributions of propensity scores {.codefont2 .Results}
+
+```{r}
+ad.test(asp$pptyScore, nonasp$pptyScore)
+```
 
 ## Follow-up analysis: Outcomes {.codefont2 .Results}
 
 T-test: Cumulative GPA, ASP vs non-ASP, unmatched data
 
 ```{r}
-t.test(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, 
-       data = modeldataOmitNA)
+t.test(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, data = modeldataOmitNA)
 ```
 
 T-test: Cumulative GPA, ASP vs non-ASP, matched data
 
 ```{r}
-t.test(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR , 
-       data = matchedPairs)
+t.test(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, data = matchedPairs)
 ```
+
+## Effect Sizes for mean differences {.codefont2 .Results}
 
 ```{r}
 cohen.d(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, modeldataOmitNA)
 cohen.d(hcdata.CumGPAendmostrecentUNterm ~ ASPSCLR, matchedPairs)
 ```
-
----
 
 ## Follow-up analysis: Outcomes {.codefont2 .Results}
 
@@ -268,6 +243,7 @@ Matched
 ```{r}
 matchedRetention <- chisq.test(matchedPairs$ASPSCLR, 
                                matchedPairs$hcdata...12yrretention.)
+matchedRetention
 ```
 
 ```{r}
@@ -275,13 +251,12 @@ matchedRetention$expected
 matchedRetention$observed
 ```
 </div>
----
 
 ## Optmatch package
 
 Provides a similar set of routines to MatchIt, offering nearest neighbor, 1 to k nearest neigbor, full matching (1 to n), and optimal matching (m to n)
 
-pairmatch: nearest neighbor, 1 - k nearest neighbor, default distance metrics is Mahalanobis distance, but logit propensity scores are available, as are euclidean and user defined distance metrics.
+pairmatch: nearest neighbor, 1 to k nearest neighbor, default distance metrics is Mahalanobis distance, but logit propensity scores are available, as are euclidean and user defined distance metrics.
 
 ```{r}
 pairs <- pairmatch(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp
@@ -289,18 +264,16 @@ pairs <- pairmatch(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp
                    + gender, data = modeldataOmitNA)
 ```
 
----
-
 ## Pairmatch Output {.codefont2 .Results}
 
 Output is an optmatch object, with a number of accessible attributes, including the matched.distances and default vector of the groupings.
 
 ```{r}
-pairs[!is.na(pairs)][1:50]
-attr(pairs, "matched.distances")[1:50]
+modeldataOmitNA$pairs <- pairs
+ordered <- dplyr::filter(modeldataOmitNA[order(pairs),], !is.na(pairs))
+head(dplyr::select(ordered, ASPSCLR, pptyScore, pairs), n = 12)
+attr(pairs, "matched.distances")[1:20]
 ```
-
---- 
 
 ## Covariate Balance Checking {.codefont2 .Results}
 
@@ -319,8 +292,6 @@ boxplot(pptyscores ~ ASPSCLR , data = pairedData,
         main = "Prop Scores matched data")
 ```
 
----
-
 ## Covariate Balance {.codefont2 .Results}
 
 ```{r}
@@ -329,8 +300,6 @@ xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA
 xBalance(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
          + hcdata.incomingcreditstotal + gender, data = pairedData)
 ```
-
----
 
 ## Pair matching with mahalanobis distance and propensity score caliper {.codefont2 .Results}
 
@@ -342,7 +311,6 @@ ppty <- glm(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA +
             data = modeldataOmitNA, family = binomial)
 
 ppty.dist <- match_on(ppty)
-pptycaliper <- caliper(ppty.dist, width = .2)
 
 mhd.pptyc <- caliper(ppty.dist, width = 1) +
   match_on(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
@@ -352,28 +320,71 @@ mhd.pptyc <- caliper(ppty.dist, width = 1) +
 caliperMatch <- pairmatch(mhd.pptyc, data = modeldataOmitNA)
 modeldataOmitNA$calipers <- caliperMatch
 matchedCalipers <- filter(modeldataOmitNA, !is.na(calipers))
+```
 
+## Balance Checking {.codefont2 .Results}
+
+```{r}
 xBalance(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
          + hcdata.incomingcreditstotal + gender, data = modeldataOmitNA)
 xBalance(ASPSCLR ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
          + hcdata.incomingcreditstotal + gender, data = matchedCalipers)
 ```
 
----
-
-## Full Matching with Optmatch
+## Full Matching with Optmatch {.codefont2 .Results}
 
 ```{r}
-full <- fullmatch(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp + 
-                    hcdata.HSGPA + hcdata.incomingcreditstotal 
+full <- fullmatch(as.numeric(ASPSCLR) ~ hcdata.Best_ACT_Comp +  hcdata.HSGPA + hcdata.incomingcreditstotal 
                   + gender, data = modeldataOmitNA)
 modeldataOmitNA$fullMatches <- full
-groupings <- data.frame(modeldataOmitNA$fullMatches, 
-                        modeldataOmitNA$ASPSCLR)
-groupings[1:20,]
+groupings <- data.frame(modeldataOmitNA$fullMatches, modeldataOmitNA$pptyScore, modeldataOmitNA$ASPSCLR)
+strata <- groupings[order(groupings$modeldataOmitNA.fullMatches),]
+colnames(strata) <- c("fullMatches", "pptyScore", "ASPSCLR")
+strata[1:15,]
+stratumStructure(full)
 ```
 
----
+## Full Matching: Balance Check {.codefont2 .Results}
+
+```{r}
+listDists <- lapply(attr(full, "matched.distances"), length)
+strata <- attr(listDists, "names")
+weights <- 1 / as.integer(listDists)
+attr(weights, "names") <- strata
+weightFrame <- data.frame(weights, attr(weights, "names"))
+merged <- merge(modeldataOmitNA, weightFrame, 
+                by.x = "fullMatches", 
+                by.y = "attr.weights...names..")
+merged[merged$ASPSCLR == 1,]$weights <- rep.int(1,nrow(merged[merged$ASPSCLR == 1,]))
+xBalance(as.integer(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+         + hcdata.incomingcreditstotal + gender, 
+         data = modeldataOmitNA)
+xBalance(as.integer(ASPSCLR) ~ hcdata.Best_ACT_Comp + hcdata.HSGPA 
+         + hcdata.incomingcreditstotal + gender, 
+         data = merged, strata = merged$fullMatches, 
+         stratum.weights = weights)
+```
+
+## Follow up analysis: Outcomes {.codefont2 .Results}
+
+Weighted t-test: 
+
+```{r}
+ASP <- filter(merged, ASPSCLR == 1)
+NASP <- filter(merged, ASPSCLR == 0)
+
+t.test(ASP$hcdata.CumGPAendmostrecentUNterm, 
+       NASP$hcdata.CumGPAendmostrecentUNterm)
+
+```
+
+## Weighted t-test: {.codefont2 .Results}
+
+```{r}
+wtd.t.test(ASP$hcdata.CumGPAendmostrecentUNterm, 
+           NASP$hcdata.CumGPAendmostrecentUNterm, 
+           weight = ASP$weights, weighty = NASP$weights)
+```
 
 ## References:
 
