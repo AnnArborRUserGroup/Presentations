@@ -1,0 +1,3 @@
+,Variable,Constant
+Map,fill = ~state,fill = state
+Set,fill := ~state,fill := state

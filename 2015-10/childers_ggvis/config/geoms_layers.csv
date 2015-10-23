@@ -1,0 +1,7 @@
+geom,layer
+geom_bar,layer_rects
+geom_histogram,layer_histograms
+geom_density,layer_densities
+geom_line,layer_lines
+geom_smooth,layer_smooths
+geom_text,layer_text
