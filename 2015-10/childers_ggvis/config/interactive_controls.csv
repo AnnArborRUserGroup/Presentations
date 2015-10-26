@@ -1,0 +1,9 @@
+Shiny,ggvis
+checkboxGroupInput,input_checkboxgroup
+checkboxInput,input_checkbox
+radioButtons,input_radiobuttons
+numericInput,input_numeric
+selectInput,input_select
+sliderInput,input_slider
+textInput,input_text
+dateInput,[NA]

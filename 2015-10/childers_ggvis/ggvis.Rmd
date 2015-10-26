@@ -1,0 +1,693 @@
+---
+title: "Introduction to ggvis"
+subtitle: "Ann Arbor R User Group"
+author: "Dave Childers"
+date: "October 15, 2015"
+output: ioslides_presentation
+runtime: shiny
+---
+
+<!--
+incremental: no
+smaller: true
+
+-->
+
+## Intro
+
+Dave Childers
+
+- Data Scientist with [Powerley](http://www.powerley.com/)
+- Before that: Data Science Consulting
+- Before that: CSCAR at UM
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+library(shiny)
+library(knitr)
+library(ggplot2)
+library(ggvis)
+library(dplyr)
+library(scales)
+library(DiagrammeR)
+
+cocaine <- tbl_df(cocaine)
+```
+
+## Example Data Set | All Cocaine Seizures in 2007
+```{r, echo = FALSE, results="asis"}
+cocaine %>% slice(1:5) %>% as.data.frame %>% knitr::kable(.)
+```
+
+<!--
+
+## Motivation
+
+```{r, echo=FALSE}
+cocaine %>%
+  mutate(ppg = price / weight) %>%
+  group_by(state) %>%
+  summarise(
+    mean_potency = mean(potency), 
+    mean_ppg = mean(ppg),
+    n = n()
+    ) %>%
+  filter(n >= 10) %>%
+  mutate(id = state) %>% 
+  ggvis(~mean_potency, ~mean_ppg, key := ~id) %>%
+  layer_points %>%
+  add_tooltip(function(x) x$id) %>%
+  add_axis("y", title = "Average Cost per Gram") %>%
+  add_axis("x", title = "Average Potency")
+```
+
+-->
+
+## Motivation
+
+```{r, echo=FALSE}
+cocaine %>%
+  slice(1:100) %>%
+  ggvis(~weight , ~price) %>%
+  layer_points(
+    size := input_slider(min = 50, max = 500, value = 50, step = 50), 
+    opacity := 0.3,
+    fill := "steelblue"
+    ) %>%
+  layer_model_predictions(
+    model = input_radiobuttons(
+      choices = c("Linear" = "lm", "LOESS" = "loess"),
+      selected = "loess",
+      label = "Model Type"
+    ),
+    formula = price ~ weight
+  ) #%>%
+  #bind_shiny("p")
+
+#ggvisOutput("p")
+```
+
+## Motivation
+
+- Graphics moving to web
+- Interactivity
+- Fast Exploratory Data Analysis
+
+## Outline
+
+1. Dependencies
+2. Syntax
+3. Exploratory Data Analysis
+4. Interactivity
+
+## ggvis dependencies
+
+```{r, echo=FALSE}
+grViz("
+      
+digraph ggvis {
+
+# add node statements
+node [shape = circle
+fonrname = Helvetica
+penwidth = 2.0]
+
+ggvis; dplyr; shiny; vega; D3; gg; magrittr
+
+# add edge statements
+edge[arrowhead = diamond]
+dplyr->ggvis; shiny->ggvis; vega->ggvis;
+D3->ggvis; gg->ggvis; magrittr->ggvis
+
+# add a graph statement
+graph [nodesep = 0.1]
+}      
+")
+```
+
+<!--
+
+## dplyr | grammar of data manipulation
+
+```{r}
+filter(cocaine, weight <= 10) # dplyr version of base::subset
+mutate(cocaine, log_weight = log(weight)) # dplyr version of base::transform
+```
+
+[dplyr introduction](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)
+
+-->
+
+## pipe operator | read code like a book
+
+```
+# easy to read/write
+cocaine %>%
+  mutate(log_weight = log(weight)) %>%
+  filter(weight <= 10)
+
+# hard to read/write
+filter(mutate(cocaine, log_weight = log(weight)), weight <= 10)
+```
+
+[pipe introduction](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html)
+
+# Syntax
+
+## ggplot
+
+<!--
+
+```
+### <b>
+ggplot(cocaine, aes(x = weight, y = price)) +
+  geom_point()
+### </b>
+```
+-->
+
+```{r}
+ggplot(cocaine, aes(x = weight, y = price)) +
+  geom_point()
+```
+
+## ggvis
+
+```{r}
+ggvis(cocaine, x = ~weight, y = ~price) %>%
+  layer_points
+```
+
+## ggplot v ggvis | Syntax Comparison
+
+```
+ggplot(cocaine, aes(x = weight, y = price)) +
+  geom_point()
+
+ggvis(cocaine, x = ~weight, y = ~price) %>%
+  layer_points
+```
+
+__Similarities__
+
+- Define graphic by composing *small* functions
+- Mapping variables to visual properties
+- Property Inheritance
+
+## ggplot v ggvis | Syntax Comparison
+
+```
+ggplot(cocaine, aes(x = weight, y = price)) +
+  geom_point()
+
+ggvis(cocaine, x = ~weight, y = ~price) %>%
+  layer_points
+```
+
+__Differences (ggplot -> ggvis)__
+
+  1. plus -> pipe
+  2. layer -> geom
+  3. point -> points
+  4. aes() -> ~
+
+## Table of Geoms/Layers
+
+```{r, results="asis", echo=FALSE}
+read.csv("./config/geoms_layers.csv") %>% knitr::kable(.)
+```
+
+## No Layers
+
+```{r, results="asis", echo=FALSE}
+read.csv("./config/no_layers.csv") %>% knitr::kable(.)
+```
+
+## Setting Constants, Mapping Variables
+
+```
+# mapping state -> color
+ggplot(cocaine, aes(x = weight, y = price)) +
+  geom_point(aes(color = state))
+
+# setting color to a constant value
+ggplot(cocaine, aes(x = weight, y = price)) +
+  geom_point(color = "orange")
+```
+
+```{r, echo=FALSE}
+c2 <- cocaine %>% filter(state %in% c("FL", "IN", "NY"))
+```
+
+## Variables/Constants Mapping/Setting
+```{r, results="asis", echo=FALSE}
+read.csv("./config/where_how.csv") %>% 
+  setNames(., c("", "Variable", "Constant")) %>%
+  knitr::kable(.)
+```
+
+<!--
+
+## ggplot Mapping
+
+```{r}
+ggplot(c2, aes(x = weight, y = price)) +
+  geom_point(aes(color = state))
+```
+
+## ggplot Setting
+
+```{r}
+ggplot(c2, aes(x = weight, y = price)) +
+  geom_point(color = "orange")
+```
+
+-->
+
+# Exploratory Data Analysis | Cocaine Seizures
+
+<!--
+
+## Histograms
+
+```{r}
+ggvis(cocaine, x = ~price) %>% layer_histograms
+```
+
+-->
+
+## Histograms
+
+```{r}
+ggvis(cocaine, x = ~price) %>% 
+  layer_histograms(width = 100, center = 50)
+```
+
+## Densities
+
+```{r}
+ggvis(cocaine, x = ~price) %>% layer_densities %>% 
+  add_axis("y", title_offset = 50)
+```
+
+<!--
+
+## Densities Options
+
+```{r}
+ggvis(cocaine, x = ~price) %>% layer_densities(adjust = 0.3, area = FALSE)
+```
+
+## Counts by State
+
+```{r}
+cocaine %>% count(state, sort = TRUE)
+```
+
+-->
+
+## Bar Plot
+
+```{r}
+ggvis(cocaine, x = ~state) %>% layer_bars
+```
+
+<!--
+
+## Ordered Bar Plot
+
+```{r}
+cocaine %>% count(state, sort = TRUE) %>%
+  ggvis(x = ~reorder(state, -n), y = ~n) %>%
+  layer_bars
+```
+
+-->
+
+## Bar Plot #2
+
+```{r, echo=FALSE}
+cocaine %>% count(state, sort = TRUE) %>%
+  ggvis(x = ~reorder(state, -n), y = ~n) %>%
+  filter(n >= 100) %>%
+  add_axis("x", title = "State") %>%
+  layer_bars %>%
+  layer_text(text := ~n, fontSize := 20) 
+```
+
+What happens if we say `text = ~n` ?
+
+
+## Bar Plot Code
+
+```
+cocaine %>% count(state, sort = TRUE) %>%
+  ggvis(x = ~reorder(state, -n), y = ~n) %>%
+  filter(n >= 100) %>%
+  add_axis("x", title = "State") %>%
+  layer_bars %>%
+  layer_text(text := ~n, fontSize := 20) 
+  # what happens if we say text = ~n ?
+```
+
+## Title? 
+
+```{r, echo = FALSE}
+cocaine %>% count(state, sort = TRUE) %>%
+  ggvis(x = ~reorder(state, -n), y = ~n) %>%
+  filter(n >= 100) %>%
+  layer_bars %>%
+  layer_text(text := ~n) %>%
+  add_axis("x", title = "State") %>%
+  add_axis(
+    "x", 
+    title = "2007 Cocaine Seizures by State", 
+    orient = "top",
+    ticks = 0,
+    properties = axis_props(
+      axis = list(stroke = "white"),
+      labels = list(fontSize = 0)
+    )
+    )
+```
+
+## Title? | A Hack
+
+```
+cocaine %>% count(state, sort = TRUE) %>%
+  ggvis(x = ~reorder(state, -n), y = ~n) %>%
+  filter(n >= 100) %>%
+  layer_bars %>%
+  layer_text(text := ~n) %>%
+  add_axis("x", title = "State") %>%
+  add_axis(
+    "x", 
+    title = "2007 Cocaine Seizures by State", 
+    orient = "top",
+    ticks = 0,
+    properties = axis_props(
+      axis = list(stroke = "white"),
+      labels = list(fontSize = 0)
+    )
+    )
+```
+
+## Not (Yet) Implemented
+
+- ```ggtitle()```
+- ```coord_flip()```
+- ```themes```
+- Faceting
+
+## Smooths
+
+```
+%>% layer_smooths
+```
+
+```{r, echo=FALSE}
+ggvis(cocaine, x = ~weight, y = ~price) %>%
+  layer_points(opacity := 0.2, fill := "steelblue") %>%
+  layer_smooths
+```
+
+## Linear Model
+
+```
+%>% layer_model_predictions(model = "lm", formula = price ~ weight)
+```
+
+```{r, echo=FALSE}
+ggvis(cocaine, x = ~weight, y = ~price) %>%
+  layer_points(opacity := 0.2, fill := "steelblue") %>%
+  layer_model_predictions(model = "lm", formula = price ~ weight)
+```
+
+<!--
+
+## Log-log model
+
+```{r log_log, eval=FALSE}
+ggvis(cocaine, ~weight, ~price) %>%
+  mutate(
+    log_weight = log(weight), 
+    log_price = log(price)
+    ) %>%
+  layer_points(x = ~log_weight, y = ~log_price, opacity := 0.2, fill := "steelblue") %>%
+  layer_model_predictions(
+    model = "lm", 
+    formula = log_price ~ log_weight
+    )
+```
+
+# Log-log model
+
+```{r log_log2, echo=FALSE}
+ggvis(cocaine, ~weight, ~price) %>%
+  mutate(
+    log_weight = log(weight), 
+    log_price = log(price)
+    ) %>%
+  layer_points(x = ~log_weight, y = ~log_price, opacity := 0.2, fill := "steelblue") %>%
+  layer_model_predictions(
+    model = "lm", 
+    formula = log_price ~ log_weight
+    )
+```
+
+## Filter
+
+```{r}
+cocaine %>% count(state, sort = TRUE) %>%
+  ggvis(x = ~reorder(state, -n), y = ~n) %>%
+  filter(n >= 100) %>%
+  add_axis("x", title = "State")
+```
+
+-->
+
+## Smooths by state
+
+```{r, echo=FALSE}
+ggvis(cocaine, ~weight, ~price, fill = ~state, stroke = ~state) %>%
+  filter(state %in% c("FL", "IN", "NY")) %>%
+  mutate(log_weight = log(weight), log_price = log(price)) %>%
+  layer_points(~log_weight, ~log_price, opacity := 0.2) %>%
+  auto_group() %>%
+  layer_model_predictions(
+    model = "lm", 
+    formula = log_price ~ log_weight
+    ) %>%
+  add_axis("x", title = "Log Price") %>%
+  add_axis("y", title = "Log Weight")
+```
+
+## Smooths by state | Code
+
+```
+ggvis(cocaine, ~weight, ~price, fill = ~state, stroke = ~state) %>%
+  filter(state %in% c("FL", "IN", "NY")) %>%
+  mutate(log_weight = log(weight), log_price = log(price)) %>%
+  layer_points(~log_weight, ~log_price, opacity := 0.2) %>%
+  auto_group() %>%
+  layer_model_predictions(
+    model = "lm", 
+    formula = log_price ~ log_weight
+  ) %>%
+  add_axis("x", title = "Log Price") %>%
+  add_axis("y", title = "Log Weight")
+```
+
+## dplyr methods on ggvis objects
+
+```{r}
+methods(class = "ggvis")
+```
+
+<!--
+
+```{r, results="asis", echo=FALSE}
+read.csv("./config/no_layers.csv") %>% knitr::kable(.)
+```
+
+-->
+
+## ggvis scales options 
+
+```{r, results="asis", echo=FALSE}
+read.csv("config/ggvis_scales.csv") %>% #setNames("option") %>%
+  knitr::kable(.)
+```
+
+# Interactivity
+
+## Control Size and Model
+
+```{r, echo=FALSE}
+cocaine %>%
+  slice(1:100) %>%
+  ggvis(~weight , ~price) %>%
+  layer_points(
+    size := input_slider(min = 50, max = 500, value = 50, step = 50), 
+    opacity := 0.3,
+    fill := "steelblue"
+    ) %>%
+  layer_model_predictions(
+    model = input_radiobuttons(
+      choices = c("Linear" = "lm", "LOESS" = "loess"),
+      selected = "loess",
+      label = "Model Type"
+    ),
+    formula = price ~ weight
+  )
+```
+
+## Interactive Control Commands
+
+```
+%>% layer_points(
+    size := input_slider(min = 50, max = 500, value = 50, step = 50)
+)
+```
+
+<!--
+%>% layer_model_predictions(
+    model = input_radiobuttons(
+      choices = c("Linear" = "lm", "LOESS" = "loess"),
+      selected = "loess",
+      label = "Model Type"
+    )
+-->
+
+## Interactive Controls: Shiny & ggvis
+
+```{r, echo=FALSE, results="asis"}
+read.csv("config/interactive_controls.csv") %>% knitr::kable(.)
+```
+
+<!--
+
+## Interactivity Possibilities
+
+- arguments to transforms and layers
+
+```layer_smooths(span = input_slider(0, 1))```
+
+```layer_points(size := input_slider(1, 10))```
+
+-->
+
+## Tooltip
+```{r, echo=FALSE}
+cocaine %>%
+  mutate(ppg = price / weight) %>%
+  group_by(state) %>%
+  summarise(
+    mean_potency = mean(potency), 
+    mean_ppg = mean(ppg),
+    n = n()
+    ) %>%
+  filter(n >= 10) %>%
+  mutate(id = state) %>%
+  ggvis(~mean_potency, ~mean_ppg, key := ~id) %>%
+  layer_points %>%
+  add_tooltip(function(x) x$id) %>%
+  add_axis("y", title = "Mean PPG") %>%
+  add_axis("x", title = "Mean Potency")
+```
+
+## Tooltip Commands
+
+```
+%>% add_tooltip(function(x) x$id) 
+```
+
+## ggvis interactivity | Limitations
+
+- cannot switch between data sets
+
+- cannot add/remove layers
+
+- need Shiny for full interactivity
+
+## add ggvis to Shiny
+
+```{r bind_shiny, results="asis", echo=FALSE}
+data.frame(
+  type = c("plot", "ggvis"),
+  server.R = c("renderPlot", "bind_shiny"),
+  ui.R = c("plotOutput", "ggvisOutput")
+) %>% knitr::kable(.)
+```
+
+## Why ggvis?
+
+- More **interactive** than ggplot 
+
+- Faster **exploratory** analysis than shiny
+
+- Be cautious about using in production
+
+## Stackoverflow Tags
+
+```{r, echo=FALSE}
+tags <- read.csv("./config/so_tags.csv")
+```
+
+```{r, echo=FALSE}
+ggvis(tags, x = ~tag, y = ~count) %>% 
+  mutate(tag = reorder(tag, -count)) %>%
+  layer_bars(fill = ~tag) %>%
+  layer_text(text := ~ count, align := "left", fontSize := 30, dx := 60) %>%
+  add_axis("y", title = "") %>%
+  add_axis("x", title = "",
+           properties = axis_props(
+             ticks = list(stroke = "red"),
+             labels = list(
+               fill = "steelblue",
+               angle = 45,
+               fontSize = 16,
+               baseline = "middle",
+               dx = 3,
+               dy = 10
+             )
+           )
+  )
+```
+
+<!--
+
+## Previous Code
+
+```{r, eval=FALSE}
+ggvis(tags, x = ~tag, y = ~count) %>% 
+  mutate(tag = reorder(tag, -count)) %>%
+  layer_bars(fill = ~tag) %>%
+  layer_text(text := ~ count, align := "left", fontSize := 30, dx := 60) %>%
+  add_axis("y", title = "") %>%
+  add_axis("x", title = "",
+           properties = axis_props(
+             ticks = list(stroke = "red"),
+             labels = list(
+               fill = "steelblue",
+               angle = 45,
+               fontSize = 16,
+               baseline = "middle",
+               dx = 3,
+               dy = 10
+             )
+           )
+  )
+```
+
+-->
+
+## Thanks! | Resources
+
+- [ggvis webpage](http://ggvis.rstudio.com/)
+- [Stackoverflow](http://stackoverflow.com/)
+- [RStudio Blog](http://blog.rstudio.org/)
+
+### Contact
+
+- Dave Childers
+- childers.dave@gmail.com
