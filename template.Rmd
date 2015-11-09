@@ -14,8 +14,9 @@ output:
 - What's your experience with R?
 - What's your experience with the topic?
 
-## This is another slide
- - nothing to see here
+## What to Expect
+ - tell the audience a little bit about what you'll cover
+ - it doesn't need to a be a detailed outline; those are usually boring anyways
  - notice how these display one-at-a-time?
  - set `incremental: no` in the YAML header to render all bullets at once
 
@@ -33,6 +34,11 @@ print(tomorrow)
 ```
 
 See how it displays the code and the results? You can add chunk arguments (next to the `r` in brackets) to do many things, like hide the code or output, set figure dimensions, cache results, etc.
+
+## Links
+You can create a link to a website like [this](https://github.com/AnnArborRUserGroup/Presentations).
+
+Image links are very similar, you just need to have the image in the same location as this file: ![R](R.jpg)
 
 ## More options {.build}
 Notice the `{.build}` next to the slide title; this acts like the `incremental: yes` header option, but applies to non-bulleted lines as well, like this one.
