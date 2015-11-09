@@ -1,0 +1,49 @@
+---
+title: "Something about R"
+subtitle: "Ann Arbor R User Group"
+author: "Your Name"
+date: "Jan 1, 1970"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: yes
+---
+
+## About Me
+- What do you do?
+- What's your experience with R?
+- What's your experience with the topic?
+
+## This is another slide
+ - nothing to see here
+ - notice how these display one-at-a-time?
+ - set `incremental: no` in the YAML header to render all bullets at once
+
+# Look, a New Section!
+
+## What about code?
+The great thing about RMarkdown is including code which will be ran when this document is knit.
+
+You can have inline code, like tomorrow's date is `r Sys.Date()+1`, or blocks of code ("code chunks") like
+
+```{r}
+today    <- Sys.Date()
+tomorrow <- today + 1
+print(tomorrow)
+```
+
+See how it displays the code and the results? You can add chunk arguments (next to the `r` in brackets) to do many things, like hide the code or output, set figure dimensions, cache results, etc.
+
+## More options {.build}
+Notice the `{.build}` next to the slide title; this acts like the `incremental: yes` header option, but applies to non-bulleted lines as well, like this one.
+
+That's why this line wasn't diplayed right away.
+
+- the downside of .build is it makes you double-click for bullets
+- which is kind of annoying sometimes
+
+## Further Reading
+- Learn more about RMarkdown [here](http://rmarkdown.rstudio.com/)
+- It's a good idea to have a similar section in your presentation
+
+# Questions?
