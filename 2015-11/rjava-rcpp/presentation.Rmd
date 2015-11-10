@@ -220,7 +220,130 @@ Rcpp.package.skeleton(name = "anRpackage", list = character(),
   compileAttributes('/home/dpressel/dev/work/convotron')
   ```
 
-## Code
+## 1D Filtering in Time Domain
+
+```{c eval=FALSE}
+//' Valid region cross-correlation of a vector with another vector.
+//' This is equivalent to convolve(x, y, type='filter') 
+//'
+//' @param x first input signal (length(x) >= length(y))
+//' @param y second input signal (length(y) < length(x))
+//' @return a vector that is of width length(x) - length(y) + 1
+// [[Rcpp::export]]
+NumericVector ctron_xcorr1(const NumericVector& x, const NumericVector& y)
+{
+
+    int iT = x.size();
+    int fT = y.size();
+    
+    // valid-region cross-correlation output
+    NumericVector z(iT - fT + 1, 0.);
+    int oT = z.size();
+
+    for (int i = 0; i < oT; ++i)
+    {
+    	for (int j = 0; j < fT; ++j)
+    	{
+    	    z[i] += x[i + j] * y[j];
+    	}
+    } 
+    return z;
+}
+
+```
+
+## 1D Filtering in Freq Domain
+
+```{c eval=FALSE}
+//' Valid region cross-correlation of a vector with another vector using fftw.
+//' This is equivalent to convolve(x, y, type='filter') when corr=TRUE
+//'
+//' @param x first input signal (length(x) >= length(y))
+//' @param y second input signal (length(y) < length(x))
+//' @return a vector that is of width length(x) - length(y) + 1
+// [[Rcpp::export]]
+NumericVector ctron_fftfilt1(const NumericVector& x, const NumericVector& y, bool corr)
+{
+
+    int xsz = x.size();
+    int ysz = y.size();
+
+    // fft size
+    int wide = nextPowerOf2(xsz + ysz - 1);
+
+    // valid-region convolution/cross-correlation size
+    int narrow = xsz - ysz + 1;
+    NumericVector z(narrow);
+
+    fftw_plan p;
+
+    // Buffers for FFTs
+    fftw_complex* xwide = 
+	(fftw_complex*) fftw_malloc(sizeof(fftw_complex) * wide);
+    fftw_complex* ywide =
+	(fftw_complex*) fftw_malloc(sizeof(fftw_complex) * wide);
+```
+
+## 1D Filtering in Freq Domain (Cont.)
+
+```{c eval=FALSE}
+    int mn = std::min<int>(xsz, ysz);
+
+    // zero out xwide, ywide
+    ...
+
+    // copy x into a complex array
+    for (int i = 0; i < xsz; ++i)
+    {
+        ...
+    }
+
+    // copy y into a complex array forward or backward?
+    if (corr)
+    {
+        ...
+    }
+    else
+    {
+        ...
+    }
+
+    fftfilt1(wide, p, xwide, ywide, corr);
+    
+    // cleanup
+    ...
+```
+
+## 1D Filtering in Freq Domain Workhorse
+
+```{c eval=FALSE}
+// 1D FFT filtering
+void fftfilt1(int wide, fftw_plan& p, 
+	      fftw_complex* xwide, fftw_complex* ywide, bool corr)
+{
+
+    // FFTs
+    p = fftw_plan_dft_1d(wide, xwide, xwide, FFTW_FORWARD, FFTW_ESTIMATE);
+    fftw_execute(p);
+    fftw_execute_dft(p, ywide, ywide);
+    
+    // conj, followed by complex multiply
+    for (int i = 0; i < wide; i++)
+    {
+        ywide[i][1] = -ywide[i][1];
+        double xwr = xwide[i][0];
+        double xwi = xwide[i][1];
+        xwide[i][0] = xwr * ywide[i][0] - xwi * ywide[i][1];
+        xwide[i][1] = xwr * ywide[i][1] + xwi * ywide[i][0];
+    }
+
+    // IFFT
+    p = fftw_plan_dft_1d(wide, xwide, xwide, FFTW_BACKWARD, FFTW_ESTIMATE);
+    fftw_execute(p);
+
+}
+
+```
 
 **Generates wrappers**
 
