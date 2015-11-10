@@ -1,0 +1,318 @@
+---
+title: "Using Rcpp and rJava"
+
+subtitle: "Ann Arbor R User Group"
+author: "Dan Pressel"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: no
+    smaller: true
+---
+## Why Bother Talking to Other Languages?
+
+**Speed**
+
+ - Not always worth speeding up, but sometimes makes a huge difference
+ 
+ - Standard routines are general purpose, one size doesnt fit all?
+
+**Flexibility**
+
+ - Reuse existing routines
+
+**Others?**
+
+## C APIs in R
+
+**Example Code**
+
+```{c eval=FALSE}
+#include <R.h>
+#include <Rinternals.h>
+
+SEXP add(SEXP a, SEXP b) {
+  SEXP result = PROTECT(allocVector(REALSXP, 1));
+  REAL(result)[0] = asReal(a) + asReal(b);
+  UNPROTECT(1);
+
+  return result;
+}
+```
+
+```{R eval=FALSE}
+add <- function(a, b) {
+  .Call("add", a, b)
+}
+```
+ 
+## Huh?
+
+**R garbage collected, need to protect accordingly**
+
+**C interface talks to a SEXP, which is actually different objects for each type**
+
+ - Use pryr to see what they really are
+
+```{R}
+ require(pryr)
+ inspect(c(1,2,3))
+```
+
+**Lots of code to negotiate, coerce, etc.**
+
+ - Error prone, boilerplate stuff!
+
+## Progress?
+
+![Almost there](/home/dpressel/figure/wires-small.jpg)
+
+## Better Idea: Rcpp
+
+**Very natural C++ interface to R**
+
+ - Uses a type registry and some "sugar" to encapsulate and provide better experience to dev
+
+     + C++ operator overloading
+
+     + Improved interface hides conversion, boilerplate code
+
+     + Sugar access to R-like functions
+
+ - Probably reduces mistakes
+     
+## A Real Use-Case Filtering on a Valid Region
+
+```{r output=FALSE, echo=FALSE, message=FALSE}
+require(animation)
+#par(mar = rep(3, 4))
+N = 30
+K = 5
+```
+
+**Smoothing Time Series (kernel width = `r K`)**
+```{r conv, fig.width=7, fig.height=4, echo=FALSE, fig.show='animate', fig.path='figure'}
+
+wT = N + K - 1
+halfK = floor(K/2);
+d = matrix(c(rep(0, halfK), runif(N), rep(0, halfK)), 1, wT);
+kern = matrix(rep(1/K, K), K, 1)
+oT = N - K + 1
+x = c(rep(0, N))
+y = c(rep(0, N-halfK+1))
+
+oopt = ani.options(interval = 0.3, nmax = N)
+par(mar = rep(3, 4))
+for (i in 1:N) {
+    ctr = i + halfK;
+    x = c(x[-1], d[,ctr])
+    t = (d[,i:(i+K-1)] %*% kern);
+    y = c(y[-1], t)
+    plot(x)
+    lines(x, col="blue")
+    lines(y, col="red")
+    ani.pause(1)
+}
+ani.options(oopt)
+```
+
+## So How Do We Filter?
+
+**Time domain valid region convolution: 1D filtering as the dot product over time**
+
+$$(s*k)=\sum_{n=0}^N \sum_{m=0}^M s[n + m]k[M - m]$$
+
+**This means that 2 signals of length N, we have N multiplies and N-1 adds for each n, performed N times**
+
+$$O(N^2)$$
+
+**Filtering in the Frequency Domain**
+
+ - The FFT provides a fast algorithm for DFTs, which we will perform on each signal [1]
+
+$$O(N \log N)$$
+
+  - Convolution in time domain means multiplication in the frequency domain
+
+  - Now IFFT the product to get back to time domain
+
+
+## An application of FFTs: Image Registration
+
+![Image Registration](/home/dpressel/figure/aerial-reg.jpg)
+
+## Filter Signal with a Kernel
+  
+**Many times, signal length T, kernel length K, shorter than T**
+
+  - Valid region will be T - K + 1
+     
+**Fastest Execution Depends**
+
+  - Now we have T * K multiplies, T * (K - 1) adds in time domain
+
+  - Frequency domain, need 2 signals length N = T + K - 1, zeropadded
+  
+  - Typically extend to good FFT size
+
+**Affected by**
+
+  - lengths of signals (changes number of flops)
+
+  - memory allocation and movement
+
+      
+## R Builtin
+
+**convolve(signalA, signalB, type='filter')**
+
+  - Implemented (always) as an FFT
+  
+       + In common case like moving average, probably hurts performance
+    
+  - Also, what about the R itself, does it pay for flexibility?
+      
+       + Turns out yes, hand-rolled fftfilt and xcorr1 in R, still faster than builtin
+
+## Rcpp: First Steps
+
+**inline directly with cfunction()**
+
+  - Getting your hands dirty easy but also cumbersome
+
+       + Who writes C++ without errors?? (Inlining almost always a pain for this author)
+
+**sourceCpp()**
+
+  - Source an entire C++ file
+  
+       + Nice and simple, plus builtin to Rstudio!
+
+**compileAttributes(pathToPackage)**
+
+  - Turns sugar into gold!
+  
+       + Knows annotations, uses them to augment/generate wrapper code
+
+## Rcpp skeleton
+
+```
+Rcpp.package.skeleton(name = "anRpackage", list = character(), 
+    environment = .GlobalEnv, path = ".", force = FALSE, 
+    code_files = character(), cpp_files = character(),
+    example_code = TRUE, attributes = TRUE, module = FALSE, 
+    author = "Who wrote it", 
+    maintainer = if(missing( author)) "Who to complain to" else author, 
+    email = "yourfault@somewhere.net", 
+    license = "What Licence is it under ?"
+    )
+```
+
+**Generate a package**
+ 
+  - Tweak meta-data, code
+  
+  - call compileAttributes()
+
+  ```{r}
+  require(Rcpp)
+  compileAttributes('/home/dpressel/dev/work/convotron')
+  ```
+
+## Code
+
+**Generates wrappers**
+
+```{c eval=FALSE}
+// This file was generated by Rcpp::compileAttributes
+// Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
+
+#include <Rcpp.h>
+
+using namespace Rcpp;
+
+// ctron_xcorr1
+NumericVector ctron_xcorr1(const NumericVector& x, const NumericVector& y);
+RcppExport SEXP convotron_ctron_xcorr1(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    __result = Rcpp::wrap(ctron_xcorr1(x, y));
+    return __result;
+END_RCPP
+}
+// ctron_conv1
+...
+```
+
+## Build
+
+**Using external libs?**
+
+  - Here fftw3, so create Makevars, Makevars.WIN
+
+       + Add PKG_LIBS
+       + Needs to be all there and if you are installing from a non-standard location, need CXX_FLAGS as well!
+
+  - Now usual suspects
+     
+       + R CMD CHECK convotron
+       + R CMD INSTALL convotron
+       
+## Results
+
+**A length 3000, B length 300**
+```
+> A = matrix(runif(3000)*2-1, 60, 50)
+
+> B = matrix(runif(300)*2-1, 60, 5)
+
+> benchmark(loop.convR(A,B), loop.xcorr1(A,B), loop.fftfilt1(A,B), native.xcorr1(A,B), native.fftfilt1(A,B), replications=1000)
+                   test replications elapsed relative user.self sys.self user.child sys.child
+1      loop.convR(A, B)         1000   1.655    66.20     1.652    0.000          0         0
+3   loop.fftfilt1(A, B)         1000   2.166    86.64     2.136    0.024          0         0
+2     loop.xcorr1(A, B)         1000   0.297    11.88     0.296    0.000          0         0
+5 native.fftfilt1(A, B)         1000   1.772    70.88     1.740    0.028          0         0
+4   native.xcorr1(A, B)         1000   0.025     1.00     0.024    0.000          0         0
+```
+**Native cross-correlation wins**
+
+## Results
+**A length 30k, B length 5k**
+
+```
+> A = matrix(runif(30000)*2-1, 6, 5000)
+
+> B = matrix(runif(300)*2-1, 6, 50)
+
+> benchmark(loop.convR(A,B), loop.xcorr1(A,B), loop.fftfilt1(A,B), native.xcorr1(A,B), native.fftfilt1(A,B), replications=1000)
+                   test replications elapsed relative user.self sys.self user.child sys.child
+1      loop.convR(A, B)         1000   4.245    3.324     4.236    0.000          0         0
+3   loop.fftfilt1(A, B)         1000   2.067    1.619     2.060    0.004          0         0
+2     loop.xcorr1(A, B)         1000   2.037    1.595     2.036    0.000          0         0
+5 native.fftfilt1(A, B)         1000   1.277    1.000     1.272    0.000          0         0
+4   native.xcorr1(A, B)         1000   1.405    1.100     1.376    0.024          0         0
+```
+**Native FFT wins**
+
+## Results
+
+**2D convolution with image A, size 60x50, kernel 5x6**
+
+```
+> A = matrix(runif(3000)*2-1, 60, 50)
+
+> B = matrix(runif(30)*2-1, 5, 6)
+
+> benchmark(conv2(A,B), ctron_conv2mx(A, B), replications=1000)
+                 test replications elapsed relative user.self sys.self user.child sys.child
+1         conv2(A, B)         1000   0.340    4.928     0.340        0          0         0
+2 ctron_conv2mx(A, B)         1000   0.069    1.000     0.068        0          0         0
+```
+**Native time domain 2D conv wins**
+
+
+## Phew, deep breath.... Okay, Java time
