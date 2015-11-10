@@ -15,18 +15,14 @@ https://AnnArborRUserGroup.github.io/
 
 http://meetup.com/Ann-Arbor-R-User-Group
 
-Organizers:
-
----------|--------
-Ellis | `ellis.valentiner@gmail.com`
-Clayton | `claytonjy@gmail.com`
-Rob | `robert.weyant@gmail.com`
-Michelle | `michberr8@gmail.com`
-
-Sponsors:
+**Sponsors:**
 
 * Revolution Analytics
 * Barracuda Networks
+
+**Organizers:**
+
+Ellis, Clayton, Rob, Michelle
 
 ## Slack
 
