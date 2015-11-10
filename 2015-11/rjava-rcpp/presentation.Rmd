@@ -10,19 +10,39 @@ output:
     incremental: no
     smaller: true
 ---
-## Why Bother Talking to Other Languages?
+## Why Bother Accessing Other Languages from R?
 
 **Speed**
 
- - Not always worth speeding up, but sometimes makes a huge difference
+ - not always worth speeding up, but sometimes makes a huge difference
  
- - Standard routines are general purpose, one size doesnt fit all?
+ - standard routines are general purpose, one size doesnt fit all?
 
 **Flexibility**
 
- - Reuse existing routines
+ - reuse existing routines
 
-**Others?**
+**Just for Fun?**
+
+> - What is wrong with me?
+
+## Spoiler Alert: R is Great at This
+
+**Rcpp interface is clean, easy to use**
+
+  - if you can write R, you can write Rcpp
+
+  - please Note: GPL applies to your code!
+
+**rJava is Literally Just Writing R**
+
+  - API is Simple and Powerful
+
+**Packaging System in R Makes This Stuff Easy and Fun**
+
+  - convention over configuration
+  
+     + It Just Works!
 
 ## C APIs in R
 
@@ -49,11 +69,13 @@ add <- function(a, b) {
  
 ## Huh?
 
-**R garbage collected, need to protect accordingly**
+**R garbage collected**
+
+ - PROTECT(x) tells R to not do any garbage collection
 
 **C interface talks to a SEXP, which is actually different objects for each type**
 
- - Use pryr to see what they really are
+ - use pryr to see what they really are
 
 ```{R}
  require(pryr)
@@ -62,7 +84,9 @@ add <- function(a, b) {
 
 **Lots of code to negotiate, coerce, etc.**
 
- - Error prone, boilerplate stuff!
+ - error prone, boilerplate stuff!
+ 
+ - and this is a simple case...
 
 ## Progress?
 
@@ -72,16 +96,16 @@ add <- function(a, b) {
 
 **Very natural C++ interface to R**
 
- - Uses a type registry and some "sugar" to encapsulate and provide better experience to dev
+ - uses a type registry and some "sugar" to encapsulate and provide better experience to dev
 
-     + C++ operator overloading
+     + c++ operator overloading
 
-     + Improved interface hides conversion, boilerplate code
+     + improved interface hides type conversion, boilerplate code
 
-     + Sugar access to R-like functions
+     + sugar access to R-like functions
 
- - Probably reduces mistakes
-     
+ - probably reduces mistakes
+
 ## A Real Use-Case Filtering on a Valid Region
 
 ```{r output=FALSE, echo=FALSE, message=FALSE}
@@ -129,32 +153,37 @@ $$O(N^2)$$
 
 **Filtering in the Frequency Domain**
 
- - The FFT provides a fast algorithm for DFTs, which we will perform on each signal [1]
+ - the FFT provides a fast implementation for DFTs, which we will perform on each signal
 
 $$O(N \log N)$$
 
-  - Convolution in time domain means multiplication in the frequency domain
+  - convolution in time domain means multiplication in the frequency domain
 
-  - Now IFFT the product to get back to time domain
-
+  - now IFFT the product to get back to time domain
 
 ## An application of FFTs: Image Registration
 
 ![Image Registration](/home/dpressel/figure/aerial-reg.jpg)
 
+**First two images, aligned**
+
+ - typically done with cross-correlation of micro-patches
+
+ - followed by warping
+
 ## Filter Signal with a Kernel
   
 **Many times, signal length T, kernel length K, shorter than T**
 
-  - Valid region will be T - K + 1
+  - valid region will be T - K + 1
      
 **Fastest Execution Depends**
 
-  - Now we have T * K multiplies, T * (K - 1) adds in time domain
+  - now we have T * K multiplies, T * (K - 1) adds in time domain
 
-  - Frequency domain, need 2 signals length N = T + K - 1, zeropadded
+  - frequency domain, need 2 signals length N = T + K - 1, zeropadded
   
-  - Typically extend to good FFT size
+     + typically extend to good FFT size
 
 **Affected by**
 
@@ -167,37 +196,37 @@ $$O(N \log N)$$
 
 **convolve(signalA, signalB, type='filter')**
 
-  - Implemented (always) as an FFT
+  - implemented (always) as an FFT
   
-       + In common case like moving average, probably hurts performance
+       + in common case like moving average, probably hurts performance
     
-  - Also, what about the R itself, does it pay for flexibility?
+  - also, what about the R itself, does it pay for flexibility?
       
-       + Turns out yes, hand-rolled fftfilt and xcorr1 in R, still faster than builtin
+       + turns out yes, hand-rolled fftfilt and xcorr1 in R, still faster than builtin
 
 ## Rcpp: First Steps
 
 **inline directly with cfunction()**
 
-  - Getting your hands dirty easy but also cumbersome
+  - getting your hands dirty easy but also cumbersome
 
-       + Who writes C++ without errors?? (Inlining almost always a pain for this author)
+       + who writes C++ without errors on the first try??
 
 **sourceCpp()**
 
-  - Source an entire C++ file
+  - source an entire C++ file
   
-       + Nice and simple, plus builtin to Rstudio!
+       + nice and simple, plus builtin to Rstudio!
 
 **compileAttributes(pathToPackage)**
 
-  - Turns sugar into gold!
+  - turns "sugar" into gold!
   
        + Knows annotations, uses them to augment/generate wrapper code
 
 ## Rcpp skeleton
 
-```
+```{r eval=FALSE}
 Rcpp.package.skeleton(name = "anRpackage", list = character(), 
     environment = .GlobalEnv, path = ".", force = FALSE, 
     code_files = character(), cpp_files = character(),
@@ -211,7 +240,7 @@ Rcpp.package.skeleton(name = "anRpackage", list = character(),
 
 **Generate a package**
  
-  - Tweak meta-data, code
+  - tweak meta-data, code
   
   - call compileAttributes()
 
@@ -252,7 +281,7 @@ NumericVector ctron_xcorr1(const NumericVector& x, const NumericVector& y)
 
 ```
 
-## 1D Filtering in Freq Domain
+## 1D Filtering in Frequency Domain
 
 ```{c eval=FALSE}
 //' Valid region cross-correlation of a vector with another vector using fftw.
@@ -284,7 +313,7 @@ NumericVector ctron_fftfilt1(const NumericVector& x, const NumericVector& y, boo
 	(fftw_complex*) fftw_malloc(sizeof(fftw_complex) * wide);
 ```
 
-## 1D Filtering in Freq Domain (Cont.)
+## 1D Filtering in Frequency Domain (Cont.)
 
 ```{c eval=FALSE}
     int mn = std::min<int>(xsz, ysz);
@@ -314,7 +343,7 @@ NumericVector ctron_fftfilt1(const NumericVector& x, const NumericVector& y, boo
     ...
 ```
 
-## 1D Filtering in Freq Domain Workhorse
+## 1D Filtering in Frequency Domain (the "Workhorse")
 
 ```{c eval=FALSE}
 // 1D FFT filtering
@@ -375,12 +404,12 @@ END_RCPP
 
 **Using external libs?**
 
-  - Here fftw3, so create Makevars, Makevars.WIN
+  - here fftw3, so create Makevars, Makevars.WIN
 
-       + Add PKG_LIBS
-       + Needs to be all there and if you are installing from a non-standard location, need CXX_FLAGS as well!
+       + add PKG_LIBS
+       + needs to be all there and if you are installing from a non-standard location, need CXX_FLAGS as well!
 
-  - Now usual suspects
+  - now usual suspects
      
        + R CMD CHECK convotron
        + R CMD INSTALL convotron
@@ -425,6 +454,8 @@ END_RCPP
 
 **2D convolution with image A, size 60x50, kernel 5x6**
 
+ - Note, there is no conv2() built in to R, this is hand-rolled, but same approach as convolve()
+ 
 ```
 > A = matrix(runif(3000)*2-1, 60, 50)
 
@@ -439,3 +470,190 @@ END_RCPP
 
 
 ## Phew, deep breath.... Okay, Java time
+
+**Wanted to Demonstrate Usefulness of rJava**
+
+ - Please note: not a Java hater
+ 
+ - And yes, its usually fast... if you are doing it right
+
+ - Java is a language of reuse,  many complex, powerful libraries being reused daily
+
+## Something Useful to Do?
+
+**Search System**
+
+ - Inverted index, makes searching for text fast
+
+    + Constant time lookup from word to documents
+  
+    + If you are scanning, its going to be linear traversal of all docs
+
+ - Also provides powerful, expressive grammars
+ 
+**So I thought...**
+
+ - It would be fun if we could index a frame in R and search over it
+ 
+> - Lucene API in Java could easily make this happen
+
+> - rJava is a fun way to spend an afternoon
+
+##But How?
+
+**Achtung! Lucene's API is a bit thorny**
+
+ - I could've picked an easier library, but, the devil you know...
+
+**General Flow for Indexing**
+
+   - Create an Analyzer (for tokenization of your doc)
+
+   - Create an IndexWriter
+   
+   - For each column in our frame we want to index
+   
+     + Tell lucene how we want it stored in a Document, and add
+
+**General Flow for Searching**
+
+   - Create an IndexSearcher and Query
+    
+     + A lot of times, we want a QueryParser to help
+
+  - Get results back and "hydrate"
+  
+## First steps
+
+**Package or stand-alone**
+  
+  - I recommend package!
+  
+     + You can use package.skeleton(), then tweak
+  
+**Need Java installed first**
+  
+  -  Rjava will embed, talk to JVM
+    
+**Grab your dependency jars**
+
+  - Java archive files we want in our "classpath"
+
+## Let's Assume you are making a directory
+
+```
+dpressel@dpressel:~/dev/work/lucifR$ ls -R 
+.:
+DESCRIPTION  inst  NAMESPACE  R  README.md
+
+./inst:
+java
+
+./inst/java:
+lucene-analyzers-common-5.3.1.jar  lucene-core-5.3.1.jar  lucene-queryparser-5.3.1.jar
+
+./R:
+lucifR.index.R     lucifR.newAnalyzer.R  lucifR.newSearcher.R  lucifR.search.R  onLoad.R
+lucifR-internal.R  lucifR.newQuery.R     lucifR.queryParser.R  lucifR.tokr.R
+```
+
+## On load, package initialization
+
+```{r eval=FALSE}
+onLoad <-
+function(libname, pkgname) {
+        .jpackage(pkgname, lib.loc=libname)
+}
+```
+
+**Finds your inst/java directory, add classpath dependencies automatically**
+
+## Ok, let's code
+
+**To do lucene stuff, we need an analyzer**
+```{r eval=FALSE}
+
+# Default our argument to the path style name for the Java class
+lucifR.newAnalyzer <-
+function(byName="org/apache/lucene/analysis/standard/StandardAnalyzer") {
+  # J accesses the class
+  StandardAnalyzer = J(byName);
+  
+  # new(X) allocates an X
+  analyzer = new(StandardAnalyzer);
+}
+```
+
+## Next: tokenize
+
+```{r eval=FALSE}
+lucifR.tokr <-
+function(an, str) {
+  CharTermAttribute = J("org/apache/lucene/analysis/tokenattributes/CharTermAttribute");
+  # We call class methods like this!
+  ts = an$tokenStream("dontcare", str);
+  charTermAttribute = ts$addAttribute(CharTermAttribute$class);
+
+  ts$reset();
+  toks = c();
+
+  # Traverse tokens
+  while (ts$incrementToken()) {
+    # And get the values out and put them in a list
+    rstr = as.character(charTermAttribute$toString())
+    toks = c(toks, rstr);
+  }
+
+  ts$end();
+  ts$close();
+  return(toks)
+}
+
+```
+
+## So far...
+
+```{r}
+require(lucifR)
+an = lucifR.newAnalyzer()
+lucifR.tokr(an, "I like cats.   They are pretty awesome!")
+```
+
+**Right??**
+
+ - Ok, on to the hard stuff!
+
+   + Notice hard part is navigating Lucene, not rJava!
+
+## Indexing a Frame in Lucene
+
+```{r eval=FALSE}
+lucifR.index <-
+function(aframe, dirname, fnames=names(F), cb=NULL) {
+  ...
+  # Just to show how to use .jnew instead of new(X)
+  jfs = .jnew("java/io/File", dirname)
+  jpath = jfs$toPath()
+  iwc = new(IndexWriterConfig, analyzer)
+  
+  iwc$setOpenMode(IndexWriterConfig$OpenMode$CREATE);
+  jdir = FSDirectory$open(jpath);
+  writer = new(IndexWriter, jdir, iwc);
+
+  # Go through all rows in a frame indexing any requested fname (column)
+  invisible(sapply(1:nrow(aframe), function(i) {
+
+    doc = new(Document);
+    for (name in fnames) {
+      val = aframe[i,][[name]]
+      tf = new(TextField, name, as.character(val), Field$Store$YES);
+      doc$add(tf);
+    }
+    doc$add(new(IntField, "docid", i, Field$Store$YES));
+    writer$addDocument(doc);
+    ...
+  }));
+  writer$close();
+}
+```
+
