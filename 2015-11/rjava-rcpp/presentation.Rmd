@@ -1,0 +1,718 @@
+---
+title: "Using Rcpp and rJava"
+
+subtitle: "Ann Arbor R User Group"
+author: "Dan Pressel"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: no
+    smaller: true
+---
+## Why Bother Accessing Other Languages from R?
+
+**Speed**
+
+ - not always worth speeding up, but sometimes makes a huge difference
+ 
+ - standard routines are general purpose, one size doesnt fit all?
+
+**Flexibility**
+
+ - reuse existing routines
+
+**Just for Fun?**
+
+> - What is wrong with me?
+
+## Spoiler Alert: R is Great at This
+
+**Rcpp interface is clean, easy to use**
+
+  - if you can write R, you can write Rcpp
+
+  - please Note: GPL applies to your code!
+
+**rJava is Literally Just Writing R**
+
+  - API is Simple and Powerful
+
+**Packaging System in R Makes This Stuff Easy and Fun**
+
+  - convention over configuration
+  
+     + It Just Works!
+
+## C APIs in R
+
+**Example Code**
+
+```{c eval=FALSE}
+#include <R.h>
+#include <Rinternals.h>
+
+SEXP add(SEXP a, SEXP b) {
+  SEXP result = PROTECT(allocVector(REALSXP, 1));
+  REAL(result)[0] = asReal(a) + asReal(b);
+  UNPROTECT(1);
+
+  return result;
+}
+```
+
+```{R eval=FALSE}
+add <- function(a, b) {
+  .Call("add", a, b)
+}
+```
+ 
+## Huh?
+
+**R garbage collected**
+
+ - PROTECT(x) tells R to not do any garbage collection
+
+**C interface talks to a SEXP, which is actually different objects for each type**
+
+ - use pryr to see what they really are
+
+```{R}
+ require(pryr)
+ inspect(c(1,2,3))
+```
+
+**Lots of code to negotiate, coerce, etc.**
+
+ - error prone, boilerplate stuff!
+ 
+ - and this is a simple case...
+
+## Progress?
+
+![Almost there](figure/wires-small.jpg)
+
+## Better Idea: Rcpp
+
+**Very natural C++ interface to R**
+
+ - uses a type registry and some "sugar" to encapsulate and provide better experience to dev
+
+     + c++ operator overloading
+
+     + improved interface hides type conversion, boilerplate code
+
+     + sugar access to R-like functions
+
+ - probably reduces mistakes
+
+## A Real Use-Case Filtering on a Valid Region
+
+```{r output=FALSE, echo=FALSE, message=FALSE}
+require(animation)
+#par(mar = rep(3, 4))
+N = 30
+K = 5
+```
+
+**Smoothing Time Series (kernel width = `r K`)**
+```{r conv, fig.width=7, fig.height=4, echo=FALSE, fig.show='animate', fig.path='figure'}
+
+wT = N + K - 1
+halfK = floor(K/2);
+d = matrix(c(rep(0, halfK), runif(N), rep(0, halfK)), 1, wT);
+kern = matrix(rep(1/K, K), K, 1)
+oT = N - K + 1
+x = c(rep(0, N))
+y = c(rep(0, N-halfK+1))
+
+oopt = ani.options(interval = 0.3, nmax = N)
+#par(mar = rep(0,1,0,0))
+#par(mfcol=c(1,2))
+for (i in 1:N) {
+    ctr = i + halfK;
+    x = c(x[-1], d[,ctr])
+    t = (d[,i:(i+K-1)] %*% kern);
+    y = c(y[-1], t)
+    plot(x, ylim=c(0,1))
+    lines(x, col="blue")
+    # plot(y, ylim=c(0,1))
+    lines(y, col="red")
+    ani.pause(1)
+}
+ani.options(oopt)
+```
+
+## So How Do We Filter?
+
+**Time domain valid region convolution: 1D filtering as the dot product over time**
+
+$$(s*k)=\sum_{n=0}^N \sum_{m=0}^M s[n + m]k[M - m]$$
+
+**This means that 2 signals of length N, we have N multiplies and N-1 adds for each n, performed N times**
+
+$$O(N^2)$$
+
+**Filtering in the Frequency Domain**
+
+ - the FFT provides a fast implementation for DFTs, which we will perform on each signal
+
+$$O(N \log N)$$
+
+  - convolution in time domain means multiplication in the frequency domain
+
+  - now IFFT the product to get back to time domain
+
+## An application of FFTs: Image Registration
+
+![Image Registration](figure/aerial-reg.jpg)
+
+**First two images, aligned**
+
+ - typically done with cross-correlation of micro-patches
+
+ - followed by warping
+
+## Filter Signal with a Kernel
+  
+**Many times, signal length T, kernel length K, shorter than T**
+
+  - valid region will be T - K + 1
+     
+**Fastest Execution Depends**
+
+  - now we have T * K multiplies, T * (K - 1) adds in time domain
+
+  - frequency domain, need 2 signals length N = T + K - 1, zeropadded
+  
+     + typically extend to good FFT size
+
+**Affected by**
+
+  - lengths of signals (changes number of flops)
+
+  - memory allocation and movement
+
+      
+## R Builtin
+
+**convolve(signalA, signalB, type='filter')**
+
+  - implemented (always) as an FFT
+  
+       + in common case like moving average, probably hurts performance
+    
+  - also, what about the R itself, does it pay for flexibility?
+      
+       + turns out yes, hand-rolled fftfilt and xcorr1 in R, still faster than builtin
+
+## Rcpp: First Steps
+
+**inline directly with cfunction()**
+
+  - getting your hands dirty easy but also cumbersome
+
+       + who writes C++ without errors on the first try??
+
+**sourceCpp()**
+
+  - source an entire C++ file
+  
+       + nice and simple, plus builtin to Rstudio!
+
+**compileAttributes(pathToPackage)**
+
+  - turns "sugar" into gold!
+  
+       + Knows annotations, uses them to augment/generate wrapper code
+
+## Rcpp skeleton
+
+```{r eval=FALSE}
+Rcpp.package.skeleton(name = "anRpackage", list = character(), 
+    environment = .GlobalEnv, path = ".", force = FALSE, 
+    code_files = character(), cpp_files = character(),
+    example_code = TRUE, attributes = TRUE, module = FALSE, 
+    author = "Who wrote it", 
+    maintainer = if(missing( author)) "Who to complain to" else author, 
+    email = "yourfault@somewhere.net", 
+    license = "What Licence is it under ?"
+    )
+```
+
+**Generate a package**
+ 
+  - tweak meta-data, code
+  
+  - call compileAttributes()
+
+  ```{r eval=FALSE}
+  require(Rcpp)
+  compileAttributes('./convotron')
+  ```
+
+## 1D Filtering in Time Domain
+
+```{c eval=FALSE}
+//' Valid region cross-correlation of a vector with another vector.
+//' This is equivalent to convolve(x, y, type='filter') 
+//'
+//' @param x first input signal (length(x) >= length(y))
+//' @param y second input signal (length(y) < length(x))
+//' @return a vector that is of width length(x) - length(y) + 1
+// [[Rcpp::export]]
+NumericVector ctron_xcorr1(const NumericVector& x, const NumericVector& y)
+{
+
+    int iT = x.size();
+    int fT = y.size();
+    
+    // valid-region cross-correlation output
+    NumericVector z(iT - fT + 1, 0.);
+    int oT = z.size();
+
+    for (int i = 0; i < oT; ++i)
+    {
+    	for (int j = 0; j < fT; ++j)
+    	{
+    	    z[i] += x[i + j] * y[j];
+    	}
+    } 
+    return z;
+}
+
+```
+
+## 1D Filtering in Frequency Domain
+
+```{c eval=FALSE}
+//' Valid region cross-correlation of a vector with another vector using fftw.
+//' This is equivalent to convolve(x, y, type='filter') when corr=TRUE
+//'
+//' @param x first input signal (length(x) >= length(y))
+//' @param y second input signal (length(y) < length(x))
+//' @return a vector that is of width length(x) - length(y) + 1
+// [[Rcpp::export]]
+NumericVector ctron_fftfilt1(const NumericVector& x, const NumericVector& y, bool corr)
+{
+
+    int xsz = x.size();
+    int ysz = y.size();
+
+    // fft size
+    int wide = nextPowerOf2(xsz + ysz - 1);
+
+    // valid-region convolution/cross-correlation size
+    int narrow = xsz - ysz + 1;
+    NumericVector z(narrow);
+
+    fftw_plan p;
+
+    // Buffers for FFTs
+    fftw_complex* xwide = 
+	(fftw_complex*) fftw_malloc(sizeof(fftw_complex) * wide);
+    fftw_complex* ywide =
+	(fftw_complex*) fftw_malloc(sizeof(fftw_complex) * wide);
+```
+
+## 1D Filtering in Frequency Domain (Cont.)
+
+```{c eval=FALSE}
+    int mn = std::min<int>(xsz, ysz);
+
+    // zero out xwide, ywide
+    ...
+
+    // copy x into a complex array
+    for (int i = 0; i < xsz; ++i)
+    {
+        ...
+    }
+
+    // copy y into a complex array forward or backward?
+    if (corr)
+    {
+        ...
+    }
+    else
+    {
+        ...
+    }
+
+    fftfilt1(wide, p, xwide, ywide, corr);
+    
+    // cleanup
+    ...
+```
+
+## 1D Filtering in Frequency Domain (the "Workhorse")
+
+```{c eval=FALSE}
+// 1D FFT filtering
+void fftfilt1(int wide, fftw_plan& p, 
+	      fftw_complex* xwide, fftw_complex* ywide, bool corr)
+{
+
+    // FFTs
+    p = fftw_plan_dft_1d(wide, xwide, xwide, FFTW_FORWARD, FFTW_ESTIMATE);
+    fftw_execute(p);
+    fftw_execute_dft(p, ywide, ywide);
+    
+    // conj, followed by complex multiply
+    for (int i = 0; i < wide; i++)
+    {
+        ywide[i][1] = -ywide[i][1];
+        double xwr = xwide[i][0];
+        double xwi = xwide[i][1];
+        xwide[i][0] = xwr * ywide[i][0] - xwi * ywide[i][1];
+        xwide[i][1] = xwr * ywide[i][1] + xwi * ywide[i][0];
+    }
+
+    // IFFT
+    p = fftw_plan_dft_1d(wide, xwide, xwide, FFTW_BACKWARD, FFTW_ESTIMATE);
+    fftw_execute(p);
+
+}
+
+```
+
+**Generates wrappers**
+
+```{c eval=FALSE}
+// This file was generated by Rcpp::compileAttributes
+// Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
+
+#include <Rcpp.h>
+
+using namespace Rcpp;
+
+// ctron_xcorr1
+NumericVector ctron_xcorr1(const NumericVector& x, const NumericVector& y);
+RcppExport SEXP convotron_ctron_xcorr1(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    __result = Rcpp::wrap(ctron_xcorr1(x, y));
+    return __result;
+END_RCPP
+}
+// ctron_conv1
+...
+```
+
+## Build
+
+**Using external libs?**
+
+  - here fftw3, so create Makevars, Makevars.WIN
+
+       + add PKG_LIBS
+       + needs to be all there and if you are installing from a non-standard location, need CXX_FLAGS as well!
+
+  - now usual suspects
+     
+       + R CMD CHECK convotron
+       + R CMD INSTALL convotron
+       
+## Results
+
+**A length 3000, B length 300**
+```
+> A = matrix(runif(3000)*2-1, 60, 50)
+
+> B = matrix(runif(300)*2-1, 60, 5)
+
+> benchmark(loop.convR(A,B), loop.xcorr1(A,B), loop.fftfilt1(A,B), native.xcorr1(A,B), native.fftfilt1(A,B), replications=1000)
+                   test replications elapsed relative user.self sys.self user.child sys.child
+1      loop.convR(A, B)         1000   1.655    66.20     1.652    0.000          0         0
+3   loop.fftfilt1(A, B)         1000   2.166    86.64     2.136    0.024          0         0
+2     loop.xcorr1(A, B)         1000   0.297    11.88     0.296    0.000          0         0
+5 native.fftfilt1(A, B)         1000   1.772    70.88     1.740    0.028          0         0
+4   native.xcorr1(A, B)         1000   0.025     1.00     0.024    0.000          0         0
+```
+**Native cross-correlation wins**
+
+## Results
+**A length 30k, B length 5k**
+
+```
+> A = matrix(runif(30000)*2-1, 6, 5000)
+
+> B = matrix(runif(300)*2-1, 6, 50)
+
+> benchmark(loop.convR(A,B), loop.xcorr1(A,B), loop.fftfilt1(A,B), native.xcorr1(A,B), native.fftfilt1(A,B), replications=1000)
+                   test replications elapsed relative user.self sys.self user.child sys.child
+1      loop.convR(A, B)         1000   4.245    3.324     4.236    0.000          0         0
+3   loop.fftfilt1(A, B)         1000   2.067    1.619     2.060    0.004          0         0
+2     loop.xcorr1(A, B)         1000   2.037    1.595     2.036    0.000          0         0
+5 native.fftfilt1(A, B)         1000   1.277    1.000     1.272    0.000          0         0
+4   native.xcorr1(A, B)         1000   1.405    1.100     1.376    0.024          0         0
+```
+**Native FFT wins**
+
+## Results
+
+**2D convolution with image A, size 60x50, kernel 5x6**
+
+ - Note, there is no conv2() built in to R, this is hand-rolled, but same approach as convolve()
+ 
+```
+> A = matrix(runif(3000)*2-1, 60, 50)
+
+> B = matrix(runif(30)*2-1, 5, 6)
+
+> benchmark(conv2(A,B), ctron_conv2mx(A, B), replications=1000)
+                 test replications elapsed relative user.self sys.self user.child sys.child
+1         conv2(A, B)         1000   0.340    4.928     0.340        0          0         0
+2 ctron_conv2mx(A, B)         1000   0.069    1.000     0.068        0          0         0
+```
+**Native time domain 2D conv wins**
+
+
+## Phew, deep breath.... Okay, Java time
+
+**Search System**
+
+ - Inverted index, makes searching for text fast
+
+    + Constant time lookup from word to documents
+  
+    + If you are scanning, its going to be linear traversal of all docs
+
+ - Also provides powerful, expressive grammars
+ 
+**So I thought...**
+
+ - It would be fun if we could index a frame in R and search over it
+ 
+> - Lucene API in Java could easily make this happen
+
+> - rJava is a fun way to spend an afternoon
+
+##But How?
+
+**Achtung! Lucene's API is a bit thorny**
+
+ - I could've picked an easier library, but, the devil you know...
+
+**General Flow for Indexing**
+
+   - Create an Analyzer (for tokenization of your doc)
+
+   - Create an IndexWriter
+   
+   - For each column in our frame we want to index
+   
+     + Tell lucene how we want it stored in a Document, and add
+
+**General Flow for Searching**
+
+   - Create an IndexSearcher and Query
+    
+     + A lot of times, we want a QueryParser to help
+
+  - Get results back and "hydrate"
+  
+## First steps
+
+**Package or stand-alone**
+  
+  - I recommend package!
+  
+     + You can use package.skeleton(), then tweak
+  
+**Need Java installed first**
+  
+  -  Rjava will embed, talk to JVM
+    
+**Grab your dependency jars**
+
+  - Java archive files we want in our "classpath"
+
+## Let's Assume you are making a directory
+
+```
+dpressel@dpressel:~/dev/work/lucifR$ ls -R 
+.:
+DESCRIPTION  inst  NAMESPACE  R  README.md
+
+./inst:
+java
+
+./inst/java:
+lucene-analyzers-common-5.3.1.jar  lucene-core-5.3.1.jar  lucene-queryparser-5.3.1.jar
+
+./R:
+lucifR.index.R     lucifR.newAnalyzer.R  lucifR.newSearcher.R  lucifR.search.R  onLoad.R
+lucifR-internal.R  lucifR.newQuery.R     lucifR.queryParser.R  lucifR.tokr.R
+```
+
+## On load, package initialization
+
+```{r eval=FALSE}
+onLoad <-
+function(libname, pkgname) {
+        .jpackage(pkgname, lib.loc=libname)
+}
+```
+
+**Finds your inst/java directory, add classpath dependencies automatically**
+
+## Ok, let's code
+
+**To do lucene stuff, we need an analyzer**
+```{r eval=FALSE}
+
+# Default our argument to the path style name for the Java class
+lucifR.newAnalyzer <-
+function(byName="org/apache/lucene/analysis/standard/StandardAnalyzer") {
+  # J accesses the class
+  StandardAnalyzer = J(byName);
+  
+  # new(X) allocates an X
+  analyzer = new(StandardAnalyzer);
+}
+```
+
+## Next: tokenize
+
+```{r eval=FALSE}
+lucifR.tokr <-
+function(an, str) {
+  CharTermAttribute = J("org/apache/lucene/analysis/tokenattributes/CharTermAttribute");
+  # We call class methods like this!
+  ts = an$tokenStream("dontcare", str);
+  charTermAttribute = ts$addAttribute(CharTermAttribute$class);
+
+  ts$reset();
+  toks = c();
+
+  # Traverse tokens
+  while (ts$incrementToken()) {
+    # And get the values out and put them in a list
+    rstr = as.character(charTermAttribute$toString())
+    toks = c(toks, rstr);
+  }
+
+  ts$end();
+  ts$close();
+  return(toks)
+}
+
+```
+
+## So far...
+
+```{r}
+require(lucifR)
+an = lucifR.newAnalyzer()
+lucifR.tokr(an, "I like cats.   They are pretty awesome!")
+```
+
+**Right??**
+
+ - Ok, on to the hard stuff!
+
+   + Notice hard part is navigating Lucene, not rJava!
+
+## Indexing a Frame in Lucene
+
+```{r eval=FALSE}
+lucifR.index <-
+function(aframe, dirname, fnames=names(F), cb=NULL) {
+  ...
+  # Just to show how to use .jnew instead of new(X)
+  jfs = .jnew("java/io/File", dirname)
+  jpath = jfs$toPath()
+  iwc = new(IndexWriterConfig, analyzer)
+  
+  iwc$setOpenMode(IndexWriterConfig$OpenMode$CREATE);
+  jdir = FSDirectory$open(jpath);
+  writer = new(IndexWriter, jdir, iwc);
+
+  # Go through all rows in a frame indexing any requested fname (column)
+  invisible(sapply(1:nrow(aframe), function(i) {
+
+    doc = new(Document);
+    for (name in fnames) {
+      val = aframe[i,][[name]]
+      tf = new(TextField, name, as.character(val), Field$Store$YES);
+      doc$add(tf);
+    }
+    doc$add(new(IntField, "docid", i, Field$Store$YES));
+    writer$addDocument(doc);
+    ...
+  }));
+  writer$close();
+}
+```
+
+## Searching an Index
+
+```{r eval=FALSE}
+lucifR.search <-
+function(aframe, searcher, q, limit=10) {
+  
+  # Rjava will need this to be the base class not derived, otherwise the method wont be found
+  qq = .jcast(q, new.class="org/apache/lucene/search/Query", check=TRUE)
+  
+  # Explicitly give the sig of this method, passing cast query and explicitly coerce limit to int
+  top = .jcall(searcher, "Lorg/apache/lucene/search/TopDocs;", "search", qq, as.integer(limit))
+  hits = top$scoreDocs
+  
+  # Initialize an empty table with same names as aframe, but also with a score
+  df = read.table(text="", col.names=c(names(aframe), "score"))
+  
+  for (hit in hits) {
+    doc = searcher$doc(hit$doc);
+    
+    # Get the row back in the frame -- we stored this in the index
+    docid = as.integer(doc$get("docid"));
+    
+    # bind the score to the aframe row, and append that into df
+    df <- rbind(df, cbind(aframe[docid,], hit$score))
+  }
+  return (df)
+}
+```
+
+##Finally, Profit!
+```{r}
+require(lucifR)
+p = 'Apple-Twitter-Sentiment-DFE.csv'
+F = read.csv(p)
+lucifR.index(F, 'apple-idx', c('text'))
+searcher = lucifR.newSearcher('apple-idx')
+qp = lucifR.queryParser(c('text'), lucifR.newAnalyzer())
+q = lucifR.newQuery(qp, 'garbage OR crap OR "stopped working"')
+hits = lucifR.search(F, searcher, q)
+print(hits$text[1:5])
+```
+
+##A Few More Notes About rJava
+
+**In the code, I demonstrate the more low level API and reflection**
+
+ - Reflected code is almost like Java!
+ 
+ - Reflected methods are slower avoid where speed is a concern
+ 
+ - Sometimes, reflection can goof up giving us the wrong thing in the sig
+ 
+    + Use .jcast and .jcall to handle this like a boss...
+    
+##In Summary
+
+**R is "Good at" Accessing Other Languages**
+
+ - Your pain and suffering should be minimal!
+ 
+**Good Reasons to Access Other Languages**
+
+ - Speed
+ 
+ - Flexibility
+ 
+ - Boredom
