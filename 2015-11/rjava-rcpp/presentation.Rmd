@@ -90,7 +90,7 @@ add <- function(a, b) {
 
 ## Progress?
 
-![Almost there](/home/dpressel/figure/wires-small.jpg)
+![Almost there](figure/wires-small.jpg)
 
 ## Better Idea: Rcpp
 
@@ -165,7 +165,7 @@ $$O(N \log N)$$
 
 ## An application of FFTs: Image Registration
 
-![Image Registration](/home/dpressel/figure/aerial-reg.jpg)
+![Image Registration](figure/aerial-reg.jpg)
 
 **First two images, aligned**
 
@@ -246,9 +246,9 @@ Rcpp.package.skeleton(name = "anRpackage", list = character(),
   
   - call compileAttributes()
 
-  ```{r}
+  ```{r eval=FALSE}
   require(Rcpp)
-  compileAttributes('/home/dpressel/dev/work/convotron')
+  compileAttributes('./convotron')
   ```
 
 ## 1D Filtering in Time Domain
