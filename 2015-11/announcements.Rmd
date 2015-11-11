@@ -26,11 +26,11 @@ Ellis, Clayton, Rob, Michelle
 
 ## Slack
 
-persistent chat rooms organized by topic,
+Persistent chat rooms organized by topic
 
-as well as private groups, and
+Private groups
 
-direct messaging
+Direct messaging
 
 https://aarug.slack.com/signup
 
@@ -45,14 +45,16 @@ https://aarug.slack.com/signup
 **ASA Monthly Meeting**
 
 * Tuesday, Dec. 8th
-* 6:30PM-8:00PM @ Corner Brewery
+* 6:30PM-8:00PM @ Methods Consultants'
 * http://www.meetup.com/Ann-Arbor-Chapter-of-the-American-Statistical-Association/
 
-## December Meetup
+## December Meetup: End of Year Party
 
-Wednesday, Dec. 16th 7:00PM @ FarmLogs
+Wednesday, Dec. 16th
 
-```{r echo=FALSE}
+7:00PM @ FarmLogs
+
+```{r echo=FALSE, fig.height=4, fig.width=7}
 library(leaflet)
 library(magrittr)
 m <- leaflet() %>%
