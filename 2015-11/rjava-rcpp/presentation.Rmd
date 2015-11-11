@@ -127,14 +127,16 @@ x = c(rep(0, N))
 y = c(rep(0, N-halfK+1))
 
 oopt = ani.options(interval = 0.3, nmax = N)
-par(mar = rep(3, 4))
+#par(mar = rep(0,1,0,0))
+#par(mfcol=c(1,2))
 for (i in 1:N) {
     ctr = i + halfK;
     x = c(x[-1], d[,ctr])
     t = (d[,i:(i+K-1)] %*% kern);
     y = c(y[-1], t)
-    plot(x)
+    plot(x, ylim=c(0,1))
     lines(x, col="blue")
+    # plot(y, ylim=c(0,1))
     lines(y, col="red")
     ani.pause(1)
 }
@@ -471,16 +473,6 @@ END_RCPP
 
 ## Phew, deep breath.... Okay, Java time
 
-**Wanted to Demonstrate Usefulness of rJava**
-
- - Please note: not a Java hater
- 
- - And yes, its usually fast... if you are doing it right
-
- - Java is a language of reuse,  many complex, powerful libraries being reused daily
-
-## Something Useful to Do?
-
 **Search System**
 
  - Inverted index, makes searching for text fast
@@ -657,3 +649,44 @@ function(aframe, dirname, fnames=names(F), cb=NULL) {
 }
 ```
 
+## Searching an Index
+
+```{r eval=FALSE}
+lucifR.search <-
+function(aframe, searcher, q, limit=10) {
+  
+  # Rjava will need this to be the base class not derived, otherwise the method wont be found
+  qq = .jcast(q, new.class="org/apache/lucene/search/Query", check=TRUE)
+  
+  # Explicitly give the sig of this method, passing cast query and explicitly coerce limit to int
+  top = .jcall(searcher, "Lorg/apache/lucene/search/TopDocs;", "search", qq, as.integer(limit))
+  hits = top$scoreDocs
+  
+  # Initialize an empty table with same names as aframe, but also with a score
+  df = read.table(text="", col.names=c(names(aframe), "score"))
+  
+  for (hit in hits) {
+    doc = searcher$doc(hit$doc);
+    
+    # Get the row back in the frame -- we stored this in the index
+    docid = as.integer(doc$get("docid"));
+    
+    # bind the score to the aframe row, and append that into df
+    df <- rbind(df, cbind(aframe[docid,], hit$score))
+  }
+  return (df)
+}
+```
+
+##Finally, Profit!
+```{r}
+require(lucifR)
+p = '/data/corpora/crowdflower/Apple-Twitter-Sentiment-DFE.csv'
+F = read.csv(p)
+lucifR.index(F, 'apple-idx', c('text'))
+searcher = lucifR.newSearcher('apple-idx')
+qp = lucifR.queryParser(c('text'), lucifR.newAnalyzer())
+q = lucifR.newQuery(qp, 'garbage OR crap OR "stopped working"')
+hits = lucifR.search(F, searcher, q)
+print(hits$text[1:5])
+```
