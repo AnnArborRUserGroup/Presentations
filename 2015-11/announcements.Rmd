@@ -63,6 +63,17 @@ m <- leaflet() %>%
 m
 ```
 
+## Future R Workshops
+
+We want to host some **FREE** beginner R workshops in 2016  
+
+Look for a survey in the next week:
+    
+* Interest
+* Timing
+      
+**Invite your friends!**
+
 # Presentations
 
 
