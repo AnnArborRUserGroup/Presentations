@@ -681,7 +681,7 @@ function(aframe, searcher, q, limit=10) {
 ##Finally, Profit!
 ```{r}
 require(lucifR)
-p = '/data/corpora/crowdflower/Apple-Twitter-Sentiment-DFE.csv'
+p = 'Apple-Twitter-Sentiment-DFE.csv'
 F = read.csv(p)
 lucifR.index(F, 'apple-idx', c('text'))
 searcher = lucifR.newSearcher('apple-idx')
