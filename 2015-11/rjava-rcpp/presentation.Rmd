@@ -690,3 +690,29 @@ q = lucifR.newQuery(qp, 'garbage OR crap OR "stopped working"')
 hits = lucifR.search(F, searcher, q)
 print(hits$text[1:5])
 ```
+
+##A Few More Notes About rJava
+
+**In the code, I demonstrate the more low level API and reflection**
+
+ - Reflected code is almost like Java!
+ 
+ - Reflected methods are slower avoid where speed is a concern
+ 
+ - Sometimes, reflection can goof up giving us the wrong thing in the sig
+ 
+    + Use .jcast and .jcall to handle this like a boss...
+    
+##In Summary
+
+**R is "Good at" Accessing Other Languages**
+
+ - Your pain and suffering should be minimal!
+ 
+**Good Reasons to Access Other Languages**
+
+ - Speed
+ 
+ - Flexibility
+ 
+ - Boredom
