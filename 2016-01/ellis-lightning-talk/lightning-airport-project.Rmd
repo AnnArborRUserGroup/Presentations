@@ -1,0 +1,59 @@
+---
+title: "Shiny WiFi Dashboard"
+author: "Ellis Valentiner"
+output: 
+  ioslides_presentation:
+    widescreen: true
+    css: custom.css
+---
+
+## About Me {.bigger}
+
+- Data Scientist at FarmLogs
+
+    + Provide a pragmatic scientific foundation for FarmLogs features and tools
+    
+    + Lots of data sourcing, cleaning, and evaluation
+    
+- Education: 
+
+    + Psychology (Univ. Minnesota Morris)
+    
+    + Statistics (Carnegie Mellon University)
+
+- Grew up near Minneapolis, MN
+
+## Shiny WiFi Dashboard {.bigger}
+
+- Shiny app to display wireless status information
+
+- Get wireless information, serialize the data, display it
+
+- Fun way to learn Shiny
+
+## Challenges {.bigger}
+
+- Serializing the data
+
+    + XML plist to JSON
+
+- Real-time updates
+
+    + `invalidateLater` and `<<-`
+
+- Layout
+
+    + `shinydashboard`
+
+# Demo
+
+## Future Plans {.bigger}
+
+- Add functionality (visualize signals from multiple access points)
+
+- Improve layout and design
+
+[https://github.com/ellisvalentiner/airport](https://github.com/ellisvalentiner/airport)
+
+
+

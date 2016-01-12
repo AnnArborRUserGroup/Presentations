@@ -51,6 +51,12 @@ We want to host some **FREE** beginner R workshops in March.
       
 **Invite your friends!**
 
+## February Meetup: Defensive Programming and Debugging
+
+Wednesday, Feb. 10th
+
+7:00PM @ Barracuda Networks
+
 # Lightning Talks
 
 # Presentations
