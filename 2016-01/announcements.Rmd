@@ -1,0 +1,58 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "January Meetup"
+author: ""
+date: "Jan 14, 2016"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: false
+---
+
+## Group Info
+
+https://AnnArborRUserGroup.github.io/
+
+http://meetup.com/Ann-Arbor-R-User-Group
+
+**Organizers:**
+
+Ellis, Clayton, Rob, Michelle
+
+AnnArborRUserGroup@gmail.com
+
+## Slack
+
+Persistent chat rooms organized by topic
+
+Private groups
+
+Direct messaging
+
+https://aarug.slack.com/signup
+
+## Sponsors
+
+* Revolution Analytics (Microsoft)
+* Barracuda Networks
+* Methods Consulant
+* FarmLogs
+
+## Upcoming Events
+
+**MIDAS Seminar Series**
+
+* Fridays, 4:00-5:00PM
+* http://midas.umich.edu/seminar-series/
+
+## R Workshops
+
+We want to host some **FREE** beginner R workshops in March.  
+      
+**Invite your friends!**
+
+# Lightning Talks
+
+# Presentations
+
+
