@@ -71,22 +71,23 @@ Using Hadley's `httr` package:
 
 ```{r,comment=''}
 # Search Spotify's data for artists with names like "dio" (GET)
-search_artist <- spotifyr::search('dio',type = 'artist')
+search_artist <- spotifyr::search('slomatics',type = 'artist')
 
 # Helper function to extract JSON elements into data.frame
 summarized_artists <- spotifyr::simplify_result(search_artist$artists, type='artists')
-summarized_artists[1:2,c('name','id','genre','popularity')]
+summarized_artists[,c('name','id','genre','popularity','followers')]
 ```
 
 ## More data {.smaller .blackcode}
 
 ```{r,comment=''}
 top_tracks <- spotifyr::get_artist_toptracks(summarized_artists$id[1],'us')
-summarized_tracks <- ldply(top_tracks$tracks,data.frame)
-summarized_tracks[1:2,c('artists.name','name','popularity','duration_ms','id')]
+summarized_tracks <- spotifyr::simplify_result(top_tracks$tracks,type='songs')
+
+summarized_tracks[1:3,c('artists.name','name','popularity','duration_ms','id','album.name','track_number')]
 ```
 
-<iframe src="https://embed.spotify.com/?uri=spotify:track:6hUrzrmbteorudAVzv4x4A" width="330" height="250" frameborder="0" allowtransparency="true"></iframe>
+<iframe src="https://embed.spotify.com/?uri=spotify:track:5EpjZwmWlXV0GULcAkRVsn" width="330" height="250" frameborder="0" allowtransparency="true"></iframe>
 
 
 ## Future Plans {.bigger}
@@ -97,7 +98,7 @@ summarized_tracks[1:2,c('artists.name','name','popularity','duration_ms','id')]
 
 - Improve helper functions to simplify returned JSON
 
-- Create a music recommender Shiny app integrating [Gracenote](https://developer.gracenote.com/music-platforms) and [metal-archives](metal-archives.com) data with embedded Spotify player and playlist creater 
+- Create a music recommender Shiny app integrating [Gracenote](https://developer.gracenote.com/music-platforms), [last.fm](http://www.last.fm), and [metal-archives](metal-archives.com) data with embedded Spotify player and playlist creater 
 
 [https://github.com/rweyant/spotifyr](https://github.com/rweyant/spotifyr)
 

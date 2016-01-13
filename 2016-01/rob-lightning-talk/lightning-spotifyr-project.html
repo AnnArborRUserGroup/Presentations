@@ -144,27 +144,28 @@ library(spotifyr)</pre>
 <p>e.g. <a href='https://api.spotify.com/v1/artists/6mdiAmATAx73kdxrNrnlao' title=''><a href='https://api.spotify.com/v1/artists/4CYeVo5iZbtYGBN4Isc3n6' title=''>https://api.spotify.com/v1/artists/4CYeVo5iZbtYGBN4Isc3n6</a></a></p>
 
 <pre class = 'prettyprint lang-r'># Search Spotify&#39;s data for artists with names like &quot;dio&quot; (GET)
-search_artist &lt;- spotifyr::search(&#39;dio&#39;,type = &#39;artist&#39;)
+search_artist &lt;- spotifyr::search(&#39;slomatics&#39;,type = &#39;artist&#39;)
 
 # Helper function to extract JSON elements into data.frame
 summarized_artists &lt;- spotifyr::simplify_result(search_artist$artists, type=&#39;artists&#39;)
-summarized_artists[1:2,c(&#39;name&#39;,&#39;id&#39;,&#39;genre&#39;,&#39;popularity&#39;)]</pre>
+summarized_artists[,c(&#39;name&#39;,&#39;id&#39;,&#39;genre&#39;,&#39;popularity&#39;,&#39;followers&#39;)]</pre>
 
-<pre >  name                     id           genre popularity
-1  Dio 4CYeVo5iZbtYGBN4Isc3n6 hard rock|metal         57
-2  Dio 2Np3tBLhkFCcJPun4KhrDQ                         55</pre>
+<pre >       name                     id        genre popularity followers
+1 Slomatics 2uEQL5iDUQWZopufadIW13 black sludge         15       777</pre>
 
 </article></slide><slide class=''><hgroup><h2>More data</h2></hgroup><article  id="more-data" class="smaller blackcode">
 
 <pre class = 'prettyprint lang-r'>top_tracks &lt;- spotifyr::get_artist_toptracks(summarized_artists$id[1],&#39;us&#39;)
-summarized_tracks &lt;- ldply(top_tracks$tracks,data.frame)
-summarized_tracks[1:2,c(&#39;artists.name&#39;,&#39;name&#39;,&#39;popularity&#39;,&#39;duration_ms&#39;,&#39;id&#39;)]</pre>
+summarized_tracks &lt;- spotifyr::simplify_result(top_tracks$tracks,type=&#39;songs&#39;)
 
-<pre >  artists.name                name popularity duration_ms                     id
-1          Dio          Holy Diver         55      353786 57fqmDaokbxZ3TaB0jp39q
-2          Dio Rainbow In The Dark         55      254240 1sRNnxZZDt6rPyvSbCw5im</pre>
+summarized_tracks[1:3,c(&#39;artists.name&#39;,&#39;name&#39;,&#39;popularity&#39;,&#39;duration_ms&#39;,&#39;id&#39;,&#39;album.name&#39;,&#39;track_number&#39;)]</pre>
 
-<iframe src="https://embed.spotify.com/?uri=spotify:track:6hUrzrmbteorudAVzv4x4A" width="330" height="250" frameborder="0" allowtransparency="true">
+<pre >  artists.name           name popularity duration_ms                     id         album.name track_number
+1    Slomatics     Troglorite         16      261493 5EpjZwmWlXV0GULcAkRVsn             Estron            1
+2    Slomatics Tunnel Dragger         14      355013 70LClQVM8bfyFuS3ob870h             Estron            2
+3    Slomatics  Lose The Five         13      396893 75QhxFamOxA9OrQhgTECGi Conan vs Slomatics            4</pre>
+
+<iframe src="https://embed.spotify.com/?uri=spotify:track:5EpjZwmWlXV0GULcAkRVsn" width="330" height="250" frameborder="0" allowtransparency="true">
 
 </iframe>
 
@@ -174,7 +175,7 @@ summarized_tracks[1:2,c(&#39;artists.name&#39;,&#39;name&#39;,&#39;popularity&#3
 <li><p>Test and improve stability across different operating systems</p></li>
 <li><p>Work on the supporting the last 2 API endpoints for playlist management that still don&#39;t work</p></li>
 <li><p>Improve helper functions to simplify returned JSON</p></li>
-<li><p>Create a music recommender Shiny app integrating <a href='https://developer.gracenote.com/music-platforms' title=''>Gracenote</a> and <a href='metal-archives.com' title=''>metal-archives</a> data with embedded Spotify player and playlist creater</p></li>
+<li><p>Create a music recommender Shiny app integrating <a href='https://developer.gracenote.com/music-platforms' title=''>Gracenote</a>, <a href='http://www.last.fm' title=''>last.fm</a>, and <a href='metal-archives.com' title=''>metal-archives</a> data with embedded Spotify player and playlist creater</p></li>
 </ul>
 
 <p><a href='https://github.com/rweyant/spotifyr' title=''><a href='https://github.com/rweyant/spotifyr' title=''>https://github.com/rweyant/spotifyr</a></a></p></article></slide>
