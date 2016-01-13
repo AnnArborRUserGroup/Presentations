@@ -33,7 +33,7 @@ options(width=120)
 
 - Interests: Skiing, R, Beer, Music
 
-## Spotify API {.normal}
+## [Spotify API](https://developer.spotify.com/web-api/endpoint-reference/) {.normal}
 
 - HTTP-based RESTful API, with standard HTTP-Methods (GET, PUT, POST, DELETE)
 
@@ -67,11 +67,11 @@ Using Hadley's `httr` package:
 
 - Form URL in specific pattern (**GET**): `https://api.spotify.com/v1/artists/{artist id}`
 
-  e.g. [https://api.spotify.com/v1/artists/4CYeVo5iZbtYGBN4Isc3n6](https://api.spotify.com/v1/artists/6mdiAmATAx73kdxrNrnlao)
+  e.g. [https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC](https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC)
 
 ```{r,comment=''}
-# Search Spotify's data for artists with names like "dio" (GET)
-search_artist <- spotifyr::search('slomatics',type = 'artist')
+# Search Spotify's data for artists with names like "earth" and play drone (GET)
+search_artist <- spotifyr::search('earth genre:drone',type = 'artist')
 
 # Helper function to extract JSON elements into data.frame
 summarized_artists <- spotifyr::simplify_result(search_artist$artists, type='artists')
@@ -83,11 +83,9 @@ summarized_artists[,c('name','id','genre','popularity','followers')]
 ```{r,comment=''}
 top_tracks <- spotifyr::get_artist_toptracks(summarized_artists$id[1],'us')
 summarized_tracks <- spotifyr::simplify_result(top_tracks$tracks,type='songs')
-
-summarized_tracks[1:3,c('artists.name','name','popularity','duration_ms','id','album.name','track_number')]
+summarized_tracks[1:2,c('artists.name','name','popularity','duration_ms','album.name')]
 ```
-
-<iframe src="https://embed.spotify.com/?uri=spotify:track:5EpjZwmWlXV0GULcAkRVsn" width="330" height="250" frameborder="0" allowtransparency="true"></iframe>
+<iframe src="https://embed.spotify.com/?uri=spotify:track:7kRY2GFOWywaWFE1drt80E" width="250" height="120" frameborder="0" allowtransparency="true"></iframe>
 
 
 ## Future Plans {.bigger}

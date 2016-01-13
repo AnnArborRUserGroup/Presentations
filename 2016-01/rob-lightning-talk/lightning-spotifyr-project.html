@@ -111,7 +111,7 @@
 <li><p>Interests: Skiing, R, Beer, Music</p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>Spotify API</h2></hgroup><article  id="spotify-api" class="normal">
+</article></slide><slide class=''><hgroup><h2><a href='https://developer.spotify.com/web-api/endpoint-reference/' title=''>Spotify API</a></h2></hgroup><article  id="spotify-api" class="normal">
 
 <ul>
 <li><p>HTTP-based RESTful API, with standard HTTP-Methods (GET, PUT, POST, DELETE)</p></li>
@@ -141,31 +141,29 @@ library(spotifyr)</pre>
 <li>Form URL in specific pattern (<strong>GET</strong>): <code>https://api.spotify.com/v1/artists/{artist id}</code></li>
 </ul>
 
-<p>e.g. <a href='https://api.spotify.com/v1/artists/6mdiAmATAx73kdxrNrnlao' title=''><a href='https://api.spotify.com/v1/artists/4CYeVo5iZbtYGBN4Isc3n6' title=''>https://api.spotify.com/v1/artists/4CYeVo5iZbtYGBN4Isc3n6</a></a></p>
+<p>e.g. <a href='https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC' title=''><a href='https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC' title=''>https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC</a></a></p>
 
-<pre class = 'prettyprint lang-r'># Search Spotify&#39;s data for artists with names like &quot;dio&quot; (GET)
-search_artist &lt;- spotifyr::search(&#39;slomatics&#39;,type = &#39;artist&#39;)
+<pre class = 'prettyprint lang-r'># Search Spotify&#39;s data for artists with names like &quot;earth&quot; and play drone (GET)
+search_artist &lt;- spotifyr::search(&#39;earth genre:drone&#39;,type = &#39;artist&#39;)
 
 # Helper function to extract JSON elements into data.frame
 summarized_artists &lt;- spotifyr::simplify_result(search_artist$artists, type=&#39;artists&#39;)
 summarized_artists[,c(&#39;name&#39;,&#39;id&#39;,&#39;genre&#39;,&#39;popularity&#39;,&#39;followers&#39;)]</pre>
 
-<pre >       name                     id        genre popularity followers
-1 Slomatics 2uEQL5iDUQWZopufadIW13 black sludge         15       777</pre>
+<pre >   name                     id                        genre popularity followers
+1 Earth 4mTFQE6aiehScgvreB9llC drone|drone metal|post-metal         35     15374</pre>
 
 </article></slide><slide class=''><hgroup><h2>More data</h2></hgroup><article  id="more-data" class="smaller blackcode">
 
 <pre class = 'prettyprint lang-r'>top_tracks &lt;- spotifyr::get_artist_toptracks(summarized_artists$id[1],&#39;us&#39;)
 summarized_tracks &lt;- spotifyr::simplify_result(top_tracks$tracks,type=&#39;songs&#39;)
+summarized_tracks[1:2,c(&#39;artists.name&#39;,&#39;name&#39;,&#39;popularity&#39;,&#39;duration_ms&#39;,&#39;album.name&#39;)]</pre>
 
-summarized_tracks[1:3,c(&#39;artists.name&#39;,&#39;name&#39;,&#39;popularity&#39;,&#39;duration_ms&#39;,&#39;id&#39;,&#39;album.name&#39;,&#39;track_number&#39;)]</pre>
+<pre >  artists.name                                 name popularity duration_ms                              album.name
+1        Earth     Omens And Portents 1: The Driver         29      547426 The Bees Made Honey In The Lion&#39;s Skull
+2        Earth Torn by the Fox of the Crescent Moon         28      534297                    Primitive and Deadly</pre>
 
-<pre >  artists.name           name popularity duration_ms                     id         album.name track_number
-1    Slomatics     Troglorite         16      261493 5EpjZwmWlXV0GULcAkRVsn             Estron            1
-2    Slomatics Tunnel Dragger         14      355013 70LClQVM8bfyFuS3ob870h             Estron            2
-3    Slomatics  Lose The Five         13      396893 75QhxFamOxA9OrQhgTECGi Conan vs Slomatics            4</pre>
-
-<iframe src="https://embed.spotify.com/?uri=spotify:track:5EpjZwmWlXV0GULcAkRVsn" width="330" height="250" frameborder="0" allowtransparency="true">
+<iframe src="https://embed.spotify.com/?uri=spotify:track:7kRY2GFOWywaWFE1drt80E" width="250" height="120" frameborder="0" allowtransparency="true">
 
 </iframe>
 
