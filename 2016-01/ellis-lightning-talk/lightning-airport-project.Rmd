@@ -39,7 +39,7 @@ output:
 
 - Real-time updates
 
-    + `invalidateLater` and `<<-`
+    + `invalidateLater()` and `<<-`
 
 - Layout
 
@@ -52,6 +52,8 @@ output:
 - Add functionality (visualize signals from multiple access points)
 
 - Improve layout and design
+
+- Maybe even [WiFi triangulation](https://scholar.google.com/scholar?q=wifi+position+multidimensional+scaling&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ved=0ahUKEwiZksDr1KfKAhUBXh4KHdl1BKEQgQMIGjAA)
 
 [https://github.com/ellisvalentiner/airport](https://github.com/ellisvalentiner/airport)
 
