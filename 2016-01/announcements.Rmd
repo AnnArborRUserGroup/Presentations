@@ -7,9 +7,10 @@ output:
   ioslides_presentation:
     widescreen: true
     incremental: false
+    css: custom.css
 ---
 
-## Group Info
+## Group Info {.reallybig}
 
 https://AnnArborRUserGroup.github.io/
 
@@ -21,37 +22,44 @@ Ellis, Clayton, Rob, Michelle
 
 AnnArborRUserGroup@gmail.com
 
-## Slack
+## Slack {.bigger}
 
-Persistent chat rooms organized by topic
+* Persistent chat rooms organized by topic
 
-Private groups
+    + **R** related discussion
+    
+    + Local community events and announcements
 
-Direct messaging
+* Private groups
 
-https://aarug.slack.com/signup
+* Direct messaging
 
-## Sponsors
+### **https://aarug.slack.com/signup**
+
+## Sponsors {.biggest}
 
 * Revolution Analytics (Microsoft)
+
 * Barracuda Networks
+
 * Methods Consulant
+
 * FarmLogs
 
-## Upcoming Events
+## Upcoming Events {.biggest}
 
 **MIDAS Seminar Series**
 
 * Fridays, 4:00-5:00PM
 * http://midas.umich.edu/seminar-series/
 
-## R Workshops
+## R Workshops {.biggest}
 
 We want to host some **FREE** beginner R workshops in March.  
       
 **Invite your friends!**
 
-## February Meetup: Defensive Programming and Debugging
+## February Meetup: Defensive Programming and Debugging {.reallybig}
 
 Wednesday, Feb. 10th
 
