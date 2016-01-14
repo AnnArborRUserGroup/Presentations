@@ -1,0 +1,52 @@
+---
+title: "A Modern R Styleguide"
+author: "Clayton Yochum"
+date: "January 14, 2016"
+output: 
+  ioslides_presentation:
+    widescreen: true
+    incremental: true
+    css: custom.css
+---
+
+## About Me
+
+- Business Intelligence Analyst at Barracuda Networks
+
+- Data Engineering Consultant at UM-SSW's DataLab
+
+- Math Bachelor's from Michigan Tech
+
+- From the Ann Arbor area
+
+
+## Why Make a Styleguide?
+
+- Consistent style is important!
+
+- There's only two that are easy to find: Google's and Hadley's
+
+- I think we can take the best of each, and do better
+
+- This started first as an internal Barracuda styleguide, then a styleguide for the DataLab
+
+- [Github Link](https://github.com/ClaytonJY/R-Styleguide)
+
+
+## Some Noteworthy Decisions
+
+- Don't use periods in variable names!
+
+- Function doc comments - kind of like Roxygen, but for non-package code
+
+- Some important things I do not count as "style", e.g. `library` vs. `require`
+  + A "Best Practices" document may be appropriate for such suggestions
+
+
+## What's Next?
+
+- Continue cleaning up and making small improvements
+
+- Make a blog post explaining choices (R Bloggers?)
+
+- Help me! Talk on Slack, File GH Issues and Pull Request improvements of your own
