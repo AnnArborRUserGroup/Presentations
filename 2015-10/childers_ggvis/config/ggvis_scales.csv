@@ -1,0 +1,5 @@
+type,scale
+time,scale_datetime
+categorical,scale_nominal
+numeric,scale_numeric
+ordered,scale_ordinal
