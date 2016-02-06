@@ -1,0 +1,173 @@
+Scraping Web Content Using rvest
+========================================================
+author: Jeff Shane
+date: 02/10/2016
+
+Situation
+========================================================
+
+- The Consumer Electronics Show (CES) is an annual conference that takes place in Las Vegas at the beginnning of January. My employer (Digital Roots) was a main social media provider for them.
+- Many questions of interest:
+  - What topics are people discussing?
+  - What companies are getting buzz?
+  - Which events are people at?
+  - Which venues?
+  - Customer assistance needs?
+  - Public safety concerns?
+  - ...
+
+
+
+Buzz by Industry
+========================================================
+
+- Which industries are getting interest?
+  - Wearables, 3D printing, Audio, Autonomous Vehicles, ...
+- A mention of a company can give us a clue about what industries are discussed
+- To collect these categories for each company, we can scrape the website
+
+
+
+Plan of Attack: Scrape the text using rvest
+========================================================
+- Authored by Hadley Wickham (who else...)
+- Wrappers around the 'xml2' and 'httr' packages to make it easy to
+    download, then manipulate, HTML and XML
+
+
+Extract Text From a Node
+=======================================================
+```{r extractFromNode}
+
+extractTextFromNode <- function(node, url)
+{
+  require(rvest)
+  
+  text <- 
+    url %>% 
+    read_html() %>% 
+    html_nodes(node) %>% 
+    html_text() 
+  
+  return(text)
+}
+
+```
+
+
+What is that argument in html_nodes()?
+=======================================================
+
+- A CSS selector, the node of how the webpage is structured
+- We need to figure out which node is important
+- Use CSSSelectorGadget in Chrome is an easy way to find this
+
+
+
+Examples
+=======================================================
+```{r Examples}
+
+exhId <- "T0011542"
+baseUrl <- "http://ces16.mapyourshow.com/7_0/exhibitor/exhibitor-details.cfm?exhid="
+url <- paste0(baseUrl, exhId)
+
+# Company description
+extractTextFromNode(".mys-taper-measure", url)
+
+
+
+```
+
+
+Examples
+=======================================================
+```{r Examples2}
+# Company categories
+extractTextFromNode(".mys-insideToggle", url)
+
+```
+
+
+
+Full function
+========================================================
+```{r scraping}
+cesCompanyCategoryScraper <- function(exhId)
+{
+  require(rvest)
+
+  baseUrl <- "http://ces16.mapyourshow.com/7_0/exhibitor/exhibitor-details.cfm?exhid="
+  url <- paste0(baseUrl, exhId)
+  
+  categoriesRaw <- extractTextFromNode(".mys-insideToggle", url)
+
+  categoriesClean <- categoriesRaw %>% 
+    gsub(pattern = "\t", replacement = "") %>% 
+    strsplit(split="\r\n") %>%
+    unlist 
+  
+  if(length(categoriesClean) == 0)
+  {
+    return("")
+  }
+  
+  categoriesClean = categoriesClean[categoriesClean != ""]
+  
+  return(categoriesClean)
+  
+}
+
+
+```
+
+
+
+Extracting
+========================================================
+```{r Evaluating}
+
+id = "T0011542"
+cesCompanyCategoryScraper(id)
+
+```
+
+
+
+Extracting tables
+=========================================================
+```{r HotelTable}
+
+extractTableFromNode <- function(node, url)
+{
+  require(rvest)
+  
+  table = url %>% 
+      read_html() %>% 
+      html_nodes(node) %>% 
+      html_table(header=TRUE)
+    
+  df = do.call(cbind.data.frame, table)
+  
+  return(df)
+}
+
+```
+
+
+Extracting tables
+==========================================================
+```{r}
+url = "https://cesweb.org/hotel"
+node = "table"
+tableRaw = extractTableFromNode(node, url)
+
+head(tableRaw[, -7])
+```
+
+
+Summary
+========================================================
+- rvest makes the process of web scraping relatively simple
+- Caution: sometimes the web text can't be gathered this way
+
