@@ -6,8 +6,6 @@ output:
   ioslides_presentation:
     incremental: yes
     widescreen: yes
-  slidy_presentation:
-    incremental: yes
 ---
 
 ## About Me
@@ -15,21 +13,24 @@ output:
 - M.A. Applied Statistics, 2012, UM
 
 ## Situation
-- The Consumer Electronics Show (CES) is an annual conference that takes place in Las Vegas at the beginnning of January. My employer (Digital Roots) was a main social media provider for them.
-- Many questions of interest:
+* The Consumer Electronics Show (CES) is an annual conference that takes place in Las Vegas at the beginnning of January. My employer (Digital Roots) was the social media listening/engagement service for them.
+* Many questions of interest:
   + What topics are people discussing?
   + What companies are getting buzz?
-  + Which events are people at?
-  + Which venues?
+  + Which venues? 
+  + Can we geo-locate and plot on a map?
   + Customer assistance needs?
   + Public safety concerns?
   + ...
 
-## Gathering industry types
-- Which industries are getting interest?
-  - Wearables, 3D printing, Audio, Autonomous Vehicles, ...
-- A mention of a company can give us a clue about what industries are discussed
-- To collect these categories for each of the ~3,800 companies at the show, we can scrape the CEs website
+## Industry analysis
+* Which industries are being discussed?
+  + Wearables, 3D printing, Audio, Gaming, Autonomous vehicles, etc...
+* A mention of a company can give us a clue about what industries are discussed
+* Information page about each company is on the CES website
+*  ~3,800 companies at the show
+* Way too tedious to do one-by-one
+* Let's scrape!
 
 
 ## About rvest
@@ -57,9 +58,9 @@ extractTextFromNode <- function(node, url)
 
 
 ## What is that argument in html_nodes()?
-- A CSS selector, the node of how the webpage is structured
-- We need to figure out which node has the information we want
-- Use CSSSelectorGadget in Chrome is an easy way to find this
+- A CSS selector/node, refers to the structure of the webpage
+- We need to figure out which node has the information we want to scrape
+- Using CSSSelectorGadget in Chrome is an easy way to find this
 
 
 ## Examples
@@ -70,16 +71,15 @@ baseUrl <- "http://ces16.mapyourshow.com/7_0/exhibitor/exhibitor-details.cfm?exh
 url <- paste0(baseUrl, exhId)
 
 # Company description
-descript = extractTextFromNode(".mys-taper-measure", url)
+descript <- extractTextFromNode(".mys-taper-measure", url)
 cat(descript)
 ```
 
 ## Examples
 ```{r Examples2}
 # Company categories
-cats = extractTextFromNode(".mys-insideToggle", url)
+cats <- extractTextFromNode(".mys-insideToggle", url)
 cat(cats)
-
 ```
 
 
@@ -87,11 +87,6 @@ cat(cats)
 ```{r end2end_scraper}
 cesCompanyCategoryScraper <- function(exhId)
 {
-  require(rvest)
-
-  baseUrl <- "http://ces16.mapyourshow.com/7_0/exhibitor/exhibitor-details.cfm?exhid="
-  url <- paste0(baseUrl, exhId)
-  
   categoriesRaw <- extractTextFromNode(".mys-insideToggle", url)
 
   categoriesClean <- categoriesRaw %>% 
