@@ -55,7 +55,7 @@ AnnArborRUserGroup@gmail.com
 
 ## R Workshops {.biggest}
 
-We want to host some **FREE** beginner R workshops in March.  
+We want to host some **FREE** beginner R workshops in March.
       
 **Invite your friends!**
 
