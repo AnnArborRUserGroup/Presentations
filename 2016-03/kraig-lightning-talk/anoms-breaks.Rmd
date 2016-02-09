@@ -1,0 +1,49 @@
+---
+title: "Using Twitter's algorithms to detect outliers and change points in time-series data"
+subtitle: "Ann Arbor R User Group"
+author: "Kraig Stevenson"
+date: "March 10, 2016"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: no
+    smaller: true
+---
+
+## Introduction
+  
+  - Background
+    * PhD in Bioinformatics, MS Biostatistics (U of M)
+    * Data Scientist at Trinity Health (1.5 years)
+    * Two boys (2.5 and 0.25 years)
+    * Hipster metalhead
+  
+  - Motivation
+    * Medical billing codes assigned to encounter
+    * Date of the encounter
+    * Aggregate code usage (monthly)
+    * "Did we observe more live births at SJMHS than usual in November?"
+
+##
+![dadbod](figs/proudbaba.png)
+
+## Outlier Detection
+
+
+
+## Change Point Detection
+
+
+
+## Acknowledgements
+
+Thank you very much for your attention!
+
+__Resources__  
+
+AnomalyDetection: https://github.com/twitter/AnomalyDetection  
+
+BreakoutDetection: https://github.com/twitter/BreakoutDetection  
+
+Quandl: https://www.quandl.com  
+
