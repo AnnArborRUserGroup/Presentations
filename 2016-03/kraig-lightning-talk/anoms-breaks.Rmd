@@ -17,23 +17,69 @@ output:
     * Data Scientist at Trinity Health (1.5 years)
     * Two boys (2.5 and 0.25 years)
     * Hipster metalhead
-  
-  - Motivation
-    * Medical billing codes assigned to encounter
-    * Date of the encounter
-    * Aggregate code usage (monthly)
-    * "Did we observe more live births at SJMHS than usual in November?"
 
-##
 ![dadbod](figs/proudbaba.png)
+
+## Motivation
+
+  - Medical billing codes assigned to encounter
+  - Aggregate code usage (monthly)
+  - "Did we observe more live births at SJMHS than usual in November?"
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center"}
+
+library(Quandl)
+library(magrittr)
+library(ggplot2)
+library(lubridate)
+library(AnomalyDetection)
+library(BreakoutDetection)
+
+msft_data <- Quandl("GOOG/NASDAQ_MSFT", collapse = "daily")[, c(1,5)] # closing price
+msft_data$Date <- ymd(msft_data$Date)
+colnames(msft_data) <- c("timestamp", "count")
+
+
+msft_data %>% 
+  ggplot(aes(x = timestamp, y = count)) +
+  geom_line(color = "#FAB521") +
+  theme(panel.background = element_rect(fill = "#393939"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(colour = "white", size = 0.1),
+        panel.grid.minor = element_line(colour = "white", size = 0.1)
+  ) +
+  xlab("Date") + 
+  ylab("Closing Price") + 
+  ggtitle("MSFT")
+
+```
 
 ## Outlier Detection
 
+AnomalyDetection from Twitter
+
+##
+```{r, fig.align="center"}
+
+msft_vec <- msft_data$count[order(msft_data$timestamp)]
+
+outliers <- AnomalyDetectionVec(msft_vec, direction = 'both', plot = T, period = 7, longterm_period = 56)
+outliers$plot
+
+```
 
 
 ## Change Point Detection
 
+BreakoutDetection from Twitter
 
+##
+```{r, fig.align="center"}
+
+changes <- breakout(msft_vec, method = 'multi', plot = T, min.size = 7)
+changes$plot
+
+```
 
 ## Acknowledgements
 
@@ -41,9 +87,9 @@ Thank you very much for your attention!
 
 __Resources__  
 
+Quandl: https://www.quandl.com  
+
 AnomalyDetection: https://github.com/twitter/AnomalyDetection  
 
 BreakoutDetection: https://github.com/twitter/BreakoutDetection  
-
-Quandl: https://www.quandl.com  
 
