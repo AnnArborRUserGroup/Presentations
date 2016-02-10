@@ -55,9 +55,11 @@ AnnArborRUserGroup@gmail.com
 
 ## R Workshops {.biggest}
 
-We want to host some **FREE** beginner R workshops in March.  
+We will be hosting a **FREE** beginner R workshop in March    
+
+Tentatively March 19-20, 1-5pm at SPARK
       
-**Invite your friends!**
+Capacity of ~25, keep an eye out for registration email
 
 ## March Meetup: TBD {.reallybig}
 
