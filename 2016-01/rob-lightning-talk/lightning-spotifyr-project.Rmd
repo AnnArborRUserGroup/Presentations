@@ -1,0 +1,104 @@
+---
+title: "Spotifyr Project"
+author: "Rob Weyant"
+output: 
+  ioslides_presentation:
+    widescreen: true
+    css: custom.css
+---
+
+
+```{r, echo=FALSE,message=FALSE}
+## Load package for presentation.  
+library(spotifyr)
+library(plyr)
+options(width=120)
+```
+
+## About Me {.bigger}
+
+- Data Scientist at Trinity Health
+
+    + Support clinical research projects
+    
+    + Support new data warehousing projects
+    
+- Education: 
+
+    + Math, Statistics (Penn State)
+    
+    + Biostatistics (UM)
+
+- Raised in Pittsburgh, PA
+
+- Interests: Skiing, R, Beer, Music
+
+## [Spotify API](https://developer.spotify.com/web-api/endpoint-reference/) {.normal}
+
+- HTTP-based RESTful API, with standard HTTP-Methods (GET, PUT, POST, DELETE)
+
+- Get metadata on artists, albums, songs
+
+- Allows interactions with Spotify users
+
+    + Follow and unfollow artists and users
+
+- Create and manage playlists
+
+- Returns **JSON**
+
+```{r fig.width=5,fig.height=2,fig.align='right', echo=FALSE}
+suppressWarnings(suppressPackageStartupMessages(library(png)))
+suppressPackageStartupMessages(library(grid))
+img <- readPNG('figures/spotify_logo.png')
+grid.raster(img)
+```
+
+## Basic Unauthenticated API Call {.smaller .blackcode }
+
+**Install**
+```{r, eval=FALSE}
+options(unzip='internal') # If on Ubuntu 14.04+, openSUSE, ...
+devtools::install_github('rweyant/spotifyr')
+library(spotifyr)
+```
+
+Using Hadley's `httr` package:
+
+- Form URL in specific pattern (**GET**): `https://api.spotify.com/v1/artists/{artist id}`
+
+  e.g. [https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC](https://api.spotify.com/v1/artists/4mTFQE6aiehScgvreB9llC)
+
+```{r,comment=''}
+# Search Spotify's data for artists with names like "earth" and play drone (GET)
+search_artist <- spotifyr::search('earth genre:drone',type = 'artist')
+
+# Helper function to extract JSON elements into data.frame
+summarized_artists <- spotifyr::simplify_result(search_artist$artists, type='artists')
+summarized_artists[,c('name','id','genre','popularity','followers')]
+```
+
+## More data {.smaller .blackcode}
+
+```{r,comment=''}
+top_tracks <- spotifyr::get_artist_toptracks(summarized_artists$id[1],'us')
+summarized_tracks <- spotifyr::simplify_result(top_tracks$tracks,type='songs')
+summarized_tracks[1:2,c('artists.name','name','popularity','duration_ms','album.name')]
+```
+<iframe src="https://embed.spotify.com/?uri=spotify:track:7kRY2GFOWywaWFE1drt80E" width="250" height="120" frameborder="0" allowtransparency="true"></iframe>
+
+
+## Future Plans {.bigger}
+
+- Test and improve stability across different operating systems
+
+- Work on the supporting the last 2 API endpoints for playlist management that still don't work 
+
+- Improve helper functions to simplify returned JSON
+
+- Create a music recommender Shiny app integrating [Gracenote](https://developer.gracenote.com/music-platforms), [last.fm](http://www.last.fm), and [metal-archives](metal-archives.com) data with embedded Spotify player and playlist creater 
+
+[https://github.com/rweyant/spotifyr](https://github.com/rweyant/spotifyr)
+
+
+

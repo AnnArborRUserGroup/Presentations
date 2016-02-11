@@ -1,0 +1,79 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "November Meetup"
+author: ""
+date: "Nov 11, 2015"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: false
+---
+
+## Group Info
+
+https://AnnArborRUserGroup.github.io/
+
+http://meetup.com/Ann-Arbor-R-User-Group
+
+**Sponsors:**
+
+* Revolution Analytics
+* Barracuda Networks
+
+**Organizers:**
+
+Ellis, Clayton, Rob, Michelle
+
+## Slack
+
+Persistent chat rooms organized by topic
+
+Private groups
+
+Direct messaging
+
+https://aarug.slack.com/signup
+
+## Upcoming Events
+
+**A2 Data Dive**
+
+* Saturday, Nov. 14th
+* 9:00AM-7:30PM @ North Quad
+* http://a2datadive.org
+
+**ASA Monthly Meeting**
+
+* Tuesday, Dec. 8th
+* 6:30PM-8:00PM @ Methods Consultants'
+* http://www.meetup.com/Ann-Arbor-Chapter-of-the-American-Statistical-Association/
+
+## December Meetup: End of Year Party
+
+Wednesday, Dec. 16th
+
+7:00PM @ FarmLogs
+
+```{r echo=FALSE, fig.height=4, fig.width=7}
+library(leaflet)
+library(magrittr)
+m <- leaflet() %>%
+     addProviderTiles("OpenStreetMap.HOT") %>%
+     addMarkers(lng=-83.7467000, lat=42.2842500)
+m
+```
+
+## Future R Workshops
+
+We want to host some **FREE** beginner R workshops in 2016  
+
+Look for a survey in the next week:
+    
+* Interest
+* Timing
+      
+**Invite your friends!**
+
+# Presentations
+
+

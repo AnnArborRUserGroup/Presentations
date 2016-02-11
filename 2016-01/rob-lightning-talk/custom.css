@@ -1,0 +1,15 @@
+.smaller {
+  font-size: 9px;
+  color: black;
+}
+.normal {
+  font-size: 24px;
+  color: black;
+}
+.blackcode code pre {
+  color: black;
+}
+.bigger {
+  font-size:30px;
+  color: black;
+}
