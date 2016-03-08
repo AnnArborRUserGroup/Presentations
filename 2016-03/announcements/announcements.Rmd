@@ -1,8 +1,7 @@
 ---
 title: "Ann Arbor R User Group"
-subtitle: "January Meetup"
-author: ""
-date: "Feb 10, 2016"
+subtitle: "March Meetup"
+date: "Mar 10, 2016"
 output:
   ioslides_presentation:
     widescreen: true
@@ -46,26 +45,33 @@ AnnArborRUserGroup@gmail.com
 
 * FarmLogs
 
+* SPARK Ann Arbor 
+
 ## Upcoming Events {.biggest}
 
 **MIDAS Seminar Series**
 
-* Fridays, 4:00-5:00PM
+* Christopher Ré, **DeepDive: A Dark Data System**
+
+* Forum Hall, Palmer Commons
+
+* Fridays, 4:00-5:30PM
+
 * http://midas.umich.edu/seminar-series/
 
 ## R Workshops {.biggest}
 
-We want to host some **FREE** beginner R workshops in March.  
+We will be hosting a **FREE** beginner R workshop in April    
+
+April 2-3, 1-5pm at SPARK Central Innovation Center
       
-**Invite your friends!**
+[Registration Link](https://www.eventbrite.com/e/aarug-beginning-r-workshop-tickets-22609523694)
 
-## March Meetup: TBD {.reallybig}
+## April Meetup: TBD {.reallybig}
 
-Thursday, Mar. 10th
+Thursday, April 7th
 
 7:00PM @ TBD
-
-# Lightning Talks
 
 # Presentations
 

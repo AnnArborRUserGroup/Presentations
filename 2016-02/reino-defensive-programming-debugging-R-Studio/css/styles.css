@@ -1,0 +1,75 @@
+/* CSS DIRECTORY:
+    1. =GLOBAL settings (resets, scrollbars, input boxes, sliders etc.)
+    2. =PRIMARY layout structure (body, primary divs)
+    3. =SECONDARY layout structure (header, footer, sidebar)
+    4. =TERTIARY layout structure (page regions, floats)
+    5. =TEXT-related treatments (headings, paragraphs, lists)
+    6. =IMAGES, links, and other salient features (pre, code)
+    7. =GENERAL_STYLES (forms, tables, buttons, acronyms et al)
+    8. =GENERAL_CLASSES (.clear, .center, .right, .left, etc.)
+    9. =MISCELLANEOUS stuff and template code
+*/
+
+/* ===============================GLOBAL (resets, scrollbars, input boxes, sliders etc.)=============================== */
+
+/* ====================Slides General==================== */
+
+/****Width & height of slides****/
+slides {
+   width: 98%;
+   height: 98%;
+}
+
+/****Background color of slides****/
+.reveal {
+   background-color: #454747;
+}
+
+/****Font****/
+@font-face { 
+  font-family: Monsterrat-UltraLight; 
+  src: url('font-montserrat\Montserrat-UltraLight.otf');
+}
+
+/* ===============================PRIMARY (body, primary divs)=============================== */
+
+/****Font****/
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6, .reveal p, .reveal ol, .reveal ul,
+.reveal table td, .reveal table th {
+    color: white;
+    font-family: Monsterrat-UltraLight;
+}
+
+.reveal code span.kw {
+    color: #00bd36;
+}
+
+.reveal code span.dt {
+    color: #dd3100;
+}
+
+.reveal code span.st {
+    color: #6996c3;
+}
+
+.reveal code {
+    color: #f08715;
+}
+
+/* ===============================SECONDARY (header, footer, sidebar)=============================== */
+
+/* ====================Header==================== */
+/****Equastat logo****/
+.logo {
+background-color: #454747;
+position: absolute;
+left: 0px;
+top: 0px;
+float: left;
+z-index: 2
+
+}
+
+
+
+
