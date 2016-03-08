@@ -1,5 +1,5 @@
 ---
-title: "Using Twitter's algorithms to detect outliers and change points in time-series data"
+title: "Using Twitter's algorithms to detect outliers and change points in time series data"
 subtitle: "Ann Arbor R User Group"
 author: "Kraig Stevenson"
 date: "March 10, 2016"
@@ -12,19 +12,19 @@ output:
 
 ## Introduction
   
-  - Background
-    * PhD in Bioinformatics, MS Biostatistics (U of M)
-    * Data Scientist at Trinity Health (1.5 years)
-    * Two boys (2.5 and 0.25 years)
-    * Hipster metalhead
+- Background
+  * PhD in Bioinformatics, MS Biostatistics (U of M)
+  * Data Scientist at Trinity Health (1.5 years)
+  * Two boys (2.5 and 0.25 years)
+  * Closet metalhead
 
 ![dadbod](figs/proudbaba.png)
 
 ## Motivation
 
-  - Medical billing codes assigned to encounter
-  - Aggregate code usage (monthly)
-  - "Did we observe more live births at SJMHS than usual in November?"
+- Medical billing codes assigned to encounter
+- Aggregate code usage (monthly)
+- "Did we observe more live births at SJMHS than usual in November?"
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center"}
 
@@ -32,13 +32,15 @@ library(Quandl)
 library(magrittr)
 library(ggplot2)
 library(lubridate)
+library(zoo)
 library(AnomalyDetection)
 library(BreakoutDetection)
 
-msft_data <- Quandl("GOOG/NASDAQ_MSFT", collapse = "daily")[, c(1,5)] # closing price
+Quandl.api_key("5nUk_6XSenkDnvK2N2-w")
+
+msft_data <- Quandl("GOOG/NASDAQ_MSFT", collapse = "monthly")[, c(1,5)] # closing price
 msft_data$Date <- ymd(msft_data$Date)
 colnames(msft_data) <- c("timestamp", "count")
-
 
 msft_data %>% 
   ggplot(aes(x = timestamp, y = count)) +
@@ -51,43 +53,145 @@ msft_data %>%
   xlab("Date") + 
   ylab("Closing Price") + 
   ggtitle("MSFT")
-
 ```
 
-## Outlier Detection
+## Decomposition of time series
 
-AnomalyDetection from Twitter
+**STL: a seasonal-trend decomposition procedure based on LOESS**  
+*Robert B. Cleveland, William S. Cleveland, Jean E. McRae, and Irma Terpenning*  
+Journal of Official Statistics (1990)
 
-##
-```{r, fig.align="center"}
+- Trend component: low-frequency variation and long-term changes in data
+- Seasonal component: seasonal variation in data
+- Remainder component: variation in data without trend and seasonal components
+
+For $\nu$ in $1\dots N$,
+
+$$Y_\nu = T_\nu + S_\nu + R_\nu$$
+
+## LOESS fit poorly approximates underlying trend
+
+```{r, warning=FALSE, message=FALSE, fig.align="center", fig.height=3.5, fig.width=8}
+
+msft_data %>% 
+  ggplot(aes(x = timestamp, y = count)) +
+  geom_point() +
+  geom_smooth(method = "loess", color = "red") +
+  xlab("Date") + 
+  ylab("Closing Price") + 
+  ggtitle("MSFT")
+```
+
+## STL to separate time series components
+```{r, fig.align="center", fig.height=4, fig.width=8}
+
+msft_zoo <- zoo::zoo(msft_data$count, order.by = msft_data$timestamp) # i like zoo, so sue me
+msft_ts <- stats::ts(msft_zoo, frequency = 12)                        # monthly data, so 12 obs./period
+msft_stl <- stats::stl(msft_ts, s.window = "periodic")                # seasonal decomposition by loess
+plot(msft_stl)
+```
+
+## Increased robustness if outliers are expected
+```{r, fig.align="center", fig.height=4, fig.width=8}
+
+msft_stl <- stats::stl(msft_ts, s.window = "periodic",
+                       s.degree = 1,                 # seasonal polynomial fit degree, {0, 1}
+                       robust = T)                   # robust fitting
+#                      inner = if(robust)  1 else 2, # backfitting iterations
+#                      outer = if(robust) 15 else 0  # robustness iterations
+plot(msft_stl)
+```
+
+## Outlier detection from univariate time series
+
+- Residual component roughly follows a standard normal distribution
+- Exploit this using Student's *t*-distribution
+- Grubbs' test for outliers (extreme studentized deviate test, or ESD)
+- Test is iterated until no outliers are found
+
+$$G = \frac{\max\limits_{\nu}\left|Y_\nu-\bar{Y}\right|}{s}$$
+
+$H_0$: no outliers
+
+$H_a$: at least one outlier
+
+For two-sided test, the null hypothesis is rejected if
+
+$$G \gt \frac{N-1}{\sqrt{N}}
+  \sqrt{\frac
+    {t^2_{\alpha/(2N),N-2}}
+    {N-2+t^2_{\alpha/(2N),N-2}} 
+  }
+$$
+
+## Extracting the residual component from STL
+```{r}
+
+names(msft_stl)
+head(msft_stl$time.series)
+```
+
+## Approximate normality of residual component
+```{r, fig.align="center", fig.height=4, fig.width=8}
+
+residComp <- msft_stl$time.series[,3]
+hist(residComp, breaks = 20, main = "", xlab = "Residual Component")
+```
+
+## AnomalyDetection from Twitter
+
+- Designed to detect outliers in time series data
+- Seasonal hybrid ESD (S-H-ESD)
+- More robust to extreme outliers
+- Uses piecewise median instead of STL trend
+- Split $Y\nu$ into non-overlapping windows
+
+Residual component is calculated as:
+
+$$R_\nu = Y_\nu - S_\nu - \tilde{Y_\nu}$$
+
+Then ESD is calculated using this residual and median absolute deviation (MAD)
+
+$$G = \frac
+  {\max\limits_{\nu} \left| Y_\nu-\tilde{Y} \right| }
+  {median \left| Y_\nu - \tilde{Y} \right| }
+$$
+
+## AnomalyDetection syntax and results
+```{r, fig.align="center", fig.height=3.5, fig.width=8}
 
 msft_vec <- msft_data$count[order(msft_data$timestamp)]
-
-outliers <- AnomalyDetectionVec(msft_vec, direction = 'both', plot = T, period = 7, longterm_period = 56)
+outliers <- AnomalyDetectionVec(msft_vec, plot = T,
+                                direction = 'both',   # detect positive and negative spikes
+                                period = 12,          # number obs. in single period
+                                longterm_period = 60) # number obs. for which trend is "flat"
 outliers$plot
-
 ```
 
+## BreakoutDetection from Twitter
 
-## Change Point Detection
+- Designed to detect mean shifts in time series data
+- E-Divisive with Medians (EDM)
+- Non-parametric
 
-BreakoutDetection from Twitter
+## BreakoutDetection syntax and results
+```{r, fig.align="center", fig.height=4, fig.width=8}
 
-##
-```{r, fig.align="center"}
-
-changes <- breakout(msft_vec, method = 'multi', plot = T, min.size = 7)
+changes <- breakout(msft_vec, plot = T,
+                    method = 'multi', # detect multiple change points
+                    min.size = 12)    # min(# obs.) between change points
 changes$plot
-
 ```
 
 ## Acknowledgements
 
 Thank you very much for your attention!
 
-__Resources__  
+_Resources_  
 
 Quandl: https://www.quandl.com  
+
+ESD: https://en.wikipedia.org/wiki/Grubbs%27_test_for_outliers  
 
 AnomalyDetection: https://github.com/twitter/AnomalyDetection  
 

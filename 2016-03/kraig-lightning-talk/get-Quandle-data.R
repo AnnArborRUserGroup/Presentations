@@ -8,6 +8,7 @@ library(Quandl)
 library(magrittr)
 library(ggplot2)
 library(lubridate)
+library(zoo)
 library(AnomalyDetection)
 library(BreakoutDetection)
 
@@ -15,7 +16,7 @@ library(BreakoutDetection)
 
 #Quandl.api_key("yourauthenticationtoken") 
 
-msft_data <- Quandl("GOOG/NASDAQ_MSFT", collapse = "daily")[, c(1,5)] # closing price
+msft_data <- Quandl("GOOG/NASDAQ_MSFT", collapse = "monthly")[, c(1,5)] # closing price
 msft_data$Date <- ymd(msft_data$Date)
 colnames(msft_data) <- c("timestamp", "count")
 
@@ -41,12 +42,32 @@ msft_data %>%
   ylab("Closing Price") + 
   ggtitle("MSFT")
 
+# traditional time-series decomposition
+
+msft_zoo <- zoo(msft_data$count, order.by = msft_data$timestamp)
+msft_ts <- ts(msft_zoo, frequency = 12)
+msft_stl <- stl(msft_ts, s.window = "periodic")
+plot(msft_stl)
+
+# use Twitter algorithms to find anomalies and breakouts 
+
 msft_vec <- msft_data$count[order(msft_data$timestamp)]
 
-outliers <- AnomalyDetectionVec(msft_vec, direction = 'both', plot = T, period = 7, longterm_period = 56)
-outliers$plot
+outliers <- AnomalyDetectionVec(msft_vec,
+                                plot = T,
+                                direction = 'both',   # detect positive and negative spikes
+                                only_last = F,        # report anomalies only in last period
+                                period = 12,          # number obs. in single period
+                                longterm_period = 48) # number obs. for which trend is "flat"
 
-changes <- breakout(msft_vec, method = 'multi', plot = T, min.size = 7)
+outliers$plot
+outliers$anoms
+
+changes <- breakout(msft_vec,
+                    plot = T,
+                    method = 'multi', # detect multiple change points
+                    min.size = 12)    # min(# obs.) between change points
+
 changes$plot
 changes$loc
 
