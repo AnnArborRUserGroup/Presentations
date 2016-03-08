@@ -1,0 +1,22 @@
+Package: revealjs
+Type: Package
+Title: R Markdown format for revealjs presentations
+Version: 0.5
+Date: 2014-09-15
+Author: JJ Allaire
+Maintainer: JJ Allaire <jj@rstudio.com>
+Description: More about what it does (maybe more than one line)
+License: GPL-3
+Depends: R (>= 3.0)
+Imports: rmarkdown(>= 0.3.3)
+RemoteType: github
+RemoteHost: api.github.com
+RemoteRepo: revealjs
+RemoteUsername: jjallaire
+RemoteRef: master
+RemoteSha: a4854c017eac44d969a216103551c21d66329a74
+GithubRepo: revealjs
+GithubUsername: jjallaire
+GithubRef: master
+GithubSHA1: a4854c017eac44d969a216103551c21d66329a74
+Built: R 3.2.3; ; 2016-01-26 17:13:20 UTC; windows
