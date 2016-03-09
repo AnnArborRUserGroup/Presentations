@@ -47,6 +47,14 @@ AnnArborRUserGroup@gmail.com
 
 * SPARK Ann Arbor 
 
+## R News {.biggest}
+
+R version 3.2.4 (Very Secure Dishes) released today
+
+![](imgs/pe_c110217.jpg)
+
+R version 3.3.0 (Supposedly Educational) scheduled for Thursday, April 14
+
 ## Upcoming Events {.biggest}
 
 **MIDAS Seminar Series**
