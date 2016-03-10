@@ -1,0 +1,370 @@
+---
+title: "Docker and R"
+subtitle: "Ann Arbor R User Group"
+author: "Blake Nicholson"
+date: "March 10, 2016"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: no
+    logo: R.jpg
+    css: docker-and-R.css
+---
+
+<div class="notes">
+- How many people have heard of Docker?
+- How many people have used Docker?
+- Motivate use of docker
+    + Standardized dev environment
+    + Getting people set up and running quickly
+    + Docker project quickly developing convenient production deployment features
+</div>
+
+## About Me
+- Data Science and Software Engineering at Seelio
+- Have worked with R for nearly a decade
+- Use Docker extensively at Seelio
+
+## What to Expect
+- What is Docker?
+- Docker architecture
+- Key components
+- Images, containers, networks, and volumes
+- Example: Launching your first Docker container
+- Example: Running R within a Docker container
+- Example: Building your own custom image
+- Example: Using Docker Compose
+
+## Software Versions Used
+- Mac OS X El Capitan (10.11.3)
+- Docker Engine 1.10.2
+- Docker Compose 1.6.2 (must use at least `docker-compose` 1.6.0 to support
+the version 2 format of `docker-compose.yml`)
+- Docker Machine 0.6.0
+
+
+# Docker Concepts
+
+## What is Docker?
+From https://www.docker.com/what-docker:
+
+```
+Docker containers wrap up a piece of software in a complete filesystem that
+contains everything it needs to run: code, runtime, system tools, system
+libraries – anything you can install on a server. This guarantees that it will
+always run the same, regardless of the environment it is running in.
+```
+
+- Docker daemon uses Linux-specific kernel features, which means containers only
+run on Linux
+- Docker daemon is run on Mac OS X and Windows via a Linux VM
+- Best practice is to have one application/service per container
+
+<div class="notes">
+Docker containers are self-contained pieces of software. Ties well to 
+microservices and you would typically have one service per container.
+Docker containers are lightweight and isolated.
+Segue: Docker let's us run software within containers.  Why is that helpful?
+</div>
+
+## Why Use Containers?
+- Same arguments as one would use for microservices: encourages you to compose
+functional units of software to create your final product
+- Consistent environment (package application with its configuration and
+dependencies together)
+- Secure (containers isolated from one another)
+- Lightweight (containers share same operating system kernel)
+- Scalable (if you make your services stateless, can easily scale up/down as
+needed)
+- Shareable (as you generate releases, push tagged
+images to your image repository on Docker Hub)
+- Develop in an environment that mimics your production environment as closely
+as possible
+
+<div class="notes">
+- Segue: This sounds kinda like a VM.  How is it different?
+</div>
+
+## How is Docker Different From a VM?
+- VMs also create an isolated environment; what makes containers different?
+- Containers have similar resource isolation and allocation benefits as virtual
+machines but a different architectural approach allows them to be much more
+portable and efficient:
+
+<div class="centered">
+  <img src="https://www.docker.com/sites/default/files/what-is-docker-diagram.png" width="300">
+  <img src="https://www.docker.com/sites/default/files/what-is-vm-diagram.png" width="300">
+</div>
+
+<div class="notes">
+- Containers: faster startup, more efficient resource consumption
+- VM: Each virtual machine includes the application, the necessary binaries and
+libraries and an entire guest operating system - all of which may be tens of GBs
+in size.
+- Container: Containers include the application and all of its dependencies, but
+share the kernel with other containers.
+- Segue: Let's review the high-leve architecture of Docker
+</div>
+
+## Docker Architecture
+![Architecture](https://docs.docker.com/engine/article-img/architecture.svg)
+
+<div class="notes">
+- Client: primary user interface to Docker.  Communicates on the users behalf
+with the Docker daemon
+- Docker Host and Docker daemon: the Docker daemon manages images and creation
+of containers
+- Docker registry: for storage of images
+- Segue: brief aside on Docker Host on Windows and OS X
+</div>
+
+## Docker Architecture
+- Docker Host is a VM on Windows and Mac OS X:
+
+<div class="columns-2">
+  <img src="https://docs.docker.com/engine/installation/images/linux_docker_host.svg" width="300">
+  <img src="https://docs.docker.com/engine/installation/images/mac_docker_host.svg" width="300">
+</div>
+
+<div class="notes">
+What runs inside a Docker container is a UNIX process.  To be able to run Docker
+on Windows and Mac OS X, you need to run a Linux VM. However, you only run one
+VM in which all of your containers run versus running a new VM for each
+application
+- Segue: Let's know cover the main components of Docker and what they do
+</div>
+
+## Key Components
+- **Docker Machine** (`docker-machine`): used on Windows and Mac OS X to manage the
+Linux VM on which the Docker daemon runs, or to create a Docker swarm
+- **Docker Engine** (`docker`): the combination of the client with which you
+communicate with other parts of the Docker architecture as well as the daemon
+that receives commands from the client and manages containers
+- **Docker Hub**: public Docker registry in which built images can be stored
+- **Docker Compose** (`docker-compose`): tool for defining and running multi-container Docker applications (Compose not yet supported on Windows)
+- **Docker Swarm**: Docker Swarm is native clustering for Docker. It turns a pool of
+Docker hosts into a single, virtual Docker host. Outside the scope of this talk
+
+*In a development environment, the docker client and docker daemon will usually
+run on the same physical system.  However, this need not be true.*
+
+<div class="notes">
+- Segue: let's review how these components relate to the high-level architecture
+</div>
+
+## Docker Architecture
+![Architecture](https://docs.docker.com/engine/article-img/architecture.svg)
+
+<div class="notes">
+- Tie back to components discussed on previous slide
+- Seque to discussion of images and containers
+</div>
+
+## Images and Containers
+<div class="centered">
+![](https://www.docker.com/sites/default/files/products/what_is_layered_filesystems_sm.png)
+</div>
+- Docker uses a layered filesystem. Layers are combined to form a unified
+filesystem; later layers hide the content of earlier layers at the same path
+- Images are pre-built, read-only templates that are used to create containers
+- Containers add a read-write layer to the filesystem
+- A Docker container holds everything that is needed for an application to run
+
+<div class="notes">
+- Each image starts with a base image (the FROM statement in the Dockerfile)
+- Additional layers are added via subsequent statements (RUN, ENV, etc.) in
+the Dockerfile
+- Docker defines a build as running a sequence of Unix commands, one after the
+other, in the same container.
+</div>
+
+## Networks and Volumes
+- For different containers to be able to communicate with one another, they
+must be on the same Docker network
+- You create a network either via the network directive within your
+`docker-compose.yml` file or via the `docker network create` command
+- Volumes are used to store data
+- You create a volume either via the volumes directive within your
+`docker-compose.yml` file or via the `docker volume create` command
+
+<div class="notes">
+- Docker Compose 1.6.0 introduced new networking capabilities
+- You can also mount a local directory into the container.  The volumes
+referred to here are persistent volumes that are shareable across containers.
+</div>
+
+# Applying Docker
+
+## VM Setup for Windows and Mac
+Assumes Docker Engine and Docker Machine have already been installed
+
+1. Create the virtual machine:
+    + `docker-machine create --driver virtualbox default`
+    + On my Mac, I also found that adding `--engine-storage-driver overlay`
+    to the above `docker-machine create` command worked better
+2. Configure your local environment to be able to communicate with the Docker
+Host:
+    + `eval $(docker-machine env)`
+3. (optional) Verify that your setup is working properly
+    + `docker run hello-world`
+
+
+## Demo Setup
+Steps that I carried out in advance (for the sake of time):
+
+- `docker pull debian`
+- `docker pull postgres`
+- `docker pull r-base`
+- `docker pull rocker/hadleyverse`
+- Created a sample dataset to import to Postgres to use in the examples
+  (available in the [AARUG Github repo](https://github.com/AnnArborRUserGroup/Presentations/tree/master/2016-03/blake-docker-and-R))
+- Created an R script that simply prints "hello world" (available in the [AARUG Github repo](https://github.com/AnnArborRUserGroup/Presentations/tree/master/2016-03/blake-docker-and-R/hello.R))
+
+Images pulled the morning of March 10, 2016
+
+<div class="notes">
+- sample data from https://research.stlouisfed.org/fred2/series/A191RL1Q225SBEA/downloaddata
+</div>
+
+## Example: Launching your first Docker container
+`docker run -it --rm debian bash`
+
+1. Downloads the latest debian Docker image
+2. Creates a container
+3. Allocates a filesystem and mounts a read-write layer
+4. Allocates a network interface
+5. Sets up an IP address
+6. Runs your command (in this case `bash`)
+
+## Example: Running R within a Docker container
+`docker run -it --rm r-base`
+
+- r-base image available on Docker Hub
+- Maintained by Carl Boettiger and Dirk Eddelbuettel (Rcpp)
+- r-base includes base R and littler, and is primarily intended as a starting
+point for other images that include additional libraries and packages
+
+Details about `r-base` package can be found
+[on Docker Hub](https://hub.docker.com/_/r-base/)
+
+<div class="notes">
+- Call attention to fact we were dropped directly into R and did not have to
+kick off R from command line.  This is because R is the CMD value for the r-base
+image.  Only have to specify a command to `docker run` if you want to do
+something different.
+- Execute `library()` from within R to show installed packages
+</div>
+
+## Example: Running R within a Docker container
+`docker run -it --rm -v "$(pwd)":/home/docker -w /home/docker -u docker r-base bash`
+
+- The command above will put you in a bash shell in the Docker container with
+your local directory available at /home/docker within the container
+- You can run `R` from the command line (use R interactively or batch)
+- Instead of specifying `bash` as the command to `docker run`, you could run R
+directly: `R CMD ...`
+- Can also leverage littler to run scripts instead (e.g., 'r hello.R')
+
+<div class="notes">
+- Mention how the volume mounted via the -v argument is different from the
+volumes mentioned earlier in the presentation
+- Make sure people are clear on the fact we can edit the files locally on our
+host, and the updates will be reflected within the Docker container
+- Segue: r-base has basic R functionality, but there are lots of packages in
+the ecosystem that we're likely going to want to leverage...enter the rocker
+project
+</div>
+
+## Example: Running R within a Docker container
+Other R images available:
+
+- **rocker/shiny**: r-base plus Shiny Server
+- **rocker/r-devel**: r-base plus R-devel
+- **rocker/rstudio**: r-base plus RStudio Server
+- **rocker/hadleyverse**: rstudio plus Hadley packages and LaTeX
+- **rocker/rOpenSci**: hadleyverse plus rOpenSci packages
+
+Links to the rocker Github and Docker Hub accounts can be found in the
+Resources section at the end of the presentation
+
+<div class="notes">
+- In honor of Clayton's love for the Hadleyverse, we'll use that image as a
+base from which we create a new image
+</div>
+
+## Example: Building your own custom image
+[Example Dockerfile](https://github.com/AnnArborRUserGroup/Presentations/tree/master/2016-03/blake-docker-and-R/Dockerfile):
+```
+# Builds image upon the existing rocker/hadleyverse image
+FROM rocker/hadleyverse
+
+# Example of installing a library
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libpqxx-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/ \
+    && rm -rf /tmp/downloaded_packages/ /tmp/*.rds
+
+# Example of installing additional R packages
+RUN install2.r --error \
+    -r "https://cran.rstudio.com" \
+    RCurl
+```
+
+<div class="notes">
+- Starts with the rocker/hadleyverse image
+- Adds a layer that installs the Postgres C++ library and headers
+- Adds a layer that installs the RCurl package from CRAN
+</div>
+
+## Example: Building your own custom image
+Building your image: `docker build -t <name>:<tag> .`
+
+Assumes `Dockerfile` resides in the current directory
+
+Push image to Docker Hub via `docker push` (beyond the scope of this talk,
+see `docker push --help` for more info)
+
+<div class="notes">
+- Set <name> = aarug and <tag> = latest when building image so future examples
+work properly
+</div>
+
+## Example: Docker Compose
+[Example docker-compose.yml available on Github](https://github.com/AnnArborRUserGroup/Presentations/tree/master/2016-03/blake-docker-and-R/docker-compose.yml)
+
+1. Execute `docker-compose up -d` from the diretory in which
+`docker-compose.yml` resides
+2. Populate the Postgres database service by running `populate_postgres.sh`
+script uploaded to Github as part of this presentation
+3. Launch your web browser
+4. Execute `docker-machine ip` to find out the IP address of your Docker host
+(only needed on Mac and Windows, can just use localhost on Linux)
+5. Navigate to http://docker_host, where you replace docker_host with hostname
+from previous step
+6. Enter rstudio/rstudio for user/pass to login to RStudio
+7. Check out all the goodness!
+
+To shut down services, execute `docker-compose down`
+
+<div class="notes">
+To execute from within RStudio:
+
+- library()
+- library(RPostgreSQL)
+- library(ggplot2)
+- drv <- dbDriver("PostgreSQL")
+- con <- dbConnect(drv, user="aarug", password="risfun", host="postgres", dbname="aarug")
+- df <- dbGetQuery(con, "select * from gdp")
+- qplot(ds, value, data=df, geom="line")
+
+</div>
+
+## Further Reading
+- Source files for this presentation and examples on [AARUG Github repo](https://github.com/AnnArborRUserGroup/Presentations/tree/master/2016-03/blake-docker-and-R)
+- [Docker documentation](https://docs.docker.com/)
+- [rocker on Github](https://github.com/rocker-org/rocker)
+- [rocker on Docker Hub](https://hub.docker.com/u/rocker/)
+
+# Questions?
