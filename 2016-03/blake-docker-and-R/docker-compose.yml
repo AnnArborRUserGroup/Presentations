@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  myr:
+    container_name: aarug_demo
+    image: aarug:latest
+    ports:
+      - "80:8787"
+    depends_on:
+      - postgres
+    networks:
+      - default
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_DB=aarug
+      - POSTGRES_USER=aarug
+      - POSTGRES_PASSWORD=risfun
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
