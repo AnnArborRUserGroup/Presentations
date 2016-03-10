@@ -180,6 +180,22 @@ $$Y_1,\,Y_2,\,\dots,\,Y_\tau \thicksim F$$
 
 $$Y_{\tau+1},\,Y_{\tau+2},\,\dots,\,Y_N \thicksim G$$
 
+Kolmogorov-Smirnov test to compare distributions
+
+$H_0 \colon F = G$
+
+$H_a \colon F \neq G$
+
+But we don't know the location and number of $\tau$...
+
+## E-Divisive
+
+**A Nonparametric Approach for Multiple Change Point Analysis of Multivariate Data**  
+*David S. MAtteson and Nicholas A. James*  
+arXiv (1990)
+
+- algorithms to narrow search space (bisection, multivariate divergence)
+
 ## BreakoutDetection syntax and results
 ```{r, fig.align="center", fig.height=4, fig.width=8}
 
