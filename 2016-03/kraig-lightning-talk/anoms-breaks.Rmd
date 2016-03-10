@@ -134,7 +134,7 @@ head(msft_stl$time.series)
 ```{r, fig.align="center", fig.height=4, fig.width=8}
 
 residComp <- msft_stl$time.series[,3]
-hist(residComp, breaks = 20, main = "", xlab = "Residual Component")
+hist(residComp, breaks = 50, main = "", xlab = "Residual Component")
 ```
 
 ## AnomalyDetection from Twitter
@@ -163,7 +163,7 @@ msft_vec <- msft_data$count[order(msft_data$timestamp)]
 outliers <- AnomalyDetectionVec(msft_vec, plot = T,
                                 direction = 'both',   # detect positive and negative spikes
                                 period = 12,          # number obs. in single period
-                                longterm_period = 60) # number obs. for which trend is "flat"
+                                longterm_period = 72) # number obs. for which trend is "flat"
 outliers$plot
 ```
 
@@ -188,13 +188,16 @@ $H_a \colon F \neq G$
 
 But we don't know the location and number of $\tau$...
 
-## E-Divisive
+## E-Divisive (with medians)
 
 **A Nonparametric Approach for Multiple Change Point Analysis of Multivariate Data**  
 *David S. MAtteson and Nicholas A. James*  
 arXiv (1990)
 
-- algorithms to narrow search space (bisection, multivariate divergence)
+- Algorithms to narrow search space
+- Twitter's modification uses medians to estimate the energy distance between two distributions
+- Energy distance combines within and between levels of variation
+- Tree searching (bisection) limits the space in which this must be calculated
 
 ## BreakoutDetection syntax and results
 ```{r, fig.align="center", fig.height=4, fig.width=8}
