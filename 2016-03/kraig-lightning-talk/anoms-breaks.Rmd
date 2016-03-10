@@ -32,7 +32,6 @@ library(Quandl)
 library(magrittr)
 library(ggplot2)
 library(lubridate)
-library(zoo)
 library(AnomalyDetection)
 library(BreakoutDetection)
 
@@ -107,9 +106,9 @@ plot(msft_stl)
 - Residual component roughly follows a standard normal distribution
 - Exploit this using Student's *t*-distribution
 - Grubbs' test for outliers (extreme studentized deviate test, or ESD)
-- Test is iterated until no outliers are found
+- Test is iterated until no outliers are found (*e.g.* reject $H_0$)
 
-$$G = \frac{\max\limits_{\nu}\left|Y_\nu-\bar{Y}\right|}{s}$$
+$$G = \frac{\max\limits_{\nu}\left|R_\nu-\bar{R}\right|}{s}$$
 
 $H_0$: no outliers
 
@@ -142,9 +141,9 @@ hist(residComp, breaks = 20, main = "", xlab = "Residual Component")
 
 - Designed to detect outliers in time series data
 - Seasonal hybrid ESD (S-H-ESD)
-- More robust to extreme outliers
 - Uses piecewise median instead of STL trend
-- Split $Y\nu$ into non-overlapping windows
+- More robust to extreme outliers
+- $Y_\nu$ is split into non-overlapping windows
 
 Residual component is calculated as:
 
@@ -153,8 +152,8 @@ $$R_\nu = Y_\nu - S_\nu - \tilde{Y_\nu}$$
 Then ESD is calculated using this residual and median absolute deviation (MAD)
 
 $$G = \frac
-  {\max\limits_{\nu} \left| Y_\nu-\tilde{Y} \right| }
-  {median \left| Y_\nu - \tilde{Y} \right| }
+  {\max\limits_{\nu} \left| R_\nu-\tilde{R} \right| }
+  {median \left| R_\nu - \tilde{R} \right| }
 $$
 
 ## AnomalyDetection syntax and results
@@ -172,7 +171,14 @@ outliers$plot
 
 - Designed to detect mean shifts in time series data
 - E-Divisive with Medians (EDM)
+- Robust to extreme outliers
 - Non-parametric
+
+For $Y_1,\,Y_2,\,\dots,\,Y_N$, let there be a point $\tau$ where
+
+$$Y_1,\,Y_2,\,\dots,\,Y_\tau \thicksim F$$
+
+$$Y_{\tau+1},\,Y_{\tau+2},\,\dots,\,Y_N \thicksim G$$
 
 ## BreakoutDetection syntax and results
 ```{r, fig.align="center", fig.height=4, fig.width=8}
