@@ -39,9 +39,9 @@ When you click the **Knit** button a document will be generated that includes bo
 2. Bullet 2
 3. Bullet 3
 
-## Slide with multiple huge things {.huge .hugebullets}
+## Slide with multiple classes {.huge .hugebullets}
 
-Some giant text 
+Add multiple classes within curly brackets like {.huge .hugebullets}
 
 - Huge Bullet 1
 
