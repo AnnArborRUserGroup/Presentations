@@ -1,0 +1,93 @@
+
+/* Increase Default header size and color */
+h1 { 
+ font-size: 64px;
+ color: black;
+ font-weight: bolder;
+}
+h2 { 
+ font-size: 44px;
+ color: black;
+ font-weight: bolder;
+}
+h3 { 
+ font-size: 36px;
+ color: black;
+ font-weight: bolder;
+}
+
+/* Increase the size of normal text (wihin <p></p>) and in numbered/bullet lists */
+p {  
+   font-size: 30px;
+   color: black;
+   font-weight: bold;
+}
+ul {  
+   font-size: 30px;
+   color: black;
+   font-weight: bold;
+}
+ol {  
+   font-size: 30px;
+   color: black;
+   font-weight: bold;
+}
+
+/* Increase size of code blocks */
+pre {
+  font-size: 30px;
+  color: black;
+  font-weight: bold;
+}
+
+
+/* Convenient classes */
+.smallercode pre {
+  font-size: 24px;
+  color: black;
+  font-weight: bolder;
+  font: lower-latin;
+}
+
+.smallestcode pre {
+  font-size: 16px;
+  color: black;
+  font-weight: bolder;
+  font: lower-latin;
+}
+
+.smaller p {
+  font-size: 24px;
+  color: black;
+  font-weight: bold;
+}
+
+.smallest p {
+  font-size: 16px;
+  color: black;
+  font-weight: bold;
+}
+
+.unbolded p {
+  font-size: 30px;
+  color: black;
+  font-weight: normal;
+}
+
+.huge p {
+  font-size:40px;
+  color: black;
+  font-weight: bolder;
+}
+
+.hugebullets ul {
+  font-size:40px;
+  color: black;
+  font-weight: bolder;
+}
+
+.hugenumbered ol {
+  font-size:40px;
+  color: black;
+  font-weight: bolder;
+}
