@@ -10,6 +10,7 @@
 
 
 
+  <meta name="date" content="2016-04-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -80,7 +81,7 @@
 
 <body style="opacity: 0">
 
-<slides class="layout-widescreen">
+<slides>
 
   <slide class="title-slide segue nobackground">
         <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
@@ -88,46 +89,93 @@
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
       <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
       <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">April 14, 2016</p>
           </hgroup>
   </slide>
 
 <slide class=''><hgroup><h2>Overview</h2></hgroup><article  id="overview">
 
-<ul>
+<ol>
 <li>Background on the development of super learner and targeted learning</li>
 <li>Theory behind the super learner algorithm</li>
 <li>Application of super learner in R</li>
 <li>Some (hopefully) helpful comments on utilizing super learner</li>
-</ul>
+</ol>
 
 </article></slide><slide class=''><hgroup><h2>Background</h2></hgroup><article  id="background">
 
 <div class="centered">
-<p>&quot;Essentially, all models are wrong, but some are useful&quot; - George Box, 1979</p></div>
+<p>&quot;Essentially, all models are wrong, but some are useful&quot;<br/>- George Box, 1979</p></div>
+
+<p>Mantra of statisticians regarding the development of statistical models for many years</p>
+
+<p>In the 1990s an awareness developed among statisticians (Breiman, Harrell) that this approach was wrong</p>
 
 <ul>
-<li>Mantra of statisticians regarding the development of statistical models for many years</li>
-<li>In the 1990s an awareness developed among statisticians (Breiman, Harrell) that this lackadaisical approach was wrong</li>
-<li>Simultaneously, computer scientists and some statisticians developed the machine learning field to address the limitations of parametric models</li>
+<li>Parametric model assumptions rarely met</li>
+<li>Large number of variables makes it difficult to correctly specify a model</li>
 </ul>
+
+<p>Simultaneously, computer scientists and some statisticians developed the machine learning field to address the limitations of parametric models</p>
 
 </article></slide><slide class=''><hgroup><h2>Targeted learning</h2></hgroup><article  id="targeted-learning">
 
+<p>Combines advanced machine learning with efficient semiparametric estimation to provide a framework for answering causal questions from data</p>
+
 <ul>
-<li>Combines advanced machine learning with efficient semiparametric estimation to provide a framework for answering causal questions from data</li>
 <li>Developed by Mark van der Laan research group at UC Berkeley</li>
 <li>Started with the seminal 2006 article on targeted maximum likelihood estimation</li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>Slide with R Code and Output</h2></hgroup><article  id="slide-with-r-code-and-output">
+<p>Central motivation is the belief that statisticians treat estimation as <em>Art</em> not <strong>Science</strong></p>
 
-<p><math display='block' xmlns='http://www.w3.org/1998/Math/MathML'> <mrow> <mi>M</mi><mo>:</mo><msub> <mi>P</mi> <mn>0</mn> </msub> <mo>∈</mo><mi>M</mi></mrow> </math></p>
+<ul>
+<li>This results in misspecified parametric models that are data-adaptively selected, but this part of the estimation procedure is not accounted for in the variance</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Estimation is a Science, <em>Not an Art</em> </h2><h3> Specific definitions required</h3></hgroup><article  id="estimation-is-a-science-not-an-art-specific-definitions-required">
+
+<ol>
+<li><strong>Data:</strong> realizations of random variables with a probability distribution</li>
+<li><strong>Model:</strong> actual knowledge about the data generating probability distribution</li>
+<li><strong>Target Parameter:</strong> a feature of the data generating probability distribution</li>
+<li><strong>Estimator:</strong> an a priori-specified algorithm, benchmarked by a dissimilarity-measure (e.g., MSE) w.r.t. target parameter</li>
+</ol>
+
+</article></slide><slide class=''><hgroup><h2>Data</h2></hgroup><article  id="data">
+
+<p>Random variable \(O\), observed \(n\) times, defined in a simple case as <math xmlns='http://www.w3.org/1998/Math/MathML'> <mrow> <mi>O</mi><mo>=</mo><mrow><mo>(</mo> <mrow> <mi>A</mi><mo>,</mo><mi>W</mi><mo>,</mo><mi>Y</mi></mrow> <mo>)</mo></mrow><mo>∼</mo><msub> <mi>P</mi> <mi>0</mi> </msub> </mrow> </math> if we are without common issues such as missingness and censoring</p>
+
+<ul>
+<li>\(A\): exposure or treatment</li>
+<li>\(W\): vector of covariates</li>
+<li>\(Y\): outcome</li>
+<li><math xmlns='http://www.w3.org/1998/Math/MathML'> <msub> <mi>P</mi> <mi>0</mi> </msub> </math>: the true probability distribution</li>
+</ul>
+
+<p>This data structure makes for an effective examples but data structures found in practice are much more complicated</p>
+
+</article></slide><slide class=''><hgroup><h2>Model</h2></hgroup><article  id="model">
+
+<p>General case: Observe \(n\) i.i.d. copies of random variable \(O\) with probability distribution <math xmlns='http://www.w3.org/1998/Math/MathML'> <msub> <mi>P</mi> <mi>0</mi> </msub> </math></p>
+
+<p>The data-generating distribution <math xmlns='http://www.w3.org/1998/Math/MathML'> <msub> <mi>P</mi> <mi>0</mi> </msub> </math> is also known to be an element of a statistical model <math xmlns='http://www.w3.org/1998/Math/MathML'> <mi>M</mi><mo>:</mo><msub> <mi>P</mi> <mn>0</mn> </msub> <mo>∈</mo><mi>M</mi> </math></p>
+
+<p>A <strong>statistical</strong> model \(M\) is the set of possible probability distributions for <math xmlns='http://www.w3.org/1998/Math/MathML'> <msub> <mi>P</mi> <mi>0</mi> </msub> </math>; it is a collection of probability distributions</p>
+
+<p>If all we know is that we have \(n\) i.i.d. copies of \(O\), this can be our statistical model, which we call a non-parametric statistical model</p>
+
+</article></slide><slide class=''><hgroup><h2>Target Parameters</h2></hgroup><article  id="target-parameters">
+
+<p>Define the parameter of the probability distribution \(P\) as function of <math xmlns='http://www.w3.org/1998/Math/MathML'> <mi>P</mi><mo>:</mo><mi>ψ</mi><mrow><mo>(</mo> <mi>P</mi> <mo>)</mo></mrow> </math></p>
+
+<p>In causal inference (specificly the Neyman-Rubin) framework, a target parameter for \(A\) would be<br/><math display='block' xmlns='http://www.w3.org/1998/Math/MathML'> <msub> <mi>ψ</mi> <mrow> <mi>R</mi><mi>D</mi></mrow> </msub> <mrow><mo>(</mo> <mi>P</mi> <mo>)</mo></mrow><mo>=</mo><msub> <mi>E</mi> <mi>W</mi> </msub> <mrow><mo>[</mo> <mrow> <mrow><mo>(</mo> <mrow> <mi>Y</mi><mo>|</mo><mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>W</mi></mrow> <mo>)</mo></mrow></mrow> <mo>]</mo></mrow><mo>−</mo><msub> <mi>E</mi> <mi>W</mi> </msub> <mrow><mo>[</mo> <mrow> <mrow><mo>(</mo> <mrow> <mi>Y</mi><mo>|</mo><mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>W</mi></mrow> <mo>)</mo></mrow></mrow> <mo>]</mo></mrow> </math></p>
+
+</article></slide><slide class=''><hgroup><h2>Slide with R Code and Output</h2></hgroup><article  id="slide-with-r-code-and-output">
 
 </article></slide><slide class=''><hgroup><h2>Slide with Plot</h2></hgroup><article  id="slide-with-plot">
 
-</article></slide><slide class=''><hgroup><h2><img src='data:image/png;base64,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' title=''/></h2></hgroup><article  id="section">
-
-<p>An introduction to SuperLearner, a loss-based ensemble prediction algorithm By Scott Grey, PhD Ann Arbor R User Group</p></article></slide>
+<img src='data:image/png;base64,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' title=''/></article></slide>
 
 
   <slide class="backdrop"></slide>
