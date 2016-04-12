@@ -15,6 +15,8 @@ output:
 3. Application of super learner in R
 4. Some (hopefully) helpful comments on utilizing super learner
 
+# Background
+
 ## Background
 <div class="centered">
 "Essentially, all models are wrong, but some are useful"  
@@ -40,14 +42,16 @@ Combines advanced machine learning with efficient semiparametric estimation to p
 
 Central motivation is the belief that statisticians treat estimation as *Art* not **Science**  
 
-- This results in misspecified parametric models that are data-adaptively selected, but this part of the estimation procedure is not accounted for in the variance
+- This results in misspecified models that are data-adaptively selected, but this part of the estimation procedure is not accounted for in the variance
 
 ## Estimation is a Science, *Not an Art* | Specific definitions required
 
-1. **Data:** realizations of random variables with a probability distribution
-2. **Model:** actual knowledge about the data generating probability distribution
-3. **Target Parameter:** a feature of the data generating probability distribution
-4. **Estimator:** an a priori-specified algorithm, benchmarked by a dissimilarity-measure (e.g., MSE) w.r.t. target parameter
+1. **Data**: realizations of random variables with a probability distribution
+2. **Model**: actual knowledge about the data generating probability distribution
+3. **Target Parameter**: a feature of the data generating probability distribution
+4. **Estimator**: an a priori-specified algorithm, benchmarked by a dissimilarity-measure (e.g., MSE) w.r.t. target parameter
+
+# Theory
 
 ## Data 
 
@@ -61,8 +65,7 @@ Random variable $O$, observed $n$ times, defined in a simple case as <math xmlns
    <mi>0</mi>
   </msub>
   </mrow>
-</math>
- if we are without common issues such as missingness and censoring  
+</math> if we are without common issues such as missingness and censoring  
 
 - $A$: exposure or treatment 
 - $W$: vector of covariates
@@ -74,7 +77,7 @@ Random variable $O$, observed $n$ times, defined in a simple case as <math xmlns
  </msub>
  </math>: the true probability distribution
 
-This data structure makes for an effective examples but data structures found in practice are much more complicated
+This data structure makes for an effective example, but data structures found in practice are much more complicated
 
 ## Model
 
@@ -111,48 +114,765 @@ If all we know is that we have $n$ i.i.d. copies of $O$, this can be our statist
 
 ## Target Parameters 
 Define the parameter of the probability distribution $P$ as function of <math xmlns='http://www.w3.org/1998/Math/MathML'>
- <mi>P</mi><mo>:</mo><mi>&#x03C8;</mi><mrow><mo>(</mo>
+ <mi>P</mi><mo>:</mo><mi>&#x03A8;</mi><mrow><mo>(</mo>
   <mi>P</mi>
  <mo>)</mo></mrow>
 </math>
 
-In causal inference (specificly the Neyman-Rubin) framework, a target parameter for $A$ would be  
+In a causal inference (specificly the Neyman-Rubin) framework, a target parameter for the effect of $A$ would be  
 <math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
- <msub>
-  <mi>&#x03C8;</mi>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
   <mrow>
-   <mi>R</mi><mi>D</mi></mrow>
- </msub>
- <mrow><mo>(</mo>
-  <mi>P</mi>
+   <msub>
+    <mi>P</mi>
+    <mn>0</mn>
+   </msub>
+   </mrow>
  <mo>)</mo></mrow><mo>=</mo><msub>
   <mi>E</mi>
-  <mi>W</mi>
+  <mrow>
+   <mi>W</mi><mo>,</mo><mn>0</mn></mrow>
  </msub>
  <mrow><mo>[</mo> <mrow>
+  <msub>
+   <mi>E</mi>
+   <mn>0</mn>
+  </msub>
   <mrow><mo>(</mo>
    <mrow>
     <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>W</mi></mrow>
-  <mo>)</mo></mrow></mrow> <mo>]</mo></mrow><mo>&#x2212;</mo><msub>
-  <mi>E</mi>
-  <mi>W</mi>
- </msub>
- <mrow><mo>[</mo> <mrow>
+  <mo>)</mo></mrow><mo>&#x2212;</mo><msub>
+   <mi>E</mi>
+   <mn>0</mn>
+  </msub>
   <mrow><mo>(</mo>
    <mrow>
     <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>W</mi></mrow>
   <mo>)</mo></mrow></mrow> <mo>]</mo></mrow>
+</math>  
+
+Note that this requires additional, nontestable assumptions to infer causality  
+
+- <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>&#x22A5;</mo><msub>
+    <mi>Y</mi>
+    <mi>a</mi>
+   </msub>
+   <mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>
+; SUTVA; Positivity
+
+- Does not change the statistical model $M$
+
+## Estimators
+
+The target parameter <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>P</mi>
+    <mn>0</mn>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>
+ depends on <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+ </math> through the conditional mean <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>=</mo><msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math> and the marginal distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>Q</mi>
+  <mrow>
+   <mi>W</mi><mo>,</mo><mn>0</mn></mrow>
+ </msub>
+ </math> of $W$; or
+ 
+ <math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>=</mo><mi>E</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>/</mo><mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ <mrow><mo>(</mo>
+  <mi>W</mi>
+ <mo>)</mo></mrow><mo>=</mo><mi>E</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>
+
+ 
+Where <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ </math> is an **estimator** of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>, shortened to <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ </math>
+
+
+An **estimator** is an algorithm that can be applied to any empirical distribution to provide a mapping from the empirical distribution to the parameter space 
+
+- But which algorithm?
+
+## Effect Estimation vs. Prediction
+
+Both **effect** and **prediction** research questions are inherently *estimation*
+questions, but they are distinct in their goals  
+
+> - **Prediction**: Interested in generating a function to input covariates and predict a value for the outcome: <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>  
+
+> - **Effect**: Interested in estimating the true effect of exposure on outcome adjusted for covariates, <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>P</mi>
+    <mn>0</mn>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, the **targeted estimand**
+
+> - Targeted maximum likelihood estimation (TMLE), is an iterative procedure that updates an initial (super learner) estimate of the relevant part <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mn>0</mn>
+ </msub>
+ </math>
+of the data generating distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+ </math>  
+
+<div class="red">
+> - See second presentation given on April 12 to the Ann Arbor ASA Chapter
+
+</div>
+
+## Prediction: Key Concepts
+
+1. **Loss-based estimation**: Use **loss functions** to define best estimator of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math> & evaluate it
+
+2. **Flexible Estimation**: Allow **data** to drive your **estimates**, but in an honest (cross validated) way 
+
+3. **Cross Validation**: Available data is partitioned to **train** and **validate** our estimators
+
+These are detailed topics; we'll cover core concepts
+
+## Loss-Based Estimation
+
+In order to choose a "best" algorithm to estimate <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ </math>, must have a way to define what "best" means
+ 
+Given the data structure is <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>O</mi><mo>=</mo><mrow><mo>(</mo>
+  <mrow>
+   <mi>W</mi><mo>,</mo><mi>Y</mi></mrow>
+ <mo>)</mo></mrow><mo>&#x223C;</mo><msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+ </math>, with empirical distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mi>n</mi>
+ </msub>
+ </math>  which places probability $1/n$ on each observed <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>O</mi>
+  <mi>i</mi>
+ </msub>
+</math>, $i=1,...,n$
+
+A loss function, <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>L</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>O</mi><mo>,</mo><mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, assigns a measure of performance to a candidate function <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ </math> when applied to an observation $O$  
+
+One of the most commonly used loss functions is the $L2$ squared error (or quadratic) loss function:  
+
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>L</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>O</mi><mo>,</mo><mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+   </mrow>
+ <mo>)</mo></mrow><mo>=</mo><msup>
+  <mrow><mo>(</mo>
+   <mrow>
+    <mi>Y</mi><mo>&#x2212;</mo><mover accent='true'>
+     <mi>Q</mi>
+     <mo>&#x00AF;</mo>
+    </mover>
+    <mrow><mo>(</mo>
+     <mi>W</mi>
+    <mo>)</mo></mrow></mrow>
+  <mo>)</mo></mrow>
+  <mn>2</mn>
+ </msup>
+ 
+</math>
+
+## The Parameter of Interest
+
+We define our parameter of interest, <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mo>=</mo><msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math> , as the minimizer of the expected squared error loss:  
+
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mo>=</mo><mi>arg</mi><msub>
+  <mi>min</mi>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+   </msub>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mi>L</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>O</mi><mo>,</mo><mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>  
+
+<math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mi>L</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>O</mi><mo>,</mo><mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, which we want to be small, evaluates the candidate <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ </math>, and it is minimized at the optimal choice of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mn>0</mn>
+ </msub>
+</math>  
+
+We refer to expected loss as the **risk**
+
+We want estimator that minimizes the expectation of the squared error loss function; we want an estimator that has small bias and variance
+
+## Flexible Estimation 
+
+The Super Learner algorithm finds the combination of algorithms minimizing the cross-validated risk  
+
+For a given problem, a "library" of candidate prediction algorithms can be proposed
+
+- *Recommend* using a diverse set of learners (Linear Model, Support Vector Machine, Random Forest, Neural Net, etc.) 
+- Multi-step algorithm involving screening covariates and optimizing tuning parameters
+- As long as the algorithm takes the observed $W$ and outputs a predicted $Y$
+
+No need to decide beforehand which algorithm to use; can use several by incorporating **cross-validation**
+
+## Cross-Validation
+Consider a candidate library of $C$ prediction algorithms <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow><mo>{</mo> <mrow>
+  <msub>
+   <mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+      <mn>1</mn>
+  </msub>
+  <mo>,</mo><mo>&#x2026;</mo><mo>,</mo><msub>
+   <mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+     <mi>C</mi>
+  </msub>
+  </mrow> <mo>}</mo></mrow>
+</math>
+ 
+In V-fold cross-validation, the observed data <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>O</mi>
+  <mi>i</mi>
+ </msub>
+</math>, $i=1,...,n$, is referred to as the learning set and is partitioned into $V$ sets of size <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mo>&#x2248;</mo><mi>n</mi><mo>/</mo><mi>V</mi>
+</math>  
+
+For any given fold, $V-1$ sets comprise a training set and remaining 1 set is a validation set  
+
+For each candidate algorithm in $C$, V-fold cross-validation is used to generate $n$ cross-validated predicted values associated with the $C^{th}$ learner, the results are stored in a <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>n</mi><mo>&#x00D7;</mo><mi>C</mi>
+</math> matrix, $Z$ 
+
+## Super Learner: Ensembling
+
+Super Learner is a "generalized stacking" ensemble learning technique
+
+- A second-level learner, or a *metalearner*
+- It is trained with $Z$, the cross-validated predicted values from each candidate algorithm
+- Used as inputs in a working statistical model to predict the original $Y$
+- Use the least squares algorithm to solve for <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>&#x03B1;</mi>
+    <mn>1</mn>
+   </msub>
+   <mo>,</mo><mo>&#x2026;</mo><mo>,</mo><msub>
+    <mi>&#x03B1;</mi>
+    <mi>C</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, the weight vector that minimizes
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msup>
+  <mstyle displaystyle='true'>
+   <munderover>
+    <mo>&#x2211;</mo>
+    <mrow>
+     <mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+    <mi>n</mi>
+   </munderover>
+   <mrow>
+    <mrow><mo>(</mo>
+     <mrow>
+      <msub>
+       <mi>Y</mi>
+       <mi>i</mi>
+      </msub>
+      <mo>&#x2212;</mo><mstyle displaystyle='true'>
+       <munderover>
+        <mo>&#x2211;</mo>
+        <mrow>
+         <mi>c</mi><mo>=</mo><mn>1</mn></mrow>
+        <mi>C</mi>
+       </munderover>
+       <mrow>
+        <msub>
+         <mi>&#x03B1;</mi>
+         <mi>c</mi>
+        </msub>
+        <msub>
+         <mi>z</mi>
+         <mrow>
+          <mi>c</mi><mi>i</mi></mrow>
+        </msub>
+        </mrow>
+      </mstyle></mrow>
+    <mo>)</mo></mrow></mrow>
+  </mstyle>
+  <mn>2</mn>
+ </msup>
 </math>
 
 
-## Slide with R Code and Output
+----
 
+![Ensembling](C:/Users/sfgre/Documents/Targeted Learning Presentation/Ensembling.gif)
 
+## Super Learner: Ensembling
 
+Super Learner is an *oracle selector*, defined as the estimator, among all possible weighted combinations of the $C$ prediction functions, that minimizes risk under the true data-generating distribution
 
-## Slide with Plot
+- Thus, by adding more competitors, we only improve the performance of the super learner
+- The asymptotic equivalence remains true if the number of algorithms in the library grows very quickly with sample size
 
-```{r, echo=FALSE}
-plot(cars)
+# Application of super learner
+
+## The SuperLearner R Package | Created by Eric Polley, National Cancer Institute
+
+Table: Main functions in the SuperLearner package
+
+![Functions](C:/Users/sfgre/Documents/Targeted Learning Presentation/SL functions.gif)
+
+## CV SuperLearner
+```{r, eval=FALSE}
+pm1 <- CV.SuperLearner(Y=Y,
+                       x=x,
+                       V=10,
+                       family=binomial(),
+                       SL.library=SL.library,
+                       method="method.NNLS",
+                       verbose = TRUE,
+                       control = list(saveFitLibrary = TRUE),
+                       cvControl = list(V=10), saveAll = TRUE,
+                       parallel = 'multicore')
+```
+## SuperLearner Arguments
+**Required:**  
+
+- `Y` - The outcome
+- `X` - The covariates
+- `V` - The number of folds for the metalearner
+- `family` - 'gaussian' or 'binomial' to describe the error distribution
+- `SL.library` - a character vector or a list of prediction algorithms
+- `method` - Method used by metalearner to combine the individual algorithms. The default is non-negative least squares
+
+## SuperLearner Arguments
+**Optional:**  
+
+- `verbose` - helpful to set this to `TRUE` to see the progress of the estimation
+- `control` - Parameters to control the estimation process, like saving the fit for each algorithm
+- `cvControl` - controls the cross-validation process of the individual prediction algorithms, i.e. the number of splits for the V-fold cross-validation
+- `parallel` - Options for parallel computation of the V-fold step
+<div class="red"> Add stuff here </div>
+
+## Canidate algorithms in SuperLearner
+
+There are two types of candidate algorithms that can be used in `SL.library`:
+
+1. **Prediction algorithms**: Algorithms that take as input `X` and `Y` and return a predicted $Y$ value
+2. **Screening algorithms**: Algorithms designed to reduce the dimension of $X$. They take as input `X` and `Y` and return a logical vector indicating the columns in `X` passing the screening
+
+Screening algorithms can be coupled with prediction algorithms to form new prediction algorithms
+
+## Canidate algorithms in SuperLearner
+
+There are two ways to specify the algorithms in `SL.library`:
+
+1. A character vector:  
+`c("SL.glm"", "SL.glmnet"", "SL.gam")`
+2. A list of character vectors:  
+`list(c("SL.glm"", "screen.corP"), "SL.gam")`
+
+If only using prediction algorithms, easier to use the first method. If using screening algorithms, the list is required  
+
+- Prediction algorithm listed first, followed by the screening algorithms
+- Multiple screening algorithms can be used
+
+## Prediction algorithm wrappers in SuperLearner
+```{r, echo=FALSE, include=FALSE} 
+library(SuperLearner)
+```
+```{r}
+listWrappers(what = "SL")
+```
+
+## Screening algorithm wrappers in SuperLearner
+```{r}
+listWrappers(what = "screen")
+```
+
+## Examining a wrapper function
+```{r, }
+SL.glmnet
+```
+
+## Creating your own wrappers
+
+Many algorithms are included in the package, but you may want to create your own
+A few reasons to build your own wrappers:  
+
+- Want to use an algorithm not currently included  
+- Want to include a range of tuning parameters, not just the default  
+- Force variables to be used in chunk-wise fashion
+
+## Example | Creating your own wrapper to alter a tuning parameter
+
+`glmnet` algorithm evaluates elastic net (penalized regression) models  
+
+The `alpha` tuning parameter controls the amount of shrinkage to estimated coefficients the algorithm applies, 1=LASSO, 0=Ridge  
+
+As `SL.ridge` wrapper doesn’t handle binary variables, need to modify the wrapper to utilize various penalized regression models
+```{r, eval=FALSE}
+SL.glmnet.0 <- function(..., alpha = 0){
+  SL.glmnet(..., alpha = alpha) 
+  } # ridge penalty
+```
+
+## Important notes for creating prediction wrappers
+
+- Input must following naming syntax: Y, X, ...  
+- Name of new function must be different than one already in the package  
+- Must return a list with 2 elements named `pred` and `fit`  
+- `pred` must be a vector with the predicted $Y$ values  
+- `fit` can be anything if not using predict method, otherwise is a list with elements needed for predict  
+
+## SuperLearner example | Predicting 30 day mortality for patients admitted to an ICU
+
+The data set has 2490 observations and 47 variables including:
+
+- **Demographic characteristics**, including age, gender, weight and race
+- **Patient medical history**, 12 dichotomous variables for medicial conditions: MI, COPD, stroke, cancer, etc.
+- **Current condition variables**, that provide information about the patient's current health status: three diagnostic scales, vital statistics and current disease status
+
+Can we build a good prediction model of 30 day mortality?
+
+## Preparing data for SuperLearner
+
+Only works with numeric matrices; can be specified in-line, i.e. `Y= dataset$Y`
+
+Data must be preprocessed:
+
+- Can only handle missingness in the outcome `Y`, `X` must be removed/imputed 
+- Continuous variables must be appropriately re-scaled
+- Categorical variables must be appropriately dummy coded
+
+## Preparing data for SuperLearner
+```{r, eval=FALSE}
+# Impute missing X values #
+library("VIM")
+
+# Scale cont vars #
+library(arm)
+cont <- c("age","edu","das2d3pc","aps1","scoma1","meanbp1","wblc1","hrt1",
+          "resp1","temp1","pafi1","alb1","hema1","bili1","crea1","sod1",
+          "pot1","paco21","ph1","wtkilo1")
+arf[,cont] <- data.frame(apply(arf[cont], 2, function(x)
+  {x <- rescale(x, "full")})); rm(cont) # standardizes by centering and 
+                                        # dividing by 2 sd
+
+# Create dummy vars #
+arf$rhc <- ifelse(arf$swang1=="RHC",1,0)
+arf$white <- ifelse(arf$race=="white",1,0)  
+arf$swang1 <- arf$race <- NULL
+```
+
+## Prepare SuperLearner
+```{r, eval=FALSE}
+# Specify new SL prediction algorithm wrappers #
+SL.glmnet.0 <- function(..., alpha = 0){
+  SL.glmnet(..., alpha = alpha) 
+  } # ridge penalty
+
+# Specify the SL library with prediction algorithms #
+
+SL.library <- c("SL.glm","SL.bayesglm","SL.earth","SL.gam","SL.glmnet",
+                "SL.glmnet.0","SL.knn","SL.step","SL.nnet")
+```
+
+## Run SuperLearner prediction model
+```{r, eval=FALSE}
+system.time({
+  pm1 <- CV.SuperLearner(Y=arf$death, 
+                         X=arf[1:45], 
+                         V=10, family=binomial(),
+                         SL.library=SL.library, 
+                         method="method.NNLS",
+                         verbose = TRUE,
+                         control = list(saveFitLibrary = TRUE),
+                         cvControl = list(V=10), saveAll = TRUE,
+                         parallel = 'multicore')
+  
+})[[3]] # Obtain computation time 
+```
+
+## Elements of the output from SuperLearner
+
+- `libraryNames` - names of algorithms in library
+- `library.predict` - matrix of predicted values for Y from each algorithm
+- `SL.predict` - vector of CV super learner predicted values for Y
+- `whichDiscreteSL` - best algorithm for each V-fold
+- `coef` - weights $\alpha$ for each algorithm for each V-fold
+- `summary()` - Mean Squared Error (Risk) for each algorithm as well as super learner
+
+## Evaluate SuperLearner prediction model
+```{r, echo=FALSE, include=FALSE} 
+load("C:/Users/sfgre/Documents/pm1.RData")
+library(ggplot2)
+```
+```{r}
+summary(pm1)
+```
+
+----
+```{r}
+plot(pm1, packag ="ggplot2")
+```
+
+## Best algorithm for each V-fold
+```{r}
+pm1$whichDiscreteSL
+```
+
+## Average of SuperLearner $\alpha$ weights
+```{r}
+as.data.frame(colMeans(pm1$coef))
+```
+
+## Plot of AUROC curves for each algorithm
+![ROC](C:/Users/sfgre/Documents/Targeted Learning Presentation/ROC.jpeg)
+
+## Table of AUROC curves for each algorithm
+```{r, echo=FALSE, include=FALSE} 
+library(pROC)
+predictions <- as.data.frame(cbind(pm1$library.predict))
+SL.predict <- pm1$SL.predict; Y <- pm1$Y
+predictions <- cbind(predictions, SL.predict, Y); rm(SL.predict,Y)
+```
+```{r, echo=FALSE} 
+freqta <- apply(predictions[1:10], 2, function(x){
+  a <- roc(pm1$Y, x, ci=TRUE, of="auc")
+  auc <- round(auc(a),3)
+  lci <- round(ci(a)[[1]],3)
+  uci <- round(ci(a)[[3]],3)
+  row <- rbind(paste(auc," (",lci,"-",uci,")", sep = "", collapse = NULL))
+  })
+table <- as.data.frame(freqta); rm(freqta)
+print(table)
+```
+
+## Run SuperLearner prediction model with variable screening algorithms
+
+- Suppose you wish to limit the number of variables entered into the prediction model  
+- Specifically, you think that the 12 medical history variables aren’t helpful  
+- Can generate a screening algorithm to exclude those variables:
+```{r, eval=FALSE}
+screen.nohx <- function(...){
+  return(c(rep(FALSE,12), rep(TRUE,33)))
+  }
+```
+
+## Specify the SL library with prediction and variable screening algorithms
+
+Note that I’m only including one prediction model (generalize additive model) for demonstration purposes
+```{r, eval=FALSE}
+SL.library2 <- list(c("SL.gam","All","screen.nohx","screen.glmnet"))
+
+system.time({
+pm2 <- CV.SuperLearner(Y=arf$death, 
+                       X=arf[1:45], 
+                       V=10, family=binomial(),
+                       SL.library=SL.library2, 
+                       method="method.NNLS",
+                       verbose = TRUE,
+                       control = list(saveFitLibrary = TRUE),
+                       cvControl = list(V=10), saveAll = TRUE,
+                       parallel = 'multicore')
+
+})[[3]]
 ```
 

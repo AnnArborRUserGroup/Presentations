@@ -1,12 +1,6 @@
----
-title: "Integrating machine learning into causal inference: the Targeted Maximum Likelihood Estimation approach"
-author: "Scott Grey, PhD"
-date: "April 12, 2016"
-output: 
-  ioslides_presentation:
-   widescreen: false
-   keep_md: true
----
+# Integrating machine learning into causal inference: the Targeted Maximum Likelihood Estimation approach
+Scott Grey, PhD  
+April 12, 2016  
 
 ## Overview
 
@@ -14,6 +8,8 @@ output:
 2. Theory of TMLE
 3. Application of TMLE in R
 4. Extensions of TMLE
+
+This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
 
 # Background
 
@@ -977,7 +973,8 @@ Also possible to utilize bootstrapping to calculate standard errors, but computa
 
 Created by Susan Gruber in collaboration with Mark van der Laan
 
-```{r, eval=FALSE}
+
+```r
 library(tmle)
 
 effA1 <- tmle(Y=Y, 
@@ -1022,7 +1019,7 @@ Currently, SL should not be used to estimate $g$
 ## TMLE example 
 **Does placing a right heart catheter change 30 day mortality?**
 
-The data set has 2490 patients admitted to an ICU and 47 variables including:
+The ARF dataset has 2490 patients admitted to an ICU and 47 variables including:
 
 - **Demographic characteristics**, including age, gender and race
 - **Patient medical history**, 12 variables for medicial conditions: MI, COPD, stroke, cancer, etc.
@@ -1040,7 +1037,8 @@ Data must be pre-processed:
 - Categorical variables must be appropriately dummy coded
 
 ## Preparing data for TMLE
-```{r, eval=FALSE}
+
+```r
 # Impute missing X values #
 library("VIM")
 
@@ -1060,7 +1058,8 @@ arf$swang1 <- arf$race <- NULL
 ```
 
 ## Run TMLE
-```{r, eval=FALSE}
+
+```r
 system.time({
   eff <- tmle(Y=arf$death, 
               A=arf$rhc, 
@@ -1076,7 +1075,8 @@ system.time({
 
 Run time on laptop: 15.43 min.
 
-```{r, eval=FALSE}
+
+```r
 print(eff)
 ```
 <div class="blue">
@@ -1101,12 +1101,37 @@ Is “double robust” meaning that estimates are asymptotically unbiased if eit
 
 Can be extended to a variety of situations
 
-- Missing outcomes: can account for missing outcomes in a MAR way
-- Controlled direct effect estimation: can account for mediators in the relationship between A and Y
-- Marginal structural models:  flexible framework for handling issues of time-dependent confounding 
+- **Missing outcomes**: can account for missing outcomes in a MAR way
+- **Controlled direct effect estimation**: can account for mediators in the relationship between A and Y
+- **Marginal structural models**: flexible framework for handling issues of time-dependent confounding 
 
-## Extensions of TMLE being developed a new R packages
-- ltmle: Longitudinal TMLE permits the evaluation of interventions over time using a marginal structural model
-- multiPIM: variable importance analysis that estimates an attributable-risk-type parameter
-- tmle.npvi: permits modeling an intervention variable that is a continuous variable
-- CTMLE: collaborative TMLE accounts for the relationship between Q and g
+## Extensions of TMLE being developed in new R packages
+- **ltmle**: Longitudinal TMLE permits the evaluation of interventions over time using a marginal structural model
+- **multiPIM**: variable importance analysis that estimates an attributable-risk-type parameter
+- **tmle.npvi**: permits modeling an intervention variable that is a continuous variable
+- **CTMLE**: collaborative TMLE accounts for the relationship between Q and g
+
+# Thank you!
+
+## References {.smaller}
+- van der Laan, M.J. and Rubin, D. (2006), Targeted Maximum Likelihood Learning. *The International Journal of Biostatistics*, 2(1).  http://www.bepress.com/ijb/vol2/iss1/11/
+
+- van der Laan, M.J. and Rose, S. *Targeted Learning: Causal Inference for Observational and Experimental Data*. Springer, Berlin Heidelberg New York, 2011. http://www.targetedlearningbook.com/
+
+- M.J. van der Laan, E.C. Polley, and A.E. Hubbard. Super learner. *Stat Appl Genet Mol*, 6(1): Article 25, 2007.
+
+- Gruber, S. and van der Laan, M.J. (2012), tmle: An R Package for Targeted Maximum Likelihood Estimation. *Journal of Statistical Software*, 51(13), 1-35. http://www.jstatsoft.org/v51/i13/
+
+- Sekhon, Jasjeet (2007). "The Neyman-Rubin Model of Causal Inference and Estimation via Matching Methods" (PDF). *The Oxford Handbook of Political Methodology*. http://sekhon.berkeley.edu/papers/SekhonOxfordHandbook.pdf
+
+- F.R. Hampel. “The influence curve and its role in robust estimation” *JASA*, 69(346): 383-393, 1974.
+
+## Software and online resources
+
+- *tmle: Targeted Maximum Likelihood Estimation* https://cran.r-project.org/web/packages/tmle/index.html
+
+- *SuperLearner: Super Learner Prediction* https://cran.r-project.org/web/packages/SuperLearner/index.html
+
+- M. Petersen and L. Balzer. *Introduction to Causal Inference*. UC Berkeley, August 2014. http://www.ucbbiostat.com/
+ 
+- This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
