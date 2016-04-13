@@ -4,7 +4,7 @@ author: "Scott Grey, PhD"
 date: "April 14, 2016"
 output: 
   ioslides_presentation:
-   widescreen: false
+   widescreen: true
    keep_md: true
 ---
 
@@ -14,6 +14,8 @@ output:
 2. Theory behind the super learner algorithm
 3. Application of super learner in R
 4. Some (hopefully) helpful comments on utilizing super learner
+
+This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
 
 # Background
 
@@ -648,7 +650,7 @@ pm1 <- CV.SuperLearner(Y=Y,
 - `control` - Parameters to control the estimation process, like saving the fit for each algorithm
 - `cvControl` - controls the cross-validation process of the individual prediction algorithms, i.e. the number of splits for the V-fold cross-validation
 - `parallel` - Options for parallel computation of the V-fold step
-<div class="red"> Add stuff here </div>
+<div class="red"> Can be platform specfic! </div>
 
 ## Canidate algorithms in SuperLearner
 
@@ -664,9 +666,9 @@ Screening algorithms can be coupled with prediction algorithms to form new predi
 There are two ways to specify the algorithms in `SL.library`:
 
 1. A character vector:  
-`c("SL.glm"", "SL.glmnet"", "SL.gam")`
+`c("SL.glm", "SL.glmnet"", "SL.gam")`
 2. A list of character vectors:  
-`list(c("SL.glm"", "screen.corP"), "SL.gam")`
+`list(c("SL.glm", "screen.corP"), "SL.gam")`
 
 If only using prediction algorithms, easier to use the first method. If using screening algorithms, the list is required  
 
@@ -694,6 +696,7 @@ SL.glmnet
 ## Creating your own wrappers
 
 Many algorithms are included in the package, but you may want to create your own
+
 A few reasons to build your own wrappers:  
 
 - Want to use an algorithm not currently included  
@@ -701,7 +704,6 @@ A few reasons to build your own wrappers:
 - Force variables to be used in chunk-wise fashion
 
 ## Example | Creating your own wrapper to alter a tuning parameter
-
 `glmnet` algorithm evaluates elastic net (penalized regression) models  
 
 The `alpha` tuning parameter controls the amount of shrinkage to estimated coefficients the algorithm applies, 1=LASSO, 0=Ridge  
@@ -719,11 +721,11 @@ SL.glmnet.0 <- function(..., alpha = 0){
 - Name of new function must be different than one already in the package  
 - Must return a list with 2 elements named `pred` and `fit`  
 - `pred` must be a vector with the predicted $Y$ values  
-- `fit` can be anything if not using predict method, otherwise is a list with elements needed for predict  
+- `fit` can be anything if not using `predict` method, otherwise is a list with elements needed for `predict`  
 
 ## SuperLearner example | Predicting 30 day mortality for patients admitted to an ICU
 
-The data set has 2490 observations and 47 variables including:
+The ARF dataset has 2490 observations and 47 variables including:
 
 - **Demographic characteristics**, including age, gender, weight and race
 - **Patient medical history**, 12 dichotomous variables for medicial conditions: MI, COPD, stroke, cancer, etc.
@@ -800,15 +802,29 @@ system.time({
 - `summary()` - Mean Squared Error (Risk) for each algorithm as well as super learner
 
 ## Evaluate SuperLearner prediction model
+```{r, eval=FALSE}
+summary(pm1)
+```
+```
+       Algorithm     Ave        se     Min     Max
+   Super Learner 0.17589 0.0041358 0.14915 0.19025
+     Discrete SL 0.17819 0.0041751 0.14712 0.19527
+      SL.glm_All 0.17927 0.0043446 0.15028 0.19577
+ SL.bayesglm_All 0.17917 0.0043353 0.15014 0.19556
+    SL.earth_All 0.18445 0.0046916 0.16056 0.20049
+      SL.gam_All 0.17726 0.0043339 0.15272 0.19527
+   SL.glmnet_All 0.17758 0.0040714 0.14712 0.19076
+ SL.glmnet.0_All 0.17827 0.0040792 0.14984 0.19323
+      SL.knn_All 0.19507 0.0046476 0.16739 0.20378
+     SL.step_All 0.17776 0.0042912 0.14986 0.19306
+     SL.nnet_All 0.24231 0.0071828 0.18667 0.31727
+```
+----
 ```{r, echo=FALSE, include=FALSE} 
 load("C:/Users/sfgre/Documents/pm1.RData")
 library(ggplot2)
 ```
-```{r}
-summary(pm1)
-```
 
-----
 ```{r}
 plot(pm1, packag ="ggplot2")
 ```
@@ -876,3 +892,103 @@ pm2 <- CV.SuperLearner(Y=arf$death,
 })[[3]]
 ```
 
+## Results
+``````{r, eval=FALSE}
+summary(pm2)
+```
+```
+Risk is based on: Mean Squared Error
+
+All risk estimates are based on V =  10 
+
+            Algorithm     Ave        se     Min     Max
+        Super Learner 0.17643 0.0042621 0.15968 0.19481
+          Discrete SL 0.17730 0.0043219 0.15640 0.19587
+           SL.gam_All 0.17710 0.0043222 0.16020 0.19479
+   SL.gam_screen.nohx 0.17762 0.0042853 0.16224 0.19560
+ SL.gam_screen.glmnet 0.17666 0.0042918 0.15640 0.19587
+```
+----
+
+``````{r, eval=FALSE}
+# Examine vars in best algorithm
+out = c()
+for(j in 1:10){
+  out = c(out,names(pm2[["AllSL"]][[j]][["fitLibrary"]][[3]][[1]][["coefficients"]]))
+  }
+table(out); rm(out,j)
+```
+```
+out
+   (Intercept)          amihx          chfhx           dnr1         Female 
+            10              1              3             10             10 
+         gastr       gibledhx           hema        liverhx        malighx 
+             7              4             10             10             10 
+          meta          neuro        psychhx        renalhx           resp 
+             3              7              7              1              3 
+           rhc      s(age, 2)     s(alb1, 2)     s(aps1, 2)    s(bili1, 2) 
+            10             10             10             10             10 
+   s(crea1, 2) s(das2d3pc, 2)      s(edu, 2)    s(hema1, 2)     s(hrt1, 2) 
+             7             10              4              2              4 
+ s(meanbp1, 2)   s(paco21, 2)    s(pafi1, 2)    s(resp1, 2)   s(scoma1, 2) 
+             7              5             10              1             10 
+    s(sod1, 2)    s(temp1, 2)    s(wblc1, 2)           seps        transhx 
+             4              5              2              6              4 
+        trauma          white 
+             3              1 
+```
+# Some (hopefully) helpful comments
+
+## Basic observations
+- Super Learner is not a magic bullet: crappy data = crappy predictions
+- The screening algorithms seem to work better with many V folds and lots of data, the “chunk wise” variable selection method works best with smaller data sets
+- Theory says you should use many prediction algorithms, but this can be computationally demanding
+
+## Computation issues
+Example computation times on different computers/R configurations
+
+- Windows 10 laptop, 8 GB RAM, 4 logical cores/ R 3.02: 67 minutes  
+- UNIX desktop, 16 GB of RAM, 4 cores/ Microsoft Open R 3.02: 44 minutes  
+- UNIX desktop, 16 GB of RAM, 8 logical cores/ R 3.02: 31 minutes  
+- UNIX workstation, 64 GB of RAM, 16 logical cores/ R 3.02: 30 minutes  
+
+## Super Learner R package software
+- Written in R in 2010  
+- Candidate algorithms are trained independently  
+- Can parallelize the cross-validation step via multicore or SNOW  
+- The meta-learning step has a small computational burden  
+- Possible to run out of memory while working with large training sets
+
+## Two other options available
+**subsemble R package**:
+
+-	Partitions the full dataset into subsets of observations  
+-	Fits a specified underlying algorithm on each subset  
+-	Uses a unique form of V-fold cross-validation to combine the subset-specific fits  
+- Using the UNIX workstation, computation time for the example went from 30 min to 1.6 min  
+- Still in development, does not provide CV risk estimates 
+
+**h2oEnsemble R package**: makes use of the h2o package, the R interface to the H2O platform, all training and data processing are performed in the high-performance H2O cluster
+
+# Thank you!
+
+## References {.smaller}
+- van der Laan, M.J. and Rubin, D. (2006), Targeted Maximum Likelihood Learning. *The International Journal of Biostatistics*, 2(1).  http://www.bepress.com/ijb/vol2/iss1/11/
+
+- van der Laan, Mark J.; Polley, Eric C.; and Hubbard, Alan E., "Super Learner" (July 2007). *U.C. Berkeley Division of Biostatistics Working Paper Series*. Working Paper 222. http://biostats.bepress.com/ucbbiostat/paper222
+
+- van der Laan, M.J. and Rose, S. *Targeted Learning: Causal Inference for Observational and Experimental Data*. Springer, Berlin Heidelberg New York, 2011. http://www.targetedlearningbook.com/
+
+- Sapp, S.; van der Laan, M.J. and Canny, J. *Journal of Applied Statistics* (2013). Subsemble: An ensemble method for combining subset-specific algorithm fits. http://www.tandfonline.com/doi/abs/10.1080/02664763.2013.864263
+
+## Software and online resources
+
+- *SuperLearner: Super Learner Prediction* https://cran.r-project.org/web/packages/SuperLearner/index.html
+
+- *tmle: Targeted Maximum Likelihood Estimation* https://cran.r-project.org/web/packages/tmle/index.html
+
+- *subsemble: An Ensemble Method for Combining Subset-Specific Algorithm Fits* https://cran.r-project.org/web/packages/subsemble/index.html
+
+- M. Petersen and L. Balzer. *Introduction to Causal Inference*. UC Berkeley, August 2014. http://www.ucbbiostat.com/
+ 
+- This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
