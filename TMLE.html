@@ -81,7 +81,7 @@
 
 <body style="opacity: 0">
 
-<slides>
+<slides class="layout-widescreen">
 
   <slide class="title-slide segue nobackground">
         <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
@@ -99,8 +99,10 @@
 <li>Background on the development of targeted learning</li>
 <li>Theory of TMLE</li>
 <li>Application of TMLE in R</li>
-<li>Some (hopefully) helpful comments on utilizing super learner</li>
+<li>Extensions of TMLE</li>
 </ol>
+
+<p>This presentation, the data (with documentation) and R code is available at: <a href='https://github.com/sfgrey/Super-Learner-Presentation.git' title=''>https://github.com/sfgrey/Super-Learner-Presentation.git</a></p>
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Background</h2></hgroup><article  id="background">
 
@@ -144,7 +146,7 @@
 <li><strong>Estimator</strong>: an a priori-specified algorithm, benchmarked by a dissimilarity-measure (e.g., MSE) w.r.t. target parameter</li>
 </ol>
 
-</article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Theory</h2></hgroup><article  id="theory">
+</article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Theory of TMLE</h2></hgroup><article  id="theory-of-tmle">
 
 </article></slide><slide class=''><hgroup><h2>Data</h2></hgroup><article  id="data">
 
@@ -298,6 +300,8 @@
 
 <p>Also possible to utilize bootstrapping to calculate standard errors, but computationally expensive</p>
 
+</article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Application of TMLE in R</h2></hgroup><article  id="application-of-tmle-in-r">
+
 </article></slide><slide class=''><hgroup><h2>TMLE package in R</h2></hgroup><article  id="tmle-package-in-r">
 
 <p>Created by Susan Gruber in collaboration with Mark van der Laan</p>
@@ -354,7 +358,7 @@ effA1 &lt;- tmle(Y=Y,
 
 <p><strong>Does placing a right heart catheter change 30 day mortality?</strong></p>
 
-<p>The data set has 2490 patients admitted to an ICU and 47 variables including:</p>
+<p>The ARF dataset has 2490 patients admitted to an ICU and 47 variables including:</p>
 
 <ul>
 <li><strong>Demographic characteristics</strong>, including age, gender and race</li>
@@ -436,9 +440,40 @@ arf$swang1 &lt;- arf$race &lt;- NULL</pre>
 <p>Can be extended to a variety of situations</p>
 
 <ul>
-<li>Missing outcomes: can account for missing outcomes in a MAR way</li>
-<li>Controlled direct effect estimation: can account for mediators in the relationship between A and Y</li>
-<li>Marginal structural models: extremely flexible framework for handling issues of time-dependent confounding such as when a test or measure is used as a treatment indication and also impacts the probability of the outcome</li>
+<li><strong>Missing outcomes</strong>: can account for missing outcomes in a MAR way</li>
+<li><strong>Controlled direct effect estimation</strong>: can account for mediators in the relationship between A and Y</li>
+<li><strong>Marginal structural models</strong>: flexible framework for handling issues of time-dependent confounding</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Extensions of TMLE being developed in new R packages</h2></hgroup><article  id="extensions-of-tmle-being-developed-in-new-r-packages">
+
+<ul>
+<li><strong>ltmle</strong>: Longitudinal TMLE permits the evaluation of interventions over time using a marginal structural model</li>
+<li><strong>multiPIM</strong>: variable importance analysis that estimates an attributable-risk-type parameter</li>
+<li><strong>tmle.npvi</strong>: permits modeling an intervention variable that is a continuous variable</li>
+<li><strong>CTMLE</strong>: collaborative TMLE accounts for the relationship between Q and g</li>
+</ul>
+
+</article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Thank you!</h2></hgroup><article  id="thank-you">
+
+</article></slide><slide class=''><hgroup><h2>References</h2></hgroup><article  id="references" class="smaller">
+
+<ul>
+<li><p>van der Laan, M.J. and Rubin, D. (2006), Targeted Maximum Likelihood Learning. <em>The International Journal of Biostatistics</em>, 2(1). <a href='http://www.bepress.com/ijb/vol2/iss1/11/' title=''>http://www.bepress.com/ijb/vol2/iss1/11/</a></p></li>
+<li><p>van der Laan, M.J. and Rose, S. <em>Targeted Learning: Causal Inference for Observational and Experimental Data</em>. Springer, Berlin Heidelberg New York, 2011. <a href='http://www.targetedlearningbook.com/' title=''>http://www.targetedlearningbook.com/</a></p></li>
+<li><p>M.J. van der Laan, E.C. Polley, and A.E. Hubbard. Super learner. <em>Stat Appl Genet Mol</em>, 6(1): Article 25, 2007.</p></li>
+<li><p>Gruber, S. and van der Laan, M.J. (2012), tmle: An R Package for Targeted Maximum Likelihood Estimation. <em>Journal of Statistical Software</em>, 51(13), 1-35. <a href='http://www.jstatsoft.org/v51/i13/' title=''>http://www.jstatsoft.org/v51/i13/</a></p></li>
+<li><p>Sekhon, Jasjeet (2007). &quot;The Neyman-Rubin Model of Causal Inference and Estimation via Matching Methods&quot; (PDF). <em>The Oxford Handbook of Political Methodology</em>. <a href='http://sekhon.berkeley.edu/papers/SekhonOxfordHandbook.pdf' title=''>http://sekhon.berkeley.edu/papers/SekhonOxfordHandbook.pdf</a></p></li>
+<li><p>F.R. Hampel. “The influence curve and its role in robust estimation” <em>JASA</em>, 69(346): 383-393, 1974.</p></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Software and online resources</h2></hgroup><article  id="software-and-online-resources">
+
+<ul>
+<li><p><em>tmle: Targeted Maximum Likelihood Estimation</em> <a href='https://cran.r-project.org/web/packages/tmle/index.html' title=''>https://cran.r-project.org/web/packages/tmle/index.html</a></p></li>
+<li><p><em>SuperLearner: Super Learner Prediction</em> <a href='https://cran.r-project.org/web/packages/SuperLearner/index.html' title=''>https://cran.r-project.org/web/packages/SuperLearner/index.html</a></p></li>
+<li><p>M. Petersen and L. Balzer. <em>Introduction to Causal Inference</em>. UC Berkeley, August 2014. <a href='http://www.ucbbiostat.com/' title=''>http://www.ucbbiostat.com/</a></p></li>
+<li><p>This presentation, the data (with documentation) and R code is available at: <a href='https://github.com/sfgrey/Super-Learner-Presentation.git' title=''>https://github.com/sfgrey/Super-Learner-Presentation.git</a></p></li>
 </ul></article></slide>
 
 
