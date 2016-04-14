@@ -1,0 +1,78 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "April Meetup"
+date: "Apr 14, 2016"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: false
+    css: custom.css
+---
+
+## Group Info {.reallybig}
+
+https://AnnArborRUserGroup.github.io/
+
+http://meetup.com/Ann-Arbor-R-User-Group
+
+**Organizers:**
+
+Ellis, Clayton, Rob, Michelle, Andrew
+
+AnnArborRUserGroup@gmail.com
+
+## Slack {.bigger}
+
+* Persistent chat rooms organized by topic
+
+    + **R** related discussion
+
+    + Local community events and announcements
+
+* Private groups
+
+* Direct messaging
+
+### **[https://AnnArborRUserGroup.github.io/slack](https://AnnArborRUserGroup.github.io/slack)**
+
+## Sponsors {.biggest}
+
+* SPARK Ann Arbor
+
+* Revolution Analytics (Microsoft)
+
+* Methods Consultants
+
+* FarmLogs
+
+
+## Upcoming Events {.biggest}
+
+**AA/Detroit NLP Meetup**
+
+* Dan Pressel, *Modern Applied Machine Learning for NLP*
+
+* Spark Central Innovation Center
+
+* Wednesday, April 27, 2016
+
+* http://www.meetup.com/Ann-Arbor-Detroit-NLPers-A2D-NLP/events/230298842/
+
+## R Workshops {.biggest}
+
+* We hosted our first workshop on April 2-3  http://annarborrusergroup.github.io/AARUG-R-workshop/ 
+
+* We will be hosting another free beginner workshop **May 21-22**, 1-5pm at SPARK Central Innovation Center
+
+* Look for **registration** email in the next week    
+
+
+## May Meetup {.reallybig}
+
+Likely a social event
+
+Date is TBD
+
+# Presentations
+
+
