@@ -937,6 +937,7 @@ out
         trauma          white 
              3              1 
 ```
+<<<<<<< HEAD
 # Some (hopefully) helpful comments
 
 ## Basic observations
@@ -969,6 +970,9 @@ Example computation times on different computers/R configurations
 - Still in development, does not provide CV risk estimates 
 
 **h2oEnsemble R package**: makes use of the h2o package, the R interface to the H2O platform, all training and data processing are performed in the high-performance H2O cluster
+=======
+## Some (hopefully) helpful comments
+>>>>>>> 3814cb47222e70935bd59cf902a05007cb8dca80
 
 # Thank you!
 
@@ -979,16 +983,22 @@ Example computation times on different computers/R configurations
 
 - van der Laan, M.J. and Rose, S. *Targeted Learning: Causal Inference for Observational and Experimental Data*. Springer, Berlin Heidelberg New York, 2011. http://www.targetedlearningbook.com/
 
+<<<<<<< HEAD
 - Sapp, S.; van der Laan, M.J. and Canny, J. *Journal of Applied Statistics* (2013). Subsemble: An ensemble method for combining subset-specific algorithm fits. http://www.tandfonline.com/doi/abs/10.1080/02664763.2013.864263
 
+=======
+>>>>>>> 3814cb47222e70935bd59cf902a05007cb8dca80
 ## Software and online resources
 
 - *SuperLearner: Super Learner Prediction* https://cran.r-project.org/web/packages/SuperLearner/index.html
 
 - *tmle: Targeted Maximum Likelihood Estimation* https://cran.r-project.org/web/packages/tmle/index.html
 
+<<<<<<< HEAD
 - *subsemble: An Ensemble Method for Combining Subset-Specific Algorithm Fits* https://cran.r-project.org/web/packages/subsemble/index.html
 
+=======
+>>>>>>> 3814cb47222e70935bd59cf902a05007cb8dca80
 - M. Petersen and L. Balzer. *Introduction to Causal Inference*. UC Berkeley, August 2014. http://www.ucbbiostat.com/
  
 - This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
