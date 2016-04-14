@@ -1037,6 +1037,7 @@ out
         trauma          white 
              3              1 
 ```
+
 # Some (hopefully) helpful comments
 
 ## Basic observations
