@@ -41,8 +41,6 @@ AnnArborRUserGroup@gmail.com
 
 * Revolution Analytics (Microsoft)
 
-* Methods Consultants
-
 * FarmLogs
 
 
