@@ -402,6 +402,202 @@ One of the most commonly used loss functions is the $L2$ squared error (or quadr
   <mn>2</mn>
  </msup>
  
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+</math>
+
+## The Parameter of Interest
+
+We define our parameter of interest, <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mo>=</mo><msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math> , as the minimizer of the expected squared error loss:  
+
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mo>=</mo><mi>arg</mi><msub>
+  <mi>min</mi>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+   </msub>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mi>L</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>O</mi><mo>,</mo><mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>  
+
+<math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mi>L</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>O</mi><mo>,</mo><mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, which we want to be small, evaluates the candidate <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ </math>, and it is minimized at the optimal choice of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mn>0</mn>
+ </msub>
+</math>  
+
+We refer to expected loss as the **risk**
+
+We want estimator that minimizes the expectation of the squared error loss function; we want an estimator that has small bias and variance
+
+## Flexible Estimation 
+
+The Super Learner algorithm finds the combination of algorithms minimizing the cross-validated risk  
+
+For a given problem, a "library" of candidate prediction algorithms can be proposed
+
+- *Recommend* using a diverse set of learners (Linear Model, Support Vector Machine, Random Forest, Neural Net, etc.) 
+- Multi-step algorithm involving screening covariates and optimizing tuning parameters
+- As long as the algorithm takes the observed $W$ and outputs a predicted $Y$
+
+No need to decide beforehand which algorithm to use; can use several by incorporating **cross-validation**
+
+## Cross-Validation
+Consider a candidate library of $C$ prediction algorithms <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow><mo>{</mo> <mrow>
+  <msub>
+   <mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+      <mn>1</mn>
+  </msub>
+  <mo>,</mo><mo>&#x2026;</mo><mo>,</mo><msub>
+   <mover accent='true'>
+    <mi>Q</mi>
+    <mo>&#x00AF;</mo>
+   </mover>
+     <mi>C</mi>
+  </msub>
+  </mrow> <mo>}</mo></mrow>
+</math>
+ 
+In V-fold cross-validation, the observed data <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>O</mi>
+  <mi>i</mi>
+ </msub>
+</math>, $i=1,...,n$, is referred to as the learning set and is partitioned into $V$ sets of size <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mo>&#x2248;</mo><mi>n</mi><mo>/</mo><mi>V</mi>
+</math>  
+
+For any given fold, $V-1$ sets comprise a training set and remaining 1 set is a validation set  
+
+For each candidate algorithm in $C$, V-fold cross-validation is used to generate $n$ cross-validated predicted values associated with the $C^{th}$ learner, the results are stored in a <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>n</mi><mo>&#x00D7;</mo><mi>C</mi>
+</math> matrix, $Z$ 
+
+## Super Learner: Ensembling
+
+Super Learner is a "generalized stacking" ensemble learning technique
+
+- A second-level learner, or a *metalearner*
+- It is trained with $Z$, the cross-validated predicted values from each candidate algorithm
+- Used as inputs in a working statistical model to predict the original $Y$
+- Use the least squares algorithm to solve for <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>&#x03B1;</mi>
+    <mn>1</mn>
+   </msub>
+   <mo>,</mo><mo>&#x2026;</mo><mo>,</mo><msub>
+    <mi>&#x03B1;</mi>
+    <mi>C</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, the weight vector that minimizes
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msup>
+  <mstyle displaystyle='true'>
+   <munderover>
+    <mo>&#x2211;</mo>
+    <mrow>
+     <mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+    <mi>n</mi>
+   </munderover>
+   <mrow>
+    <mrow><mo>(</mo>
+     <mrow>
+      <msub>
+       <mi>Y</mi>
+       <mi>i</mi>
+      </msub>
+      <mo>&#x2212;</mo><mstyle displaystyle='true'>
+       <munderover>
+        <mo>&#x2211;</mo>
+        <mrow>
+         <mi>c</mi><mo>=</mo><mn>1</mn></mrow>
+        <mi>C</mi>
+       </munderover>
+       <mrow>
+        <msub>
+         <mi>&#x03B1;</mi>
+         <mi>c</mi>
+        </msub>
+        <msub>
+         <mi>z</mi>
+         <mrow>
+          <mi>c</mi><mi>i</mi></mrow>
+        </msub>
+        </mrow>
+      </mstyle></mrow>
+    <mo>)</mo></mrow></mrow>
+  </mstyle>
+  <mn>2</mn>
+ </msup>
+>>>>>>> 3814cb47222e70935bd59cf902a05007cb8dca80
+>>>>>>> d2905ee92929836fe3ebbf3e83b0f89649c6993b
 </math>
 
 ## The Parameter of Interest
@@ -1078,6 +1274,10 @@ Example computation times on different computers/R configurations
 
 - van der Laan, Mark J.; Polley, Eric C.; and Hubbard, Alan E., "Super Learner" (July 2007). *U.C. Berkeley Division of Biostatistics Working Paper Series*. Working Paper 222. http://biostats.bepress.com/ucbbiostat/paper222
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> d2905ee92929836fe3ebbf3e83b0f89649c6993b
 - van der Laan, M.J. and Rose, S. *Targeted Learning: Causal Inference for Observational and Experimental Data*. Springer, Berlin Heidelberg New York, 2011. http://www.targetedlearningbook.com/
 
 - Sapp, S.; van der Laan, M.J. and Canny, J. *Journal of Applied Statistics* (2013). Subsemble: An ensemble method for combining subset-specific algorithm fits. http://www.tandfonline.com/doi/abs/10.1080/02664763.2013.864263
@@ -1089,6 +1289,469 @@ Example computation times on different computers/R configurations
 - *tmle: Targeted Maximum Likelihood Estimation* https://cran.r-project.org/web/packages/tmle/index.html
 
 - *subsemble: An Ensemble Method for Combining Subset-Specific Algorithm Fits* https://cran.r-project.org/web/packages/subsemble/index.html
+<<<<<<< HEAD
+=======
+=======
+----
+
+![Ensembling](C:/Users/sfgre/Documents/Targeted Learning Presentation/Ensembling.gif)
+
+## Super Learner: Ensembling
+
+Super Learner is an *oracle selector*, defined as the estimator, among all possible weighted combinations of the $C$ prediction functions, that minimizes risk under the true data-generating distribution
+
+- Thus, by adding more competitors, we only improve the performance of the super learner
+- The asymptotic equivalence remains true if the number of algorithms in the library grows very quickly with sample size
+
+# Application of super learner
+
+## The SuperLearner R Package | Created by Eric Polley, National Cancer Institute
+
+Table: Main functions in the SuperLearner package
+
+![Functions](C:/Users/sfgre/Documents/Targeted Learning Presentation/SL functions.gif)
+
+## CV SuperLearner
+
+```r
+pm1 <- CV.SuperLearner(Y=Y,
+                       x=x,
+                       V=10,
+                       family=binomial(),
+                       SL.library=SL.library,
+                       method="method.NNLS",
+                       verbose = TRUE,
+                       control = list(saveFitLibrary = TRUE),
+                       cvControl = list(V=10), saveAll = TRUE,
+                       parallel = 'multicore')
+```
+## SuperLearner Arguments
+**Required:**  
+
+- `Y` - The outcome
+- `X` - The covariates
+- `V` - The number of folds for the metalearner
+- `family` - 'gaussian' or 'binomial' to describe the error distribution
+- `SL.library` - a character vector or a list of prediction algorithms
+- `method` - Method used by metalearner to combine the individual algorithms. The default is non-negative least squares
+
+## SuperLearner Arguments
+**Optional:**  
+
+- `verbose` - helpful to set this to `TRUE` to see the progress of the estimation
+- `control` - Parameters to control the estimation process, like saving the fit for each algorithm
+- `cvControl` - controls the cross-validation process of the individual prediction algorithms, i.e. the number of splits for the V-fold cross-validation
+- `parallel` - Options for parallel computation of the V-fold step
+<div class="red"> Can be platform specfic! </div>
+
+## Canidate algorithms in SuperLearner
+
+There are two types of candidate algorithms that can be used in `SL.library`:
+
+1. **Prediction algorithms**: Algorithms that take as input `X` and `Y` and return a predicted $Y$ value
+2. **Screening algorithms**: Algorithms designed to reduce the dimension of $X$. They take as input `X` and `Y` and return a logical vector indicating the columns in `X` passing the screening
+
+Screening algorithms can be coupled with prediction algorithms to form new prediction algorithms
+
+## Canidate algorithms in SuperLearner
+
+There are two ways to specify the algorithms in `SL.library`:
+
+1. A character vector:  
+`c("SL.glm", "SL.glmnet"", "SL.gam")`
+2. A list of character vectors:  
+`list(c("SL.glm", "screen.corP"), "SL.gam")`
+
+If only using prediction algorithms, easier to use the first method. If using screening algorithms, the list is required  
+
+- Prediction algorithm listed first, followed by the screening algorithms
+- Multiple screening algorithms can be used
+
+## Prediction algorithm wrappers in SuperLearner
+
+
+```r
+listWrappers(what = "SL")
+```
+
+```
+## All prediction algorithm wrappers in SuperLearner:
+```
+
+```
+##  [1] "SL.bayesglm"         "SL.caret"            "SL.caret.rpart"     
+##  [4] "SL.cforest"          "SL.earth"            "SL.gam"             
+##  [7] "SL.gbm"              "SL.glm"              "SL.glm.interaction" 
+## [10] "SL.glmnet"           "SL.ipredbagg"        "SL.knn"             
+## [13] "SL.leekasso"         "SL.loess"            "SL.logreg"          
+## [16] "SL.mean"             "SL.nnet"             "SL.nnls"            
+## [19] "SL.polymars"         "SL.randomForest"     "SL.ridge"           
+## [22] "SL.rpart"            "SL.rpartPrune"       "SL.step"            
+## [25] "SL.step.forward"     "SL.step.interaction" "SL.stepAIC"         
+## [28] "SL.svm"              "SL.template"
+```
+
+## Screening algorithm wrappers in SuperLearner
+
+```r
+listWrappers(what = "screen")
+```
+
+```
+## All screening algorithm wrappers in SuperLearner:
+```
+
+```
+## [1] "All"
+## [1] "screen.corP"           "screen.corRank"        "screen.glmnet"        
+## [4] "screen.randomForest"   "screen.SIS"            "screen.template"      
+## [7] "screen.ttest"          "write.screen.template"
+```
+
+## Examining a wrapper function
+
+```r
+SL.glmnet
+```
+
+```
+## function (Y, X, newX, family, obsWeights, id, alpha = 1, nfolds = 10, 
+##     nlambda = 100, useMin = TRUE, ...) 
+## {
+##     .SL.require("glmnet")
+##     if (!is.matrix(X)) {
+##         X <- model.matrix(~-1 + ., X)
+##         newX <- model.matrix(~-1 + ., newX)
+##     }
+##     fitCV <- glmnet::cv.glmnet(x = X, y = Y, weights = obsWeights, 
+##         lambda = NULL, type.measure = "deviance", nfolds = nfolds, 
+##         family = family$family, alpha = alpha, nlambda = nlambda)
+##     pred <- predict(fitCV$glmnet.fit, newx = newX, s = ifelse(useMin, 
+##         fitCV$lambda.min, fitCV$lambda.1se), type = "response")
+##     fit <- list(object = fitCV, useMin = useMin)
+##     class(fit) <- "SL.glmnet"
+##     out <- list(pred = pred, fit = fit)
+##     return(out)
+## }
+## <environment: namespace:SuperLearner>
+```
+
+## Creating your own wrappers
+
+Many algorithms are included in the package, but you may want to create your own
+
+A few reasons to build your own wrappers:  
+
+- Want to use an algorithm not currently included  
+- Want to include a range of tuning parameters, not just the default  
+- Force variables to be used in chunk-wise fashion
+
+## Example | Creating your own wrapper to alter a tuning parameter
+`glmnet` algorithm evaluates elastic net (penalized regression) models  
+
+The `alpha` tuning parameter controls the amount of shrinkage to estimated coefficients the algorithm applies, 1=LASSO, 0=Ridge  
+
+As `SL.ridge` wrapper doesn’t handle binary variables, need to modify the wrapper to utilize various penalized regression models
+
+```r
+SL.glmnet.0 <- function(..., alpha = 0){
+  SL.glmnet(..., alpha = alpha) 
+  } # ridge penalty
+```
+
+## Important notes for creating prediction wrappers
+
+- Input must following naming syntax: Y, X, ...  
+- Name of new function must be different than one already in the package  
+- Must return a list with 2 elements named `pred` and `fit`  
+- `pred` must be a vector with the predicted $Y$ values  
+- `fit` can be anything if not using `predict` method, otherwise is a list with elements needed for `predict`  
+
+## SuperLearner example | Predicting 30 day mortality for patients admitted to an ICU
+
+The ARF dataset has 2490 observations and 47 variables including:
+
+- **Demographic characteristics**, including age, gender, weight and race
+- **Patient medical history**, 12 dichotomous variables for medicial conditions: MI, COPD, stroke, cancer, etc.
+- **Current condition variables**, that provide information about the patient's current health status: three diagnostic scales, vital statistics and current disease status
+
+Can we build a good prediction model of 30 day mortality?
+
+## Preparing data for SuperLearner
+
+Only works with numeric matrices; can be specified in-line, i.e. `Y= dataset$Y`
+
+Data must be preprocessed:
+
+- Can only handle missingness in the outcome `Y`, `X` must be removed/imputed 
+- Continuous variables must be appropriately re-scaled
+- Categorical variables must be appropriately dummy coded
+
+## Preparing data for SuperLearner
+
+```r
+# Impute missing X values #
+library("VIM")
+
+# Scale cont vars #
+library(arm)
+cont <- c("age","edu","das2d3pc","aps1","scoma1","meanbp1","wblc1","hrt1",
+          "resp1","temp1","pafi1","alb1","hema1","bili1","crea1","sod1",
+          "pot1","paco21","ph1","wtkilo1")
+arf[,cont] <- data.frame(apply(arf[cont], 2, function(x)
+  {x <- rescale(x, "full")})); rm(cont) # standardizes by centering and 
+                                        # dividing by 2 sd
+
+# Create dummy vars #
+arf$rhc <- ifelse(arf$swang1=="RHC",1,0)
+arf$white <- ifelse(arf$race=="white",1,0)  
+arf$swang1 <- arf$race <- NULL
+```
+
+## Prepare SuperLearner
+
+```r
+# Specify new SL prediction algorithm wrappers #
+SL.glmnet.0 <- function(..., alpha = 0){
+  SL.glmnet(..., alpha = alpha) 
+  } # ridge penalty
+
+# Specify the SL library with prediction algorithms #
+
+SL.library <- c("SL.glm","SL.bayesglm","SL.earth","SL.gam","SL.glmnet",
+                "SL.glmnet.0","SL.knn","SL.step","SL.nnet")
+```
+
+## Run SuperLearner prediction model
+
+```r
+system.time({
+  pm1 <- CV.SuperLearner(Y=arf$death, 
+                         X=arf[1:45], 
+                         V=10, family=binomial(),
+                         SL.library=SL.library, 
+                         method="method.NNLS",
+                         verbose = TRUE,
+                         control = list(saveFitLibrary = TRUE),
+                         cvControl = list(V=10), saveAll = TRUE,
+                         parallel = 'multicore')
+  
+})[[3]] # Obtain computation time 
+```
+
+## Elements of the output from SuperLearner
+
+- `libraryNames` - names of algorithms in library
+- `library.predict` - matrix of predicted values for Y from each algorithm
+- `SL.predict` - vector of CV super learner predicted values for Y
+- `whichDiscreteSL` - best algorithm for each V-fold
+- `coef` - weights $\alpha$ for each algorithm for each V-fold
+- `summary()` - Mean Squared Error (Risk) for each algorithm as well as super learner
+
+## Evaluate SuperLearner prediction model
+
+```r
+summary(pm1)
+```
+```
+       Algorithm     Ave        se     Min     Max
+   Super Learner 0.17589 0.0041358 0.14915 0.19025
+     Discrete SL 0.17819 0.0041751 0.14712 0.19527
+      SL.glm_All 0.17927 0.0043446 0.15028 0.19577
+ SL.bayesglm_All 0.17917 0.0043353 0.15014 0.19556
+    SL.earth_All 0.18445 0.0046916 0.16056 0.20049
+      SL.gam_All 0.17726 0.0043339 0.15272 0.19527
+   SL.glmnet_All 0.17758 0.0040714 0.14712 0.19076
+ SL.glmnet.0_All 0.17827 0.0040792 0.14984 0.19323
+      SL.knn_All 0.19507 0.0046476 0.16739 0.20378
+     SL.step_All 0.17776 0.0042912 0.14986 0.19306
+     SL.nnet_All 0.24231 0.0071828 0.18667 0.31727
+```
+----
+
+
+
+```r
+plot(pm1, packag ="ggplot2")
+```
+
+![](Superlearner_files/figure-html/unnamed-chunk-12-1.png)
+
+## Best algorithm for each V-fold
+
+```r
+pm1$whichDiscreteSL
+```
+
+```
+## $`1`
+## [1] "SL.gam_All"
+## 
+## $`2`
+## [1] "SL.glmnet_All"
+## 
+## $`3`
+## [1] "SL.glmnet_All"
+## 
+## $`4`
+## [1] "SL.step_All"
+## 
+## $`5`
+## [1] "SL.glmnet_All"
+## 
+## $`6`
+## [1] "SL.step_All"
+## 
+## $`7`
+## [1] "SL.glmnet_All"
+## 
+## $`8`
+## [1] "SL.glmnet_All"
+## 
+## $`9`
+## [1] "SL.glmnet_All"
+## 
+## $`10`
+## [1] "SL.gam_All"
+```
+
+## Average of SuperLearner $\alpha$ weights
+
+```r
+as.data.frame(colMeans(pm1$coef))
+```
+
+```
+##                 colMeans(pm1$coef)
+## SL.glm_All             0.000000000
+## SL.bayesglm_All        0.000000000
+## SL.earth_All           0.182184626
+## SL.gam_All             0.238533673
+## SL.glmnet_All          0.124057556
+## SL.glmnet.0_All        0.000000000
+## SL.knn_All             0.187070857
+## SL.step_All            0.261432008
+## SL.nnet_All            0.006721281
+```
+
+## Plot of AUROC curves for each algorithm
+![ROC](C:/Users/sfgre/Documents/Targeted Learning Presentation/ROC.jpeg)
+
+## Table of AUROC curves for each algorithm
+
+
+```
+##                              freqta
+## SL.glm_All      0.731 (0.709-0.752)
+## SL.bayesglm_All 0.731 (0.709-0.752)
+## SL.earth_All      0.722 (0.7-0.744)
+## SL.gam_All      0.738 (0.717-0.759)
+## SL.glmnet_All   0.736 (0.714-0.757)
+## SL.glmnet.0_All 0.733 (0.711-0.754)
+## SL.knn_All      0.677 (0.654-0.699)
+## SL.step_All     0.735 (0.714-0.757)
+## SL.nnet_All     0.572 (0.547-0.596)
+## SL.predict      0.743 (0.722-0.764)
+```
+
+## Run SuperLearner prediction model with variable screening algorithms
+
+- Suppose you wish to limit the number of variables entered into the prediction model  
+- Specifically, you think that the 12 medical history variables aren’t helpful  
+- Can generate a screening algorithm to exclude those variables:
+
+```r
+screen.nohx <- function(...){
+  return(c(rep(FALSE,12), rep(TRUE,33)))
+  }
+```
+
+## Specify the SL library with prediction and variable screening algorithms
+
+Note that I’m only including one prediction model (generalize additive model) for demonstration purposes
+
+```r
+SL.library2 <- list(c("SL.gam","All","screen.nohx","screen.glmnet"))
+
+system.time({
+pm2 <- CV.SuperLearner(Y=arf$death, 
+                       X=arf[1:45], 
+                       V=10, family=binomial(),
+                       SL.library=SL.library2, 
+                       method="method.NNLS",
+                       verbose = TRUE,
+                       control = list(saveFitLibrary = TRUE),
+                       cvControl = list(V=10), saveAll = TRUE,
+                       parallel = 'multicore')
+
+})[[3]]
+```
+
+## Results
+
+```r
+summary(pm2)
+```
+```
+Risk is based on: Mean Squared Error
+
+All risk estimates are based on V =  10 
+
+            Algorithm     Ave        se     Min     Max
+        Super Learner 0.17643 0.0042621 0.15968 0.19481
+          Discrete SL 0.17730 0.0043219 0.15640 0.19587
+           SL.gam_All 0.17710 0.0043222 0.16020 0.19479
+   SL.gam_screen.nohx 0.17762 0.0042853 0.16224 0.19560
+ SL.gam_screen.glmnet 0.17666 0.0042918 0.15640 0.19587
+```
+----
+
+
+```r
+# Examine vars in best algorithm
+out = c()
+for(j in 1:10){
+  out = c(out,names(pm2[["AllSL"]][[j]][["fitLibrary"]][[3]][[1]][["coefficients"]]))
+  }
+table(out); rm(out,j)
+```
+```
+out
+   (Intercept)          amihx          chfhx           dnr1         Female 
+            10              1              3             10             10 
+         gastr       gibledhx           hema        liverhx        malighx 
+             7              4             10             10             10 
+          meta          neuro        psychhx        renalhx           resp 
+             3              7              7              1              3 
+           rhc      s(age, 2)     s(alb1, 2)     s(aps1, 2)    s(bili1, 2) 
+            10             10             10             10             10 
+   s(crea1, 2) s(das2d3pc, 2)      s(edu, 2)    s(hema1, 2)     s(hrt1, 2) 
+             7             10              4              2              4 
+ s(meanbp1, 2)   s(paco21, 2)    s(pafi1, 2)    s(resp1, 2)   s(scoma1, 2) 
+             7              5             10              1             10 
+    s(sod1, 2)    s(temp1, 2)    s(wblc1, 2)           seps        transhx 
+             4              5              2              6              4 
+        trauma          white 
+             3              1 
+```
+## Some (hopefully) helpful comments
+
+# Thank you!
+
+## References {.smaller}
+- van der Laan, M.J. and Rubin, D. (2006), Targeted Maximum Likelihood Learning. *The International Journal of Biostatistics*, 2(1).  http://www.bepress.com/ijb/vol2/iss1/11/
+
+- van der Laan, Mark J.; Polley, Eric C.; and Hubbard, Alan E., "Super Learner" (July 2007). *U.C. Berkeley Division of Biostatistics Working Paper Series*. Working Paper 222. http://biostats.bepress.com/ucbbiostat/paper222
+
+- van der Laan, M.J. and Rose, S. *Targeted Learning: Causal Inference for Observational and Experimental Data*. Springer, Berlin Heidelberg New York, 2011. http://www.targetedlearningbook.com/
+
+## Software and online resources
+
+- *SuperLearner: Super Learner Prediction* https://cran.r-project.org/web/packages/SuperLearner/index.html
+
+- *tmle: Targeted Maximum Likelihood Estimation* https://cran.r-project.org/web/packages/tmle/index.html
+>>>>>>> 3814cb47222e70935bd59cf902a05007cb8dca80
+>>>>>>> d2905ee92929836fe3ebbf3e83b0f89649c6993b
 
 - M. Petersen and L. Balzer. *Introduction to Causal Inference*. UC Berkeley, August 2014. http://www.ucbbiostat.com/
  
