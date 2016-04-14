@@ -1,0 +1,1137 @@
+# Integrating machine learning into causal inference: the Targeted Maximum Likelihood Estimation approach
+Scott Grey, PhD  
+April 12, 2016  
+
+## Overview
+
+1. Background on the development of targeted learning
+2. Theory of TMLE
+3. Application of TMLE in R
+4. Extensions of TMLE
+
+This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
+
+# Background
+
+## Background
+<div class="centered">
+"Essentially, all models are wrong, but some are useful"  
+- George Box, 1979
+
+</div>
+
+Mantra of statisticians regarding the development of statistical models for many years  
+
+In the 1990s an awareness developed among statisticians (Breiman, Harrell) that this approach was wrong  
+
+- Parametric model assumptions rarely met
+- Large number of variables makes it difficult to correctly specify a model  
+
+Simultaneously, computer scientists and some statisticians developed the machine learning field to address the limitations of parametric models
+
+## Targeted learning
+
+Combines advanced machine learning with efficient semiparametric estimation to provide a framework for answering causal questions from data  
+
+- Developed by Mark van der Laan and his research group at UC Berkeley
+- Started with the seminal 2006 article on targeted maximum likelihood estimation  
+
+Central motivation is the belief that statisticians treat estimation as *Art* not **Science**  
+
+- This results in misspecified models that are data-adaptively selected, but this part of the estimation procedure is not accounted for in the variance
+
+## Estimation is a Science, *Not an Art* | Specific definitions required
+
+1. **Data**: realizations of random variables with a probability distribution
+2. **Model**: actual knowledge about the data generating probability distribution
+3. **Target Parameter**: a feature of the data generating probability distribution
+4. **Estimator**: an a priori-specified algorithm, benchmarked by a dissimilarity-measure (e.g., MSE) w.r.t. target parameter
+
+# Theory of TMLE
+
+## Data 
+
+Random variable $O$, observed $n$ times, defined in a simple case as <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow>
+  <mi>O</mi><mo>=</mo><mrow><mo>(</mo>
+   <mrow>
+    <mi>A</mi><mo>,</mo><mi>W</mi><mo>,</mo><mi>Y</mi></mrow>
+  <mo>)</mo></mrow><mo>&#x223C;</mo><msub>
+   <mi>P</mi>
+   <mi>0</mi>
+  </msub>
+  </mrow>
+</math> if we are without common issues such as missingness and censoring  
+
+- $A$: exposure or treatment 
+- $W$: vector of covariates
+- $Y$: outcome 
+- <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mi>0</mi>
+ </msub>
+ </math>: the true probability distribution
+
+This data structure makes for an effective example, but data structures found in practice are much more complicated
+
+## Model
+
+General case: Observe $n$ i.i.d. copies of random variable $O$ with probability distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mi>0</mi>
+ </msub>
+</math>
+
+The data-generating distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mi>0</mi>
+ </msub>
+ </math> is also known to be an element of a statistical model <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>M</mi><mo>:</mo><msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+ <mo>&#x2208;</mo><mi>M</mi>
+</math>
+
+A **statistical** model $M$ is the set of possible probability distributions for <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mi>0</mi>
+ </msub>
+ </math>; it is a collection of probability distributions
+
+If all we know is that we have $n$ i.i.d. copies of $O$, this can be our statistical model, which we call a non-parametric statistical model
+
+## Model 
+
+A statistical model can be augmented with additional non-testable  assumptions, allowing one to enrich the interpretation of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>P</mi>
+    <mn>0</mn>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>; This does not change the **statistical model**  
+
+We refer to the statistical model augmented with a possibly additional assumptions as a **causal model**
+
+In the Neyman-Rubin causal inference framework, assumptions include  
+
+- <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>&#x22A5;</mo><msub>
+    <mi>Y</mi>
+    <mi>a</mi>
+   </msub>
+   <mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>; randomization    
+- Stable unit treatment value assumption (SUTVA); no interference between subjects and consistency assumption  
+- Positivity; each possible exposure level of $A$ occurs with some positive probability within each stratum of $W$
+
+## A (very) brief review of the Neyman-Rubin causal inference framework
+
+**Potential outcomes**:  every individual $i$ has a different potential outcome depending on their treatment "assignment"  
+
+- <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>Y</mi>
+  <mi>i</mi>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>=</mo><mn>1</mn></mrow>
+ <mo>)</mo></mrow>
+</math> and <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>Y</mi>
+  <mi>i</mi>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>=</mo><mn>0</mn></mrow>
+ <mo>)</mo></mrow>
+</math>
+
+- The "fundamental problem with causal inference" is that we can only observe one of these potential outcomes
+
+- If we randomly assign $i$ to receive $A$, then the groups will be equivalent and causal inference can be inferred:
+
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>E</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>Y</mi>
+    <mrow>
+     <mi>i</mi><mn>1</mn></mrow>
+   </msub>
+   <mo>&#x007C;</mo><msub>
+    <mi>A</mi>
+    <mi>i</mi>
+   </msub>
+   <mo>=</mo><mn>1</mn></mrow>
+ <mo>)</mo></mrow><mo>&#x2212;</mo><mi>E</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>Y</mi>
+    <mrow>
+     <mi>i</mi><mn>0</mn></mrow>
+   </msub>
+   <mo>&#x007C;</mo><msub>
+    <mi>A</mi>
+    <mi>i</mi>
+   </msub>
+   <mo>=</mo><mn>0</mn></mrow>
+ <mo>)</mo></mrow>
+</math>
+
+- This framework has been extended to observational data through propensity score matching
+
+## Target Parameters 
+Define the parameter of the probability distribution $P$ as function of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>P</mi><mo>:</mo><mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mi>P</mi>
+ <mo>)</mo></mrow>
+</math>
+
+In a causal inference framework, a target parameter for the effect of $A$ could be  
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><msub>
+  <mrow><mo>(</mo>
+   <mrow>
+    <msub>
+     <mi>P</mi>
+     <mn>0</mn>
+    </msub>
+    </mrow>
+  <mo>)</mo></mrow>
+  <mrow>
+   <mi>R</mi><mi>D</mi></mrow>
+ </msub>
+ <mo>=</mo><msub>
+  <mi>E</mi>
+  <mrow>
+   <mi>W</mi><mo>,</mo><mn>0</mn></mrow>
+ </msub>
+ <mrow><mo>[</mo> <mrow>
+  <msub>
+   <mi>E</mi>
+   <mn>0</mn>
+  </msub>
+  <mrow><mo>(</mo>
+   <mrow>
+    <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>W</mi></mrow>
+  <mo>)</mo></mrow><mo>&#x2212;</mo><msub>
+   <mi>E</mi>
+   <mn>0</mn>
+  </msub>
+  <mrow><mo>(</mo>
+   <mrow>
+    <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>W</mi></mrow>
+  <mo>)</mo></mrow></mrow> <mo>]</mo></mrow>
+</math>
+
+Or, if we wish to use a ratio instead of a difference:
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><msub>
+  <mrow><mo>(</mo>
+   <mrow>
+    <msub>
+     <mi>P</mi>
+     <mn>0</mn>
+    </msub>
+    </mrow>
+  <mo>)</mo></mrow>
+  <mrow>
+   <mi>O</mi><mi>R</mi></mrow>
+ </msub>
+ <mo>=</mo><msub>
+  <mi>E</mi>
+  <mrow>
+   <mi>W</mi><mo>,</mo><mn>0</mn></mrow>
+ </msub>
+ <mrow><mo>[</mo> <mrow>
+  <mi>O</mi><mrow><mo>[</mo> <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>W</mi></mrow> <mo>]</mo></mrow><mo>/</mo><mi>O</mi><mrow><mo>[</mo> <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>W</mi></mrow> <mo>]</mo></mrow></mrow> <mo>]</mo></mrow>
+</math>
+Where <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>O</mi><mrow><mo>[</mo> <mo>.</mo> <mo>]</mo></mrow><mo>=</mo><mi>E</mi><mrow><mo>[</mo> <mo>.</mo> <mo>]</mo></mrow><mo>/</mo><mn>1</mn><mo>&#x2212;</mo><mi>E</mi><mrow><mo>[</mo> <mo>.</mo> <mo>]</mo></mrow>
+</math>
+
+## Estimators
+
+The target parameter <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>P</mi>
+    <mn>0</mn>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>
+ depends on <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+ </math> through the conditional mean <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>=</mo><msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math> and the marginal distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>Q</mi>
+  <mrow>
+   <mi>W</mi><mo>,</mo><mn>0</mn></mrow>
+ </msub>
+ </math> of $W$; or
+ 
+ <math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>=</mo><mi>E</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>/</mo><mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ <mrow><mo>(</mo>
+  <mi>W</mi>
+ <mo>)</mo></mrow><mo>=</mo><mi>E</mi><mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>
+
+ 
+Where <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mover accent='true'>
+  <mi>Q</mi>
+  <mo>&#x00AF;</mo>
+ </mover>
+ </math> is an **estimator** of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>, shortened to <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+    <mn>0</mn>
+ </msub>
+ </math>
+
+
+An **estimator** is an algorithm that can be applied to any empirical distribution to provide a mapping from the empirical distribution to the parameter space 
+
+- But which algorithm?
+
+## Effect Estimation vs. Prediction
+
+Both **effect** and **prediction** research questions are inherently *estimation*
+questions, but they are distinct in their goals  
+
+> - **Prediction**: Interested in generating a function to input covariates and predict a value for the outcome: <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>E</mi>
+  <mn>0</mn>
+ </msub>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>Y</mi><mo>&#x007C;</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>  
+
+> - **Effect**: Interested in estimating the true effect of exposure on outcome adjusted for covariates, <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>P</mi>
+    <mn>0</mn>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>, the **targeted estimand**
+
+> - Targeted maximum likelihood estimation (TMLE), is an iterative procedure that updates an initial (super learner) estimate of the relevant part <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mn>0</mn>
+ </msub>
+ </math>
+of the data generating distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+ </math>  
+
+<div class="red">
+> - See second presentation given on April 14 to the Ann Arbor R User Group 
+</div>
+
+## Some effect estimators
+**Maximum-likelihood-based** substitution estimators will be of the type
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>Q</mi>
+    <mi>n</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow><mo>=</mo><mfrac>
+  <mn>1</mn>
+  <mi>n</mi>
+ </mfrac>
+ <mstyle displaystyle='true'>
+  <munderover>
+   <mo>&#x2211;</mo>
+   <mrow>
+    <mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+   <mi>n</mi>
+  </munderover>
+  <mrow>
+   <mrow><mo>{</mo> <mrow>
+    <msub>
+     <mover accent='true'>
+      <mi>Q</mi>
+      <mo>&#x00AF;</mo>
+     </mover>
+     <mi>n</mi>
+    </msub>
+    <mrow><mo>(</mo>
+     <mrow>
+      <mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><msub>
+       <mi>W</mi>
+       <mi>i</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow><mo>&#x2212;</mo><msub>
+     <mover accent='true'>
+      <mi>Q</mi>
+      <mo>&#x00AF;</mo>
+     </mover>
+     <mi>n</mi>
+    </msub>
+    <mrow><mo>(</mo>
+     <mrow>
+      <mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><msub>
+       <mi>W</mi>
+       <mi>i</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow></mrow> <mo>}</mo></mrow></mrow>
+ </mstyle>
+</math>  where this estimate is obtained by plugging in <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>Q</mi>
+  <mi>n</mi>
+ </msub>
+ <mo>=</mo><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mover accent='true'>
+     <mi>Q</mi>
+     <mo>&#x00AF;</mo>
+    </mover>
+    <mi>n</mi>
+   </msub>
+   <mo>,</mo><msub>
+    <mi>Q</mi>
+    <mrow>
+     <mi>W</mi><mo>,</mo><mi>n</mi></mrow>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math> into the mapping $\Psi$
+
+**Estimating-equation-based** function is a function of the data $O$ and the parameter of interest. If $D(\psi)(O)$ is an estimating function, then <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mi>&#x03A8;</mi><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>Q</mi>
+    <mi>n</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math> is a solution that satisfies: 
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mn>0</mn><mo>=</mo><mstyle displaystyle='true'>
+  <munderover>
+   <mo>&#x2211;</mo>
+   <mrow>
+    <mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+   <mi>n</mi>
+  </munderover>
+  <mrow>
+   <mi>D</mi><mrow><mo>(</mo>
+    <mi>&#x03C8;</mi>
+   <mo>)</mo></mrow></mrow>
+ </mstyle><mrow><mo>(</mo>
+  <mrow>
+   <msub>
+    <mi>O</mi>
+    <mi>i</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>
+
+## Targeted Maximum Likelihood Estimation
+
+It is an iterative procedure that:  
+
+1. Generates an initial (super learner) estimate of the relevant part <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mn>0</mn>
+ </msub>
+</math> of the data generating distribution <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+</math>, noted as <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msubsup>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mi>n</mi>
+  <mn>0</mn>
+ </msubsup>
+</math>  
+
+2. Updates an initial estimate, possibly using an estimate of a nuisance parameter, <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>g</mi>
+  <mn>0</mn>
+ </msub>
+</math>
+
+Produces a well-defined, unbiased, efficient **substitution estimator** of target a parameter $\Psi$  
+- Is semi-parametric, no need to make assumptions about <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>P</mi>
+  <mn>0</mn>
+ </msub>
+</math>  
+- Uses machine learning techniques to get initial estimates
+
+## TMLE steps
+
+**Step 1**: Use the super learner procedure to generate an initial estimate <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msubsup>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mi>n</mi>
+  <mn>0</mn>
+ </msubsup>
+</math>  
+
+**Step 2**: Estimate <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>g</mi>
+  <mn>0</mn>
+ </msub>
+</math>, the conditional distribution of $A$ given $W$ (a propensity score, called a nuisance parameter if $A$ is randomized), denoted <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>g</mi>
+  <mn>n</mn>
+ </msub>
+</math>
+
+**Step 3**: Construct a "clever covariate" that will be used to fluctuate the initial estimate  
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msubsup>
+  <mi>H</mi>
+  <mi>n</mi>
+  <mo>&#x2217;</mo>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>&#x2261;</mo><mrow><mo>(</mo>
+  <mrow>
+   <mfrac>
+    <mrow>
+     <mi>I</mi><mrow><mo>(</mo>
+      <mrow>
+       <mi>A</mi><mo>=</mo><mn>1</mn></mrow>
+     <mo>)</mo></mrow></mrow>
+    <mrow>
+     <msub>
+      <mi>g</mi>
+      <mi>n</mi>
+     </msub>
+     <mrow><mo>(</mo>
+      <mrow>
+       <mn>1</mn><mo>&#x007C;</mo><mi>W</mi></mrow>
+     <mo>)</mo></mrow></mrow>
+   </mfrac>
+   </mrow>
+ <mo>)</mo></mrow><mo>&#x2212;</mo><mrow><mo>(</mo>
+  <mrow>
+   <mfrac>
+    <mrow>
+     <mi>I</mi><mrow><mo>(</mo>
+      <mrow>
+       <mi>A</mi><mo>=</mo><mn>0</mn></mrow>
+     <mo>)</mo></mrow></mrow>
+    <mrow>
+     <msub>
+      <mi>g</mi>
+      <mi>n</mi>
+     </msub>
+     <mrow><mo>(</mo>
+      <mrow>
+       <mn>0</mn><mo>&#x007C;</mo><mi>W</mi></mrow>
+     <mo>)</mo></mrow></mrow>
+   </mfrac>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>
+
+## TMLE steps
+**Step 4**: Use maximum likelihood to obtain <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msub>
+  <mi>&#x03B5;</mi>
+  <mi>n</mi>
+ </msub>
+</math>, the estimated coefficient of <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msubsup>
+  <mi>H</mi>
+  <mi>n</mi>
+  <mo>&#x2217;</mo>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math> in:  
+
+<math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mtext>logit&#x00A0;</mtext><msubsup>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mi>n</mi>
+  <mn>1</mn>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>=</mo><mtext>logit&#x00A0;</mtext><msubsup>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mi>n</mi>
+  <mn>0</mn>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow><mo>+</mo><msub>
+  <mi>&#x03B5;</mi>
+  <mi>n</mi>
+ </msub>
+ <msubsup>
+  <mi>H</mi>
+  <mi>n</mi>
+  <mo>&#x2217;</mo>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+ <mo>)</mo></mrow>
+</math>
+
+**Step 5**: plug-in the substitution estimator using updated estimates <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msubsup>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mi>n</mi>
+  <mn>1</mn>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><msub>
+    <mi>W</mi>
+    <mi>i</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>
+ and <math xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msubsup>
+  <mover accent='true'>
+   <mi>Q</mi>
+   <mo>&#x00AF;</mo>
+  </mover>
+  <mi>n</mi>
+  <mn>0</mn>
+ </msubsup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><msub>
+    <mi>W</mi>
+    <mi>i</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow>
+</math>
+ and the empirical distribution of $W$ into formula:
+
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mtable columnalign='left'>
+  <mtr>
+   <mtd>
+    <msub>
+     <mi>&#x03C8;</mi>
+     <mrow>
+      <mi>T</mi><mi>M</mi><mi>L</mi><mi>E</mi><mo>,</mo><mi>n</mi></mrow>
+    </msub>
+    <mo>=</mo>
+   </mtd>
+  </mtr>
+  <mtr>
+   <mtd>
+    <mi>&#x03A8;</mi><mrow><mo>(</mo>
+     <mrow>
+      <msub>
+       <mi>Q</mi>
+       <mi>n</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow><mo>=</mo><mfrac>
+     <mn>1</mn>
+     <mi>n</mi>
+    </mfrac>
+    <mstyle displaystyle='true'>
+     <munderover>
+      <mo>&#x2211;</mo>
+      <mrow>
+       <mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+      <mi>n</mi>
+     </munderover>
+     <mrow>
+      <mrow><mo>{</mo> <mrow>
+       <msubsup>
+        <mover accent='true'>
+         <mi>Q</mi>
+         <mo>&#x00AF;</mo>
+        </mover>
+        <mi>n</mi>
+        <mn>1</mn>
+       </msubsup>
+       <mrow><mo>(</mo>
+        <mrow>
+         <mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><msub>
+          <mi>W</mi>
+          <mi>i</mi>
+         </msub>
+         </mrow>
+       <mo>)</mo></mrow><mo>&#x2212;</mo><msubsup>
+        <mover accent='true'>
+         <mi>Q</mi>
+         <mo>&#x00AF;</mo>
+        </mover>
+        <mi>n</mi>
+        <mn>1</mn>
+       </msubsup>
+       <mrow><mo>(</mo>
+        <mrow>
+         <mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><msub>
+          <mi>W</mi>
+          <mi>i</mi>
+         </msub>
+         </mrow>
+       <mo>)</mo></mrow></mrow> <mo>}</mo></mrow></mrow>
+    </mstyle>
+   </mtd>
+  </mtr>
+ </mtable>
+</math>
+
+**Step 6**: Inference using an infuence curve (IC)
+
+## The Infuence Curve (IC)
+
+IC is a function that describes estimator behavior under slight perturbations of the empirical distribution. 
+
+IC has mean 0 at the true parameter value, so it can be used as an estimating equation:
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <mtable>
+  <mtr>
+   <mtd>
+    <mi>I</mi><msub>
+     <mi>C</mi>
+     <mi>n</mi>
+    </msub>
+    <mrow><mo>(</mo>
+     <mrow>
+      <msub>
+       <mi>O</mi>
+       <mi>i</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow><mo>=</mo><msubsup>
+     <mi>H</mi>
+     <mi>n</mi>
+     <mo>&#x2217;</mo>
+    </msubsup>
+    <mrow><mo>(</mo>
+     <mrow>
+      <mi>A</mi><mo>,</mo><mi>W</mi></mrow>
+    <mo>)</mo></mrow><mrow><mo>(</mo>
+     <mrow>
+      <mi>Y</mi><mo>&#x2212;</mo><msubsup>
+       <mover accent='true'>
+        <mi>Q</mi>
+        <mo>&#x00AF;</mo>
+       </mover>
+       <mi>n</mi>
+       <mn>1</mn>
+      </msubsup>
+      <mrow><mo>(</mo>
+       <mrow>
+        <msub>
+         <mi>A</mi>
+         <mi>i</mi>
+        </msub>
+        <mo>,</mo><msub>
+         <mi>W</mi>
+         <mi>i</mi>
+        </msub>
+        </mrow>
+      <mo>)</mo></mrow></mrow>
+    <mo>)</mo></mrow>
+   </mtd>
+  </mtr>
+  <mtr>
+   <mtd>
+    <mo>+</mo><msubsup>
+     <mover accent='true'>
+      <mi>Q</mi>
+      <mo>&#x00AF;</mo>
+     </mover>
+     <mi>n</mi>
+     <mn>1</mn>
+    </msubsup>
+    <mrow><mo>(</mo>
+     <mrow>
+      <mi>A</mi><mo>=</mo><mn>1</mn><mo>,</mo><msub>
+       <mi>W</mi>
+       <mi>i</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow><mo>&#x2212;</mo><msubsup>
+     <mover accent='true'>
+      <mi>Q</mi>
+      <mo>&#x00AF;</mo>
+     </mover>
+     <mi>n</mi>
+     <mn>1</mn>
+    </msubsup>
+    <mrow><mo>(</mo>
+     <mrow>
+      <mi>A</mi><mo>=</mo><mn>0</mn><mo>,</mo><msub>
+       <mi>W</mi>
+       <mi>i</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow><mo>&#x2212;</mo><msub>
+     <mi>&#x03C8;</mi>
+     <mrow>
+      <mi>T</mi><mi>M</mi><mi>L</mi><mi>E</mi><mo>,</mo><mi>n</mi></mrow>
+    </msub>
+   </mtd>
+  </mtr>
+ </mtable>
+</math>
+
+The empirical mean of IC for regular asymptotically linear (RAL) estimator provides a linear approximation of estimator. Thus, VAR(IC) provides asymptotic variance of estimator
+
+## The Infuence Curve (IC)
+We then calculate the sample variance of the estimated influence curve values:
+<math display='block' xmlns='http://www.w3.org/1998/Math/MathML'>
+ <msup>
+  <mi>S</mi>
+  <mn>2</mn>
+ </msup>
+ <mrow><mo>(</mo>
+  <mrow>
+   <mi>I</mi><msub>
+    <mi>C</mi>
+    <mi>n</mi>
+   </msub>
+   </mrow>
+ <mo>)</mo></mrow><mo>=</mo><mfrac>
+  <mn>1</mn>
+  <mi>n</mi>
+ </mfrac>
+ <msup>
+  <mstyle displaystyle='true'>
+   <munderover>
+    <mo>&#x2211;</mo>
+    <mrow>
+     <mi>i</mi><mo>=</mo><mn>1</mn></mrow>
+    <mi>n</mi>
+   </munderover>
+   <mrow>
+    <mrow><mo>(</mo>
+     <mrow>
+      <mi>I</mi><msub>
+       <mi>C</mi>
+       <mi>n</mi>
+      </msub>
+      <mrow><mo>(</mo>
+       <mrow>
+        <msub>
+         <mi>o</mi>
+         <mi>i</mi>
+        </msub>
+        </mrow>
+      <mo>)</mo></mrow><mo>&#x2212;</mo><mover accent='true'>
+       <mi>I</mi>
+       <mo>&#x00AF;</mo>
+      </mover>
+      <msub>
+       <mover accent='true'>
+        <mi>C</mi>
+        <mo>&#x00AF;</mo>
+       </mover>
+       <mi>n</mi>
+      </msub>
+      </mrow>
+    <mo>)</mo></mrow></mrow>
+  </mstyle>
+  <mn>2</mn>
+ </msup>
+</math>
+
+After which standard errors, confidence intervals and p-values can be calculated in the standard fashion
+
+Also possible to utilize bootstrapping to calculate standard errors, but computationally expensive
+
+# Application of TMLE in R
+
+## TMLE package in R
+
+Created by Susan Gruber in collaboration with Mark van der Laan
+
+
+```r
+library(tmle)
+
+effA1 <- tmle(Y=Y, 
+              A=A, 
+              W=W, 
+              Q.SL.library = c(),
+              g.SL.library = c(), 
+              family = "binomial",
+              cvQinit = TRUE, 
+              verbose = TRUE)
+```
+
+## TMLE Arguments
+
+- `Y` - The outcome
+- `A` - Binary treatment indicator, 1 treatment, 0 control
+- `W` - A matrix of covariates
+- `Q.SL.library` - a character vector of prediction algorithms for initial $Q$
+- `g.SL.library` - a character vector of prediction algorithms for $g$
+- `family` - 'gaussian' or 'binomial' to describe the error distribution
+- `cvQinit` - estimates cross-validated predicted values for initial $Q$, if TRUE
+
+## Additional TMLE Arguments
+
+- `id` - Subject or group identifier if observations are related. Causes corrected standard errors to be calculated
+- `verbose` - helpful to set this to `TRUE` to see the progress of the estimation
+- `Delta` - Indicator of missing outcome or treatment assignment
+- `Z` - Binary mediating variable
+
+## Using super learner with TMLE
+
+Permits the use of multiple machine learning algorithms to generate the initial estimate of $Q$
+
+- Should use cross validation as SL will easily overfit
+- The better the initial estimate of $Q$, the easier it is to calculate the updated estimates
+
+Currently, SL should not be used to estimate $g$
+
+- Often creates violations of the positivity assumption
+- Best to use standard GLM or LASSO
+
+## TMLE example 
+**Does placing a right heart catheter change 30 day mortality?**
+
+The ARF dataset has 2490 patients admitted to an ICU and 47 variables including:
+
+- **Demographic characteristics**, including age, gender and race
+- **Patient medical history**, 12 variables for medicial conditions: MI, COPD, stroke, cancer, etc.
+- **Current condition variables**, that provide information about the patient's current health status: diagnostic scales, vital statistics  
+- **RHC status**, The placement of a right heart catheter (RHC) is controversial as there is no empirical evidence that benefits patients
+
+## Preparing data for TMLE
+
+Only works with numeric matrices; can be specified in-line, i.e. `Y= dataset$Y`
+
+Data must be pre-processed:
+
+- Can only handle missingness in the outcome `Y`, `X` must be removed/imputed 
+- Continuous variables must be appropriately re-scaled
+- Categorical variables must be appropriately dummy coded
+
+## Preparing data for TMLE
+
+```r
+# Impute missing X values #
+library("VIM")
+
+# Scale cont vars #
+library(arm)
+cont <- c("age","edu","das2d3pc","aps1","scoma1","meanbp1","wblc1","hrt1",
+          "resp1","temp1","pafi1","alb1","hema1","bili1","crea1","sod1",
+          "pot1","paco21","ph1","wtkilo1")
+arf[,cont] <- data.frame(apply(arf[cont], 2, function(x)
+  {x <- rescale(x, "full")})); rm(cont) # standardizes by centering and 
+                                        # dividing by 2 sd
+
+# Create dummy vars #
+arf$rhc <- ifelse(arf$swang1=="RHC",1,0)
+arf$white <- ifelse(arf$race=="white",1,0)  
+arf$swang1 <- arf$race <- NULL
+```
+
+## Run TMLE
+
+```r
+system.time({
+  eff <- tmle(Y=arf$death, 
+              A=arf$rhc, 
+              W=arf[1:44], 
+              Q.SL.library = c("SL.gam","SL.knn","SL.step"),
+              g.SL.library = c("SL.glmnet"), 
+              family = "binomial",
+              cvQinit = TRUE, verbose = TRUE)
+  })[[3]] # Obtain computation time
+```
+
+## TMLE results
+
+Run time on laptop: 15.43 min.
+
+
+```r
+print(eff)
+```
+<div class="blue">
+>  Odds Ratio  
+>  Parameter Estimate:  1.207  
+>             p-value:  0.063956  
+>   95% Conf Interval: (0.98914, 1.4728) 
+>
+
+</div>
+
+Interpretation: Right heart catheterization does not appear to change 30 day mortality
+
+- Note that causal assumptions require non-testable assumptions previously outlined
+
+## Advantages of the TMLE approach 
+Incorporates machine learning so the limitations of parametric methods are avoided
+
+Is “double robust” meaning that estimates are asymptotically unbiased if either the initial SL estimate or the propensity score is correctly specified
+
+- As a result, TMLE works very well with rare outcomes
+
+Can be extended to a variety of situations
+
+- **Missing outcomes**: can account for missing outcomes in a MAR way
+- **Controlled direct effect estimation**: can account for mediators in the relationship between A and Y
+- **Marginal structural models**: flexible framework for handling issues of time-dependent confounding 
+
+## Extensions of TMLE being developed in new R packages
+- **ltmle**: Longitudinal TMLE permits the evaluation of interventions over time using a marginal structural model
+- **multiPIM**: variable importance analysis that estimates an attributable-risk-type parameter
+- **tmle.npvi**: permits modeling an intervention variable that is a continuous variable
+- **CTMLE**: collaborative TMLE accounts for the relationship between Q and g
+
+# Thank you!
+
+## References {.smaller}
+- van der Laan, M.J. and Rubin, D. (2006), Targeted Maximum Likelihood Learning. *The International Journal of Biostatistics*, 2(1).  http://www.bepress.com/ijb/vol2/iss1/11/
+
+- van der Laan, M.J. and Rose, S. *Targeted Learning: Causal Inference for Observational and Experimental Data*. Springer, Berlin Heidelberg New York, 2011. http://www.targetedlearningbook.com/
+
+- M.J. van der Laan, E.C. Polley, and A.E. Hubbard. Super learner. *Stat Appl Genet Mol*, 6(1): Article 25, 2007.
+
+- Gruber, S. and van der Laan, M.J. (2012), tmle: An R Package for Targeted Maximum Likelihood Estimation. *Journal of Statistical Software*, 51(13), 1-35. http://www.jstatsoft.org/v51/i13/
+
+- Sekhon, Jasjeet (2007). "The Neyman-Rubin Model of Causal Inference and Estimation via Matching Methods" (PDF). *The Oxford Handbook of Political Methodology*. http://sekhon.berkeley.edu/papers/SekhonOxfordHandbook.pdf
+
+- F.R. Hampel. “The influence curve and its role in robust estimation” *JASA*, 69(346): 383-393, 1974.
+
+## Software and online resources
+
+- *tmle: Targeted Maximum Likelihood Estimation* https://cran.r-project.org/web/packages/tmle/index.html
+
+- *SuperLearner: Super Learner Prediction* https://cran.r-project.org/web/packages/SuperLearner/index.html
+
+- M. Petersen and L. Balzer. *Introduction to Causal Inference*. UC Berkeley, August 2014. http://www.ucbbiostat.com/
+ 
+- This presentation, the data (with documentation) and R code is available at: https://github.com/sfgrey/Super-Learner-Presentation.git
