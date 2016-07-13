@@ -1,0 +1,60 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "July Meetup"
+date: "July 14, 2016"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: false
+    css: custom.css
+---
+
+## Group Info {.reallybig}
+
+https://AnnArborRUserGroup.github.io/
+
+http://meetup.com/Ann-Arbor-R-User-Group
+
+**Organizers:**
+
+Ellis, Clayton, Rob, Michelle, Andrew
+
+AnnArborRUserGroup@gmail.com
+
+## Slack {.bigger}
+
+* Persistent chat rooms organized by topic
+
+    + **R** related discussion
+
+    + Local community events and announcements
+
+* Private groups
+
+* Direct messaging
+
+### **[https://AnnArborRUserGroup.github.io/slack](https://AnnArborRUserGroup.github.io/slack)**
+
+## Sponsors {.biggest}
+
+* SPARK Ann Arbor
+
+* Revolution Analytics (Microsoft)
+
+## Upcoming Events {.bigger}
+
+**Intermitten**
+
+Two days of high-energy, dynamic learning for anyone who works or plays at the intersection of creativity and technology.
+
+August 5th and 6th
+
+[Intermitten.org](Intermitten.org)
+
+## August Meetup {.reallybig}
+
+TBD
+
+# Presentations
+
+
