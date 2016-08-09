@@ -35,11 +35,17 @@ AnnArborRUserGroup@gmail.com
 
 ### **[https://AnnArborRUserGroup.github.io/slack](https://AnnArborRUserGroup.github.io/slack)**
 
-## Sponsors {.biggest}
 
-* SPARK Ann Arbor
+## Sponsors
 
-* Revolution Analytics (Microsoft)
+```{r, echo=FALSE}
+knitr::include_graphics("spark-logo.jpeg")
+```
+
+```{r, echo=FALSE}
+knitr::include_graphics("revolution-logo.png")
+```
+
 
 ## Upcoming Events {.bigger}
 
