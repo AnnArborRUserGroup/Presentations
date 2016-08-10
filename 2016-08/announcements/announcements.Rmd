@@ -13,7 +13,7 @@ output:
 
 https://AnnArborRUserGroup.github.io/
 
-http://meetup.com/Ann-Arbor-R-User-Group
+https://meetup.com/Ann-Arbor-R-User-Group
 
 **Organizers:**
 
@@ -49,10 +49,14 @@ knitr::include_graphics("revolution-logo.png")
 
 ## Upcoming Events {.bigger}
 
-TBD
+- [Ann Arbor Fintech August Meetup - Blockchain](http://www.meetup.com/Ann-Arbor-FinTech-Meetup/events/231987931/)
+
 
 ## September Meetup {.reallybig}
 
-(FIXME) Stan - Dan Kessler
+**_(R)Stan & Police Shootings: Using a Bayesian Tool to Understand a Real World Problem_**
+
+with Daniel Kessler
+
 
 # Presentations
