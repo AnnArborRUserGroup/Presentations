@@ -47,16 +47,16 @@ knitr::include_graphics("revolution-logo.png")
 ```
 
 
-## Upcoming Events {.bigger}
-
-- [Ann Arbor Fintech August Meetup - Blockchain](http://www.meetup.com/Ann-Arbor-FinTech-Meetup/events/231987931/)
-
-
 ## September Meetup {.reallybig}
 
-**_(R)Stan & Police Shootings: Using a Bayesian Tool to Understand a Real World Problem_**
+[_**(R)Stan & Police Shootings: Using a Bayesian Tool to Understand a Real World Problem** with Daniel Kessler_](https://www.meetup.com/Ann-Arbor-R-User-Group/events/232614765/)
 
-with Daniel Kessler
+Thursday, September 1 at SPARK Ann Arbor
+
+
+## Other Events {.bigger}
+
+- [Ann Arbor Fintech August Meetup - Blockchain](http://www.meetup.com/Ann-Arbor-FinTech-Meetup/events/231987931/)
 
 
 # Presentations
