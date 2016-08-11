@@ -1,0 +1,89 @@
+---
+title: 'RMarkdown: Beyond the Knit button'
+subtitle: 'Ann Arbor R User Group'
+author: "Clayton Yochum"
+date: "August 10, 2016"
+output:
+  ioslides_presentation:
+    incremental: yes
+    widescreen: yes
+    css: custom.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Who am I?
+
+- AARUG Co-Organizer
+- Data Engineering/Science consultant
+- R & data nerd
+- Too opinionated and pedantic for my own good
+
+
+## Boring, Vanilla R Markdown
+
+- Super easy, especially with RStudio
+- Start a new document, press "Knit", done!
+- Still the appropriate workflow for a majority of use cases; no need to get fancy
+
+
+## R Script to Notebook
+
+- What if you have an R script, but want a nice report with minimal effort?
+- In Rstudio: File > Compile Notebook (gotta have `.R` file selected)
+- Turns a totally unspecial R script into a pretty decent looking file
+- Uses `knitr::spin` underneath (as well as other things)
+
+
+## Spin: don't do it
+
+- You can use some weird comments to make an `R` file pretend to be an `Rmd`
+- Seriously, look at this mess: <https://github.com/yihui/knitr/blob/master/inst/examples/knitr-spin.R>
+- If you find yourself doing this, why not use `Rmd`??
+
+
+## What about stitch?
+
+- `knitr::stitch`: another option for turning R into HTML (or whatever)
+- Probably want `stitch_rmd` most of the time
+- Kinda ugly by default
+
+
+## Render: much better!
+
+- Use `rmarkdown::render` to get the same effect as "Compile Notebook"
+- (as long as you avoided those awful spin-style comments)
+- Works on `.R`, `.Rmd`, `.md`
+
+
+## Render a report as a side-effect!
+
+- By default, `render` will see all variables in calling environment
+- Run it inside of a function on an `Rmd`, where the document refers to variable defined outside the document
+- Great for generating dynamic reports with new data
+- Con: hard to know which variables a document expects in calling environment
+
+
+## Templates
+
+- Use a template to get nice defaults
+- If someone else wrote one, makes it easy to format according to their standard
+- Distributed in packages (high barrier to making your own)
+- Rstudio comes with some; the nice default is itself a template
+- Checkout [rticles](https://github.com/rstudio/rticles) for some cool ones
+
+
+## There's so much more to knitr
+
+- Knitr is a deep pool of wonder and terror
+- `read_chunk`...
+- I'll be sticking to Rstudio & `rmarkdown::render`
+- K.I.S.S
+
+
+## What about you?
+
+How do you use RMarkdown?
