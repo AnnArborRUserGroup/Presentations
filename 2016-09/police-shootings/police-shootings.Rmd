@@ -139,8 +139,8 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Poisson Regression
 - $log(E[Y \ mid x)) = \theta'x$ or $E(Y \mid x) = e^{\theta'x}$
 - Relative Risk: Covariates that interact with race give us RR
-- $\frac{\lambda_{Black}}{\lambda_{White}} = \frac{e^{\theta_{1}'x_1 + \theta_{2}'x}}{e^{\theta{2}'x}}$
-- $\text(Relative Risk_{Black:White}) = e^{\theta{i}}$ for any $\theta_i$ coded to interact with race
+- $\frac{\lambda_{Black}}{\lambda_{White}} = \frac{e^{\theta_{1}'x_1 + \theta_{2}'x}}{e^{\theta_{2}'x}}$
+- $\text(Relative Risk_{Black:White}) = e^{\theta_{i}}$ for any $\theta_i$ coded to interact with race
 
 ## Leveraging Repeated Measurements
 - Are regional disparities in shooting persistent over time?
@@ -157,41 +157,38 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Very limited data for Step 3 (for now)
 
 ## Model Specification
-Let $C_x$ be an observed count of shootings with associated predictors $x$. For example, $C_x$ could be the number of white people shot in Orange County, Florida, and the associated x would encode the provenance as well as demographic predictors.
-
-
+Let $C_x$ be an observed count of shootings with associated predictors $x$.
 $C_x \sim \text{Poisson}(\lambda_x)$
-
 $\lambda_x = e^{\theta'x}$
-
 $\theta$ is the vector of coefficients for the GLM. 
-
 Let $\theta$ have block structure as 
-
 $\theta = \begin{bmatrix} \theta_{Race:Demo} & \theta_{Offset} & \theta_{Race}  & \theta_{County:Time} & \theta_{Race:County:Time} \end{bmatrix}$
-
 In most cases the elements of $\theta_{*}$ are simply one or more beta coefficients, which unless otherwise specified have uninformative priors.
-
-Introduce two additional random variable, 
-
+Introduce two additional random variables:
 $\vec{\beta}_{County:Time}^{i} = \begin{bmatrix} \beta_{\textit{D1, County:Time}}^i & \beta_{\textit{D2, County:Time}}^i \end{bmatrix}$
-
 $\vec{\beta}_{Race:County:Time}^{i} = \begin{bmatrix} \beta_{\textit{YD, Race:County:Time}}^i & \beta_{\textit{D2, Race:County:Time}}^i \end{bmatrix}$
+$\vec{\beta}_{County:Time}^{i} \sim N(0,\Sigma_1)$
+$\vec{\beta}_{Race:County:Time}^{i} \sim N(0,\Sigma_2)$
 
-$\vec{\beta}_{County:Time}^{i} \sim N(0,\Sigma)$
-
-$\theta_{County:Time} = \begin{cases} \beta_{\textit{D1, County:Time}}^i & \text{Year 1} \\ \beta_{\textit{D2, County:Time}}^i & \text{Year 2} \end{cases}$
-
-We are then most interested in visualizing the posterior of $\theta_{County:Time}$. The off-diagonal elements of $\Sigma$ will also tell us about the stability of the random effect over time.
 
 ## Results
-- Step 1: 
+- Step 1
+RR Black:White = 4.13
+RR Var = 1.31
+RR Cov(D1,D2)  = .225
 - Step 2: 
+RR Black:White = 2.70
+RR Var = 1.17
+RR Cov(D1,D2) = .204
 - Step 3: 
+RR Black:White = 2.66
+RR Var = 1.29
+RR Cov(D1,D2) = .265
 
 # Conclusions
-- Data wrangling is hard, but important
-- Poor coverage of predictor variables makes modeling challenging
-- Idea: Shooting Database by Department?
+- Evidence of real problem, not easily explained by covariates
+- BUT: useful covariates are hard to acquire & structure
+- Evidence suggests disparities persist over time
+- Modeling can return ranked lists to enable closer study of both those at top & bottom
 
 # Questions?
