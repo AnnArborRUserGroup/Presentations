@@ -181,17 +181,23 @@ $\vec{\beta}_{Race:County:Time}^{i} \sim N(0,\Sigma_2)$
 
 ## Results
 - Step 1
+```
 RR Black:White = 4.13
 RR Var = 1.31
 RR Cov(D1,D2)  = .225
+```
 - Step 2: 
+```
 RR Black:White = 2.70
 RR Var = 1.17
 RR Cov(D1,D2) = .204
+```
 - Step 3: 
+```
 RR Black:White = 2.66
 RR Var = 1.29
 RR Cov(D1,D2) = .265
+```
 
 # Conclusions
 - Evidence of real problem, not easily explained by covariates
