@@ -171,8 +171,11 @@ $\theta = \begin{bmatrix} \theta_{Race:Demo} & \theta_{Offset} & \theta_{Race}  
 In most cases the elements of $\theta_{*}$ are simply one or more beta coefficients, which unless otherwise specified have uninformative priors.
 Introduce two additional random variables:
 $\vec{\beta}_{County:Time}^{i} = \begin{bmatrix} \beta_{\textit{D1, County:Time}}^i & \beta_{\textit{D2, County:Time}}^i \end{bmatrix}$
+
 $\vec{\beta}_{Race:County:Time}^{i} = \begin{bmatrix} \beta_{\textit{YD, Race:County:Time}}^i & \beta_{\textit{D2, Race:County:Time}}^i \end{bmatrix}$
+
 $\vec{\beta}_{County:Time}^{i} \sim N(0,\Sigma_1)$
+
 $\vec{\beta}_{Race:County:Time}^{i} \sim N(0,\Sigma_2)$
 
 
