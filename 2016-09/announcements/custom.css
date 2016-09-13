@@ -1,0 +1,36 @@
+.smaller {
+  font-size: 9px;
+  color: black;
+}
+.normal {
+  font-size: 24px;
+  color: black;
+}
+.blackcode code pre {
+  color: black;
+}
+.bigger {
+  font-size:30px;
+  color: black;
+}
+.reallybig {
+  font-size:36px;
+  color: black;
+}
+.biggest {
+  font-size:40px;
+  color: black;
+}
+
+.bigandbold {
+  font-size:38px;
+  font-weight: bolder;
+  color: black;
+}
+
+.bigger-center {
+  font-size: 30px;
+  color: black;
+  display: block;
+  margin: 0 auto;
+}
