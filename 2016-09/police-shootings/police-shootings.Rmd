@@ -1,8 +1,8 @@
 ---
-title: "Something about R"
+title: "(R)Stan & Police Shootings: Using a Bayesian Tool to Understand a Real World Problem"
 subtitle: "Ann Arbor R User Group"
-author: "Your Name"
-date: "Jan 1, 1970"
+author: "Daniel Kessler"
+date: "Sept 13, 2016"
 output:
   ioslides_presentation:
     widescreen: yes
@@ -20,7 +20,66 @@ output:
  - notice how these display one-at-a-time?
  - set `incremental: no` in the YAML header to render all bullets at once
 
-# Look, a New Section!
+# Background
+
+## The Problem
+<img src="Picture2.png" style="float:right;" width=125px>
+<img src="Picture1.png" style="float:right;" width=400px>
+The US has recently witnessed a number of high-profile deaths of African-Americans at the hands of police.
+
+> - Michael Brown
+> - Eric Garner
+> - Walter Scott
+
+<img src="Picture3.png" style="float:right;" width=400px>
+There is a pressing need to study this phenomenon quantitatively. Why?
+
+> - Case reports are insufficient and could even be misleading
+> - Better understand the causes
+> - Help shape solutions
+
+## An Important Step Forward
+<img src="Picture4.png" style="float:right;" width=150px>
+A Multi-Level Bayesian Analysis of Racial Bias in Police Shootings at the County-Level in the United States, 2011-2014
+Cody T. Ross*
+
+US Police-Shooting Database (USPSD)
+
+- crowd-sourced database
+- covers years 2011-2014
+- n=721
+
+##Ross' Two Step Modeling Strategy
+
+- For each county i, let Ci be the ratio of:
+probability of unarmed person being killed by police given black
+----------------------------------------------------
+probability of unarmed person being killed by police given white
+ 
+- Step 1: Use Bayesian methods to estimate the Ci's
+- Step 2: Use Bayesian methods to examine the effects of county-level covariates in accounting for variance in the Ci's
+ 
+Ross, C. T. (2015). A Multi-Level Bayesian Analysis of Racial Bias in Police Shootings at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-34
+
+## Key Results
+1 Unarmed blacks are 3.49 times as likely to be shot by police compared to unarmed whites
+2 There is substantial variation in the county-level risk ratios
+- Miami-Dade 22.88, Los Angeles 10.25, New Orleans 9.29
+3 County-level risk ratios are not related to county-level race-specific crime rates
+- This finding is particularly important because blacks are overrepresented in violent crime. One might otherwise use this observation to explain away elevated risk ratios
+  
+## Our Work builds on Ross (2015) in two ways
+1 We use a newly available Washington Post database
+- likely more comprehensive
+- spans 2015-present
+2 We adopt a different modeling framework, while retaining the spirit of Ross's Bayesian methods
+
+## Our main questions
+1 Are Ross's main results replicated in WashPo database?
+- black/white racial disparity, large spatial variation, disparity unaccounted for by crime rates
+2 Is there temporal stability in spatial variation in risk ratios?
+- in other words, will Miami-Dade, Los Angeles, and New Orleans (and other counties with elevated risk) tend to still have higher risk ratios in the WashPo database?
+  
 
 ## What about code?
 The great thing about RMarkdown is including code which will be ran when this document is knit.
