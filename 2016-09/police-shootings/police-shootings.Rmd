@@ -112,9 +112,12 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Named for Stanislaw Ulam: co-inventor of Monte Carlo methods
 - R Bindings (plus other languages)
 
-## Bayesian Models
-- Priors
-- Posteriors
+## Bayesian Statistics Quickstart
+- Treat parameters as random with underlying distribution (prior)
+- Interest: Distribution of parameter conditional on observed data (posterior)
+- Parameters can depend on hyper-parameters, and those in turn...
+- MCMC: Procedurally sample from posterior of parameters
+- Powerful approach enables computation to handle o/w difficult math
 
 ## Anatomy of a Stan Program
 - Organized into blocks
@@ -130,7 +133,7 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 
 ## New Data: WaPo Database
 - Covers 2015+
-- Under version-control on [https://github.com/washingtonpost/data-police-shootings](github)
+- Under version-control on [github](https://github.com/washingtonpost/data-police-shootings)
 - Only fatal shootings by on-duty police
 
 ## Binomial -> Poisson Regression
@@ -153,9 +156,9 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Off-diagonal of $\Sigma$ for random slope indicates persistent racial disparity in shooting
 
 ## Parameterization
-- Step 1: Shooting ~ Race | Population, Dataset
-- Step 2: Shooting ~ Race | Population, Dataset, B:W Ratio
-- Step 3: Shooting ~ Race | Population, Dataset, B:W Ratio, Arrest Rate Ratio
+- Step 1: Shooting ~ Race | Population(Offsets), Dataset
+- Step 2: Shooting ~ Race | Population(Offsets), Dataset, B:W Ratio
+- Step 3: Shooting ~ Race | Population(Offsets), Dataset, B:W Ratio, Arrest Rate Ratio
 - Very limited data for Step 3 (for now)
 
 ## Model Specification
