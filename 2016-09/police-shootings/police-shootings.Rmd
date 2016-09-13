@@ -97,14 +97,17 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
   
 
 # Stan
+
 ## What is stan
 - mc-stan.org
 - Bayesian statistical inference w/Markov-Chain Monte Carlo (MCMC) sampling
 - Named for Stanislaw Ulam: co-inventor of Monte Carlo methods
 - R Bindings (plus other languages)
+
 ## Bayesian Models
 - Priors
 - Posteriors
+
 ## Anatomy of a Stan Program
 - Organized into blocks
 - Lines are either declarations (`real[100] Counts`) or statements (`x = 5`)
@@ -114,9 +117,12 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - transformed parameters (declarations & statements; define parameters in terms of one another)
 - model (sampling statements / log probability incrementers)
 - generated quantities (values to store/extract later)
+
 # Our Approach
+
 ## New Data: WaPo Database
 - Collected over...
+
 ## Binomial -> Poisson Regression
 - Ross's approach is based on a binomial (sum of bernoulli trials)
 - But, data is captured at an aggregate count level
@@ -124,21 +130,27 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - We believe the parameter of this distribution changes based on covariates
 - Poisson Regression
 - $log(E[Y \ mid x)) = \theta'x$ or $E(Y \mid x) = e^{\theta'x}$
+
 ## Leveraging Repeated Measurements
 - Are regional disparities in shooting persistent over time?
 - Introduce $\beta$...
+
 ## Parameterization
 - Step 1: Shooting ~ Race | Population, Dataset
 - Step 2: Shooting ~ Race | Population, Dataset, B:W Ratio
 - Step 3: Shooting ~ Race | Population, Dataset, B:W Ratio, Arrest Rate Ratio
 - Very limited data for Step 3 (for now)
+
 ## Model Specification
+
 ## Results
 - Step 1: 
 - Step 2: 
 - Step 3: 
+
 # Conclusions
 - Data rangling is hard, but important
 - Poor coverage of predictor variables makes modeling challenging
 - Idea: Shooting Database by Department?
+
 # Questions?
