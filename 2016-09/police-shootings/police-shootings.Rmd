@@ -9,16 +9,28 @@ output:
     incremental: yes
 ---
 
-## About Me
-- What do you do?
-- What's your experience with R?
-- What's your experience with the topic?
+## Who I am
+- Neuroscience Researcher @UMich
+- Study brain connectivity & psychiatric disorders
+- twitter: @dankessler
+- web: www.dankessler.me
+- I use R for data rangling and behavioral/fancier analyses (e.g. mixed effects)
+- New to Stan and Police Shooting data
+
+## Who I am *not*
+- Sociologist/Demographer
+- Expert on Stan
+- Bayesian 
+- Person of Color
+- Police Officer
 
 ## What to Expect
- - tell the audience a little bit about what you'll cover
- - it doesn't need to a be a detailed outline; those are usually boring anyways
- - notice how these display one-at-a-time?
- - set `incremental: no` in the YAML header to render all bullets at once
+- Review Cody Ross's Method & Finding
+- Introduce Stan
+- Anatomy of a Stan program
+- Alternative Model
+- Present super tentative results
+
 
 # Background
 
@@ -111,4 +123,23 @@ That's why this line wasn't diplayed right away.
 - Learn more about RMarkdown [here](http://rmarkdown.rstudio.com/)
 - It's a good idea to have a similar section in your presentation
 
+# Stan
+## What is stan
+- mc-stan.org
+- Bayesian statistical inference w/Markov-Chain Monte Carlo (MCMC) sampling
+- Named for Stanislaw Ulam: co-inventor of Monte Carlo methods
+- R Bindings (plus other languages)
+## Bayesian Models
+- Priors
+- Posteriors
+# Our Approach
+## New Data: WaPo Database
+## Binomial -> Poisson Regression
+## Leveraging Repeated Measurements
+## Motivating the Model
+
+# Conclusions
+- Data rangling is hard, but important
+- Poor coverage of predictor variables makes modeling challenging
+- Idea: Shooting Database by Department?
 # Questions?
