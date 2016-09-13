@@ -20,7 +20,7 @@ output:
 ## Who I am *not*
 - Sociologist/Demographer
 - Expert on Stan
-- Bayesian 
+- Well-trained Bayesian statistician
 - Person of Color
 - Police Officer
 
@@ -29,6 +29,8 @@ output:
 - Chandra Sripada
 - Kerby Shedden
 - Cody Ross
+- AARUG & Ann Arbor ASA
+- SPARK
 
 ## What to Expect
 - Review Cody Ross's Method & Finding
@@ -66,7 +68,7 @@ US Police-Shooting Database (USPSD)
 - covers years 2011-2014
 - n=721
 
-##Ross' Two Step Modeling Strategy
+## Ross' Two Step Modeling Strategy
 
 For each county i, let $C_{i}$ be the ratio of: $\frac{P(killed_{unarmed} | black)}{P(killed_{unarmed} | white)}$
 
@@ -192,3 +194,4 @@ RR Cov(D1,D2) = .265
 - Modeling can return ranked lists to enable closer study of both those at top & bottom
 
 # Questions?
+- Thank you for your attention!
