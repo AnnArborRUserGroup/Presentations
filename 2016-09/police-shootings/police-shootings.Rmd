@@ -14,7 +14,7 @@ output:
 - Study brain connectivity & psychiatric disorders
 - twitter: @dankessler
 - web: www.dankessler.me
-- I use R for data rangling and behavioral/fancier analyses (e.g. mixed effects)
+- I use R for data wrangling and behavioral/fancier analyses (e.g. mixed effects)
 - New to Stan and Police Shooting data
 
 ## Who I am *not*
@@ -23,6 +23,12 @@ output:
 - Bayesian 
 - Person of Color
 - Police Officer
+
+## Acknowledgements
+- Mike Angstadt
+- Chandra Sripada
+- Kerby Shedden
+- Cody Ross
 
 ## What to Expect
 - Review Cody Ross's Method & Finding
@@ -121,19 +127,28 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 # Our Approach
 
 ## New Data: WaPo Database
-- Collected over...
+- Covers 2015+
+- Under version-control on [https://github.com/washingtonpost/data-police-shootings](github)
+- Only fatal shootings by on-duty police
 
 ## Binomial -> Poisson Regression
 - Ross's approach is based on a binomial (sum of bernoulli trials)
 - But, data is captured at an aggregate count level
-- Discrete counts of rare events -> Poisson distribution
-- We believe the parameter of this distribution changes based on covariates
+- Discrete counts of rare events -> Poisson distribution ($\lambda$)
+- $\lambda$ changes based on covariates
 - Poisson Regression
 - $log(E[Y \ mid x)) = \theta'x$ or $E(Y \mid x) = e^{\theta'x}$
+- Relative Risk: Covariates that interact with race give us RR
+- $\frac{\lambda_{Black}}{\lambda_{White}} = \frac{e^{\theta_{1}'x_1 + \theta_{2}'x}}{e^{\theta{2}'x}}$
+- $\text(Relative Risk_{Black:White}) = e^{\theta{i}}$ for any $\theta_i$ coded to interact with race
 
 ## Leveraging Repeated Measurements
 - Are regional disparities in shooting persistent over time?
-- Introduce $\beta$...
+- Introduce a random variable $\beta_{i,d}$
+- $\vec{\beta_{i}} = \begin{bmatrix} \beta_{i,1} & \beta_{i,2} \end{bmatrix}$
+- $\vec{\beta_{i}} \sim N(0,\Sigma)$
+- Introduce two such $\beta$, one interacts with race (random slope) other doesn't (random intercept)
+- Off-diagonal of $\Sigma$ for random slope indicates persistent racial disparity in shooting
 
 ## Parameterization
 - Step 1: Shooting ~ Race | Population, Dataset
@@ -142,6 +157,32 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Very limited data for Step 3 (for now)
 
 ## Model Specification
+Let $C_x$ be an observed count of shootings with associated predictors $x$. For example, $C_x$ could be the number of white people shot in Orange County, Florida, and the associated x would encode the provenance as well as demographic predictors.
+
+
+$C_x \sim \text{Poisson}(\lambda_x)$
+
+$\lambda_x = e^{\theta'x}$
+
+$\theta$ is the vector of coefficients for the GLM. 
+
+Let $\theta$ have block structure as 
+
+$\theta = \begin{bmatrix} \theta_{Race:Demo} & \theta_{Offset} & \theta_{Race}  & \theta_{County:Time} & \theta_{Race:County:Time} \end{bmatrix}$
+
+In most cases the elements of $\theta_{*}$ are simply one or more beta coefficients, which unless otherwise specified have uninformative priors.
+
+Introduce two additional random variable, 
+
+$\vec{\beta}_{County:Time}^{i} = \begin{bmatrix} \beta_{\textit{D1, County:Time}}^i & \beta_{\textit{D2, County:Time}}^i \end{bmatrix}$
+
+$\vec{\beta}_{Race:County:Time}^{i} = \begin{bmatrix} \beta_{\textit{YD, Race:County:Time}}^i & \beta_{\textit{D2, Race:County:Time}}^i \end{bmatrix}$
+
+$\vec{\beta}_{County:Time}^{i} \sim N(0,\Sigma)$
+
+$\theta_{County:Time} = \begin{cases} \beta_{\textit{D1, County:Time}}^i & \text{Year 1} \\ \beta_{\textit{D2, County:Time}}^i & \text{Year 2} \end{cases}$
+
+We are then most interested in visualizing the posterior of $\theta_{County:Time}$. The off-diagonal elements of $\Sigma$ will also tell us about the stability of the random effect over time.
 
 ## Results
 - Step 1: 
@@ -149,7 +190,7 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Step 3: 
 
 # Conclusions
-- Data rangling is hard, but important
+- Data wrangling is hard, but important
 - Poor coverage of predictor variables makes modeling challenging
 - Idea: Shooting Database by Department?
 
