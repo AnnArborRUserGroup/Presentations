@@ -28,8 +28,8 @@ output:
 - Review Cody Ross's Method & Finding
 - Introduce Stan
 - Anatomy of a Stan program
-- Alternative Model
-- Present super tentative results
+- Alternative Model for Police Shootings
+- Our very tentative results
 
 
 # Background
@@ -77,11 +77,11 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 ```
 
 ## Key Results
-1. Unarmed blacks are 3.49 times as likely to be shot by police compared to unarmed whites
+1. Unarmed black civilians are 3.49 times as likely to be shot by police compared to unarmed white civilians
 2. There is substantial variation in the county-level risk ratios
     - Miami-Dade 22.88, Los Angeles 10.25, New Orleans 9.29
 3. County-level risk ratios are not related to county-level race-specific crime rates
-    - This finding is particularly important because blacks are overrepresented in violent crime. One might otherwise use this observation to explain away elevated risk ratios
+    - This finding is particularly important because black people are overrepresented in violent crime. One might otherwise use this observation to explain away elevated risk ratios
   
 ## Our Work builds on Ross (2015) in two ways
 1. We use a newly available Washington Post database
@@ -96,36 +96,6 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
     - in other words, will Miami-Dade, Los Angeles, and New Orleans (and other counties with elevated risk) tend to still have higher risk ratios in the WashPo database?
   
 
-## What about code?
-The great thing about RMarkdown is including code which will be ran when this document is knit.
-
-You can have inline code, like tomorrow's date is `r Sys.Date()+1`, or blocks of code ("code chunks") like
-
-```{r}
-today    <- Sys.Date()
-tomorrow <- today + 1
-print(tomorrow)
-```
-
-See how it displays the code and the results? You can add chunk arguments (next to the `r` in brackets) to do many things, like hide the code or output, set figure dimensions, cache results, etc.
-
-## Links
-You can create a link to a website like [this](https://github.com/AnnArborRUserGroup/Presentations).
-
-Image links are very similar, you just need to have the image in the same location as this file: ![R](R.jpg)
-
-## More options {.build}
-Notice the `{.build}` next to the slide title; this acts like the `incremental: yes` header option, but applies to non-bulleted lines as well, like this one.
-
-That's why this line wasn't diplayed right away.
-
-- the downside of .build is it makes you double-click for bullets
-- which is kind of annoying sometimes
-
-## Further Reading
-- Learn more about RMarkdown [here](http://rmarkdown.rstudio.com/)
-- It's a good idea to have a similar section in your presentation
-
 # Stan
 ## What is stan
 - mc-stan.org
@@ -135,12 +105,38 @@ That's why this line wasn't diplayed right away.
 ## Bayesian Models
 - Priors
 - Posteriors
+## Anatomy of a Stan Program
+- Organized into blocks
+- Lines are either declarations (`real[100] Counts`) or statements (`x = 5`)
+- data (what you read from environment, declarations ONLY)
+- transformed data (mix declarations & statements)
+- parameters (declarations only)
+- transformed parameters (declarations & statements; define parameters in terms of one another)
+- model (sampling statements / log probability incrementers)
+- generated quantities (values to store/extract later)
 # Our Approach
 ## New Data: WaPo Database
+- Collected over...
 ## Binomial -> Poisson Regression
+- Ross's approach is based on a binomial (sum of bernoulli trials)
+- But, data is captured at an aggregate count level
+- Discrete counts of rare events -> Poisson distribution
+- We believe the parameter of this distribution changes based on covariates
+- Poisson Regression
+- $log(E[Y \ mid x)) = \theta'x$ or $E(Y \mid x) = e^{\theta'x}$
 ## Leveraging Repeated Measurements
-## Motivating the Model
-
+- Are regional disparities in shooting persistent over time?
+- Introduce $\beta$...
+## Parameterization
+- Step 1: Shooting ~ Race | Population, Dataset
+- Step 2: Shooting ~ Race | Population, Dataset, B:W Ratio
+- Step 3: Shooting ~ Race | Population, Dataset, B:W Ratio, Arrest Rate Ratio
+- Very limited data for Step 3 (for now)
+## Model Specification
+## Results
+- Step 1: 
+- Step 2: 
+- Step 3: 
 # Conclusions
 - Data rangling is hard, but important
 - Poor coverage of predictor variables makes modeling challenging
