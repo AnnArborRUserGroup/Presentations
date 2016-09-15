@@ -1,0 +1,73 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "September Meetup"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: false
+    css: custom.css
+---
+
+## Group Info {.reallybig}
+
+[AnnArborRUserGroup.github.io](https://AnnArborRUserGroup.github.io)
+
+[meetup.com/Ann-Arbor-R-User-Group](http://meetup.com/Ann-Arbor-R-User-Group)
+
+**AARUG Organizers:**
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars3.githubusercontent.com/u/9932219?v=3&s=400" style="max-width: 60%; "><br>Ellis
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars2.githubusercontent.com/u/5169330?v=3&s=400" style="max-width: 60%; "><br>Clayton
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars3.githubusercontent.com/u/5975297?v=3&s=400" style="max-width: 60%"><br>Rob
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars1.githubusercontent.com/u/6405404?v=3&s=400" style="max-width: 60%;"><br>Michelle
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars0.githubusercontent.com/u/8618665?v=3&s=400" style="max-width: 60%;"><br>Andrew
+</div>
+
+AnnArborRUserGroup@gmail.com
+
+## Slack {.bigger}
+
+<img src="slack_cmyk.png" style="max-width: 60%; display: block; margin: 0 auto;">
+
+<div style="text-align:center; display: block; margin: 0 auto;">
+[AnnArborRUserGroup.github.io/slack](https://AnnArborRUserGroup.github.io/slack)
+</div>
+
+## Sponsors
+
+<img src="spark-logo.jpeg" style="max-width: 40%; display: block; margin: 0 auto;">
+
+<img src="revolution-logo.png" style="max-width: 40%; display: block; margin: 0 auto;">
+
+## October Meetup {.reallybig}
+
+* **You:** We need 1-2 more speakers.
+
+* **Date:** TDB
+
+## Other Events {.bigger}
+
+ASA: [Fall Kick-off Meeting at SPARK](https://www.meetup.com/Ann-Arbor-Chapter-of-the-American-Statistical-Association/events/233957244/) - Tuesday, September 20 @7PM
+
+Coffee House Coders: [Meetup at Espresso](https://www.meetup.com/Ann-Arbor-Coffee-House-Coders/events/233642749/) - Wednesday, September 21 @7PM
+
+Machine Learning: [Machine Learning to Accelerate Insurance Performance](https://www.meetup.com/Machine-Learning-Data-Science-and-Industry/events/233996690/) - Thursday, September 22 @6PM
+
+NLP: [Language Detection in the Wild](https://www.meetup.com/Ann-Arbor-Detroit-NLPers-A2D-NLP/events/234004384/) - Thursday, September 22 @7PM
+
+Duo Tech Talks: [Lawful Hacking: Using Existing Vulnerabilities to Wiretap Internet Communication](https://www.meetup.com/Duo-Tech-Talks/events/233427349/) - Thursday, September 29 @6PM
+
+# Presentations
