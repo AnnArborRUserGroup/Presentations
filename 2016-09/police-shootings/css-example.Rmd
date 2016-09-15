@@ -1,0 +1,72 @@
+---
+title: "CSS example"
+author: "AARUG"
+date: "March 29, 2016"
+output: 
+  ioslides_presentation:
+    css: aarug.css
+---
+
+## R Markdown
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring **HTML**, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+## Smaller Text {.smaller}
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+
+## Unbolded Text {.unbolded}
+
+This is an R **Markdown** presentation. Markdown is a simple formatting syntax for authoring **HTML**, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any **embedded R code** chunks within the document.
+
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with Numbered Bullets
+
+1. Bullet 1
+2. Bullet 2
+3. Bullet 3
+
+## Slide with multiple classes {.huge .hugebullets}
+
+Add multiple classes within curly brackets like {.huge .hugebullets}
+
+- Huge Bullet 1
+
+- Huge Bullet 2
+
+- Huge Bullet 3
+
+## Slide with R Code and Output
+
+```{r}
+summary(cars)
+```
+
+## Slide with smaller code {.smallercode}
+
+```{r, messages = FALSE} 
+suppressPackageStartupMessages(library(dplyr))
+tbl_df(cars) %>% filter(speed > -10) 
+```
+
+
+## Slide with smallest code {.smallestcode}
+
+```{r, messages = FALSE} 
+suppressPackageStartupMessages(library(dplyr))
+tbl_df(cars) %>% filter(speed > -10) 
+```
+
