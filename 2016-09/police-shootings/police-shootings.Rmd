@@ -121,7 +121,7 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 
 ## Anatomy of a Stan Program
 - Organized into blocks
-- Lines are either declarations (`real[100] Counts`) or statements (`x = 5`)
+- Lines are either declarations (`real Counts100];`) or statements (`x = 5;`)
 - data (what you read from environment, declarations ONLY)
 - transformed data (mix declarations & statements)
 - parameters (declarations only)
@@ -142,14 +142,14 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Discrete counts of rare events -> Poisson distribution ($\lambda$)
 - $\lambda$ changes based on covariates
 - Poisson Regression
-- $log(E[Y \ mid x)) = \theta'x$ or $E(Y \mid x) = e^{\theta'x}$
+- $log(E[Y \mid x)) = \theta'x$ or $E(Y \mid x) = e^{\theta'x}$
 - Relative Risk: Covariates that interact with race give us RR
 - $\frac{\lambda_{Black}}{\lambda_{White}} = \frac{e^{\theta_{1}'x_1 + \theta_{2}'x}}{e^{\theta_{2}'x}}$
-- $\text(Relative Risk_{Black:White}) = e^{\theta_{i}}$ for any $\theta_i$ coded to interact with race
+- $RR_{Black:White} = e^{\theta_{i}}$ for any $\theta_i$ coded to interact with race
 
 ## Leveraging Repeated Measurements
 - Are regional disparities in shooting persistent over time?
-- Introduce a random variable $\beta_{i,d}$
+- Introduce a random variable $\beta_{i,d}$, for i'th county in d'th dataset
 - $\vec{\beta_{i}} = \begin{bmatrix} \beta_{i,1} & \beta_{i,2} \end{bmatrix}$
 - $\vec{\beta_{i}} \sim N(0,\Sigma)$
 - Introduce two such $\beta$, one interacts with race (random slope) other doesn't (random intercept)
@@ -161,8 +161,8 @@ at the County-Level in the United States, 2011-2014. PLoS ONE, 10(11), e0141854-
 - Step 3: Shooting ~ Race | Population(Offsets), Dataset, B:W Ratio, Arrest Rate Ratio
 - Very limited data for Step 3 (for now)
 
-## Model Specification
-Let $C_x$ be an observed count of shootings with associated predictors $x$.
+## Model Specification: Sorry for ugly slide!
+Let $C_x$ be an observed count of shootings with associated predictors $x$. 
 $C_x \sim \text{Poisson}(\lambda_x)$
 $\lambda_x = e^{\theta'x}$
 $\theta$ is the vector of coefficients for the GLM. 
