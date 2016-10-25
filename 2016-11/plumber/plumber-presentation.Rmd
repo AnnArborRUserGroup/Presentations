@@ -1,0 +1,75 @@
+---
+title: "How to turn your existing R code into a RESTful API"
+subtitle: "An introduction to the plumber package"
+author: "Ellis Valentiner"
+date: "November 10, 2016"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: no
+    css: custom.css
+---
+
+## About me {.reallybig}
+
+- Data Scientist at Powerley
+- Organizer for AARUG
+
+## Why use a RESTful API?
+
+- Familiar to software developers and engineers
+- No need to "hand off" your code
+- Not restricted to the R ecosystem
+- Simple but powerful architecture
+
+## What is a REST API?
+
+- **RE**presentational **S**tate **T**ransfer
+- Client required to send all information for the server to fulfill the request
+- Four verbs: `GET`, `POST`, `PUT`, `DELETE`
+- URI: `http://host:port/version/service/...`
+
+## Meet Plumber
+
+<img src="http://plumber.trestletech.com/components/images/plumber.png" style="max-width: 40%; display: block; margin: 0 auto;">
+
+- Add decorators to your functions
+- `@get`, `@post`, `@put`, `@delete`
+- Supports authentication
+- Supports literal, variable, and typed variable routes
+
+# Example
+
+## `myfile.R`
+
+```{r, eval=FALSE}
+#* @get /mean
+normalMean <- function(samples=10){
+  data <- rnorm(samples)
+  mean(data)
+}
+
+#* @post /sum
+addTwo <- function(a, b){
+  as.numeric(a) + as.numeric(b)
+}
+```
+
+## Start the plumber
+
+```{r, eval=FALSE}
+## Install the package
+install.packages("plumber")
+## Load the package
+library(plumber)
+## Create a router using our file
+r <- plumb("myfile.R")
+## Start the service
+r$run()
+```
+
+## Demo client
+
+```{r, eval=FALSE}
+
+```
