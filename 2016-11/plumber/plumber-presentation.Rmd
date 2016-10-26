@@ -14,62 +14,121 @@ output:
 
 - Data Scientist at Powerley
 - Organizer for AARUG
+- Grew up outside Minneapolis, MN
 
-## Why use a RESTful API?
+## Why use a RESTful API? {.reallybig}
 
-- Familiar to software developers and engineers
-- No need to "hand off" your code
-- Not restricted to the R ecosystem
 - Simple but powerful architecture
+- Familiar to software developers and engineers
+- No need to hand off your code
+- Not restricted to the R ecosystem
 
-## What is a REST API?
+## Avoid code handoffs {.reallybig}
+
+<img src="https://i-msdn.sec.s-msft.com/en-us/microsoft-r/media/deployr-about/deployrworkflowstory.png" style="max-height: 80%; display: block; margin: 0 auto;">
+
+## What is a REST API? {.reallybig}
 
 - **RE**presentational **S**tate **T**ransfer
 - Client required to send all information for the server to fulfill the request
 - Four verbs: `GET`, `POST`, `PUT`, `DELETE`
 - URI: `http://host:port/version/service/...`
 
-## Meet Plumber
+## Meet Plumber {.reallybig}
 
-<img src="http://plumber.trestletech.com/components/images/plumber.png" style="max-width: 40%; display: block; margin: 0 auto;">
+<img src="http://plumber.trestletech.com/components/images/plumber.png" style="max-height: 30%; display: block; margin: 0 auto;">
 
-- Add decorators to your functions
+- Add decorators to your existing functions
 - `@get`, `@post`, `@put`, `@delete`
 - Supports authentication
-- Supports literal, variable, and typed variable routes
+- Supports static, variable, and typed variable routes
+
+## Decorators {.reallybig}
+
+Use any of the major HTTP verbs: `@get`, `@post`, `@put`, `@delete`
+
+```{r, eval=FALSE}
+#* @get /mean
+function(...){
+    ...
+}
+```
+
+A request will only be served by a single endpoint
+
+## Filters {.reallybig}
+
+`@filter` allows you to attach new data on the `req` object
+
+`@preempt` is a way of telling plumber to position this filter in front of some filter
+
+## Routes {.normal}
+
+```{r, eval=FALSE}
+# Static route
+#* @get /user/me
+function(){
+  return list(id=1, name="Test User")
+}
+
+# Variable route
+#* @get /user/<id>
+function(id){
+  return list(id=id, name=userNames[[id]])
+}
+
+# Typed variable routes
+#* @get /user/<id:int>
+function(id){
+  if (id < 100) {
+    # ...
+  }
+}
+```
 
 # Example
 
 ## `myfile.R`
 
 ```{r, eval=FALSE}
+#* @filter logger
+function(req){
+    print(paste0(date(), " - ",
+                 req$REMOTE_ADDR, " - ",
+                 req$REQUEST_METHOD, " ",
+                 req$PATH_INFO))
+    forward()
+}
 #* @get /mean
 normalMean <- function(samples=10){
   data <- rnorm(samples)
   mean(data)
 }
-
 #* @post /sum
 addTwo <- function(a, b){
   as.numeric(a) + as.numeric(b)
 }
 ```
 
-## Start the plumber
+## Running {.bigger}
+
+Step 0. Install the package
+
+Step 1. Load the package
+
+Step 2. plumb your code
+
+Step 3. Start the router
 
 ```{r, eval=FALSE}
-## Install the package
 install.packages("plumber")
-## Load the package
 library(plumber)
-## Create a router using our file
 r <- plumb("myfile.R")
-## Start the service
 r$run()
 ```
 
-## Demo client
+# Demo
 
-```{r, eval=FALSE}
+## Summary
 
-```
+
