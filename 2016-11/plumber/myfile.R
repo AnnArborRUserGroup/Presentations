@@ -1,3 +1,5 @@
+#!/usr/bin/R
+
 #* @filter logger
 function(req){
     print(paste0(date(), " - ",
