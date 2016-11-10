@@ -1,0 +1,72 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "November Meetup"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: false
+    css: custom.css
+---
+
+## Group Info {.reallybig}
+
+[AnnArborRUserGroup.github.io](https://AnnArborRUserGroup.github.io)
+
+[meetup.com/Ann-Arbor-R-User-Group](http://meetup.com/Ann-Arbor-R-User-Group)
+
+**AARUG Organizers:**
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars3.githubusercontent.com/u/9932219?v=3&s=400" style="max-width: 60%; "><br>Ellis
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars2.githubusercontent.com/u/5169330?v=3&s=400" style="max-width: 60%; "><br>Clayton
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars3.githubusercontent.com/u/5975297?v=3&s=400" style="max-width: 60%"><br>Rob
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars1.githubusercontent.com/u/6405404?v=3&s=400" style="max-width: 60%;"><br>Michelle
+</div>
+
+<div style="display: block; float: left; width: 20%;">
+<img src="https://avatars0.githubusercontent.com/u/8618665?v=3&s=400" style="max-width: 60%;"><br>Andrew
+</div>
+
+AnnArborRUserGroup@gmail.com
+
+## Slack {.bigger}
+
+<img src="slack_cmyk.png" style="max-width: 60%; display: block; margin: 0 auto;">
+
+<div style="text-align:center; display: block; margin: 0 auto;">
+[AnnArborRUserGroup.github.io/slack](https://AnnArborRUserGroup.github.io/slack)
+</div>
+
+## Sponsors
+
+<img src="spark-logo.jpeg" style="max-width: 40%; display: block; margin: 0 auto;">
+
+<img src="revolution-logo.png" style="max-width: 40%; display: block; margin: 0 auto;">
+
+## 2017 Meetups {.reallybig}
+
+* **You:** We need speakers!
+
+## Other Events {.bigger}
+
+Duo Tech Talks: [How to Become an InfoSec Autodidact](https://www.meetup.com/Duo-Tech-Talks/events/233430499/) - Friday, November 11 @6PM
+
+NLP & Machine Learning: [a2-dlearn](https://www.eventbrite.com/e/a2-dlearn-2016-tickets-28332247515) - Saturday, November 12 @11AM-7PM
+
+Michigan Spark Users Group: [Things you didn't know you could do in Spark](https://www.meetup.com/Michigan-Spark-Users-Group/events/235245185/) - Monday, November 14 @6:30PM
+
+Ann Arbor FinTech: [November Meetup](https://www.meetup.com/Ann-Arbor-FinTech-Meetup/events/232741460/) - Wednesday, November 16 @6PM
+
+Coffee House Coders: [Meetup at Espresso](https://www.meetup.com/Ann-Arbor-Coffee-House-Coders/events/235294871/) - Wednesday, November 16 @7PM
+
+
+# Presentations
