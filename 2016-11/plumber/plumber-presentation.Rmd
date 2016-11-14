@@ -1,0 +1,198 @@
+---
+title: "How to turn your existing R code into a RESTful API"
+subtitle: "An introduction to the plumber package"
+author: "Ellis Valentiner"
+date: "November 10, 2016"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: no
+    css: custom.css
+---
+
+## About me {.reallybig}
+
+- Data Scientist at Powerley
+- R user since 2008
+- Grew up outside Minneapolis, MN
+- BA in psychology from University of Minnesota Morris
+- MS in statistics from Carnegie Mellon University
+
+## Ideas {.reallybig}
+
+- Not everyone is a data scientist
+- Code handoffs present opportunities for errors
+- Models can be slow to train but quick to serve
+
+## Hypothetical {.bigger}
+
+You're working as a Data Scientist for Big Health System and you're asked to build a model to identify whether ER patients are likely to experience a "negative outcome". Using electronic medical records and machine learning, you build a *great* model. How will the clinicians use your model?
+
+- Handoff your model to "a real programmer"?
+- Create an Excel spreadsheet template for the clinicians?
+- Build a Shiny app for the clinicians?
+- Construct a RESTful API and integrate it with their existing software?
+
+## Why use a RESTful API? {.bigger}
+
+- Simple but powerful architecture
+- Familiar to software developers and engineers
+- No need to hand off your code
+- Not restricted to the R ecosystem
+
+## What is a REST API? {.bigger}
+
+- **Re**presentational **S**tate **T**ransfer
+- Architecture not a protocol
+- Four verbs: `GET`, `POST`, `PUT`, `DELETE`
+- Uniform Resource Identifiers: `protocol://host:port/version/service/...`
+
+## Meet Plumber {.bigger}
+
+<img src="http://plumber.trestletech.com/components/images/plumber.png" style="max-height: 30%; display: block; margin: 0 auto;">
+
+- Add decorators to your existing functions (e.g. "`#* @get`")
+- Supports authentication
+- Supports static, variable, and typed variable routes
+- Built on `httpuv` (R), `libuv` (C), and `http-parser` (C)
+- http://plumber.trestletech.com
+
+## Decorators and Endpoints {.bigger}
+
+- Decorators are special comment lines
+- Use either `#*` or `#'` prefixes (`#*` is recommended)
+- Create endpoints using `@get`, `@post`, `@put`, and `@delete`
+- Endpoints may by accessed via multiple methods
+- Each request is served by the first endpoint it matches
+
+```{r, eval=FALSE}
+#* @get /hello
+function(){
+  return("hello world")
+}
+```
+
+## Routes {.bigger}
+
+- Literal routes with fully specified path
+- Variable routes for more flexible routing
+
+```{r, eval=FALSE}
+# Static route
+#* @get /user/me
+function(){...}
+
+# Variable route
+#* @get /user/<id>
+function(id){...}
+
+# Typed variable routes
+#* @get /user/<id:int>
+function(id){...}
+```
+
+## Filters {.bigger}
+
+`@filter` allows you to use and modify the request (`req`)
+
+`@preempt` lets you position a route in front of a specified filter
+
+```{r, eval=FALSE}
+#* @filter logger
+function(req){
+    print(paste0(date(), " - ",
+                 req$REMOTE_ADDR, " - ",
+                 req$REQUEST_METHOD, " ",
+                 req$PATH_INFO))
+    forward()
+}
+
+#* @preempt logger
+#* @get /
+function(){}
+```
+
+# Example 1
+
+## `myfile.R`
+
+```{r, eval=FALSE}
+#* @filter logger
+function(req){
+    print(paste0(date(), " - ",
+                 req$REMOTE_ADDR, " - ",
+                 req$REQUEST_METHOD, " ",
+                 req$PATH_INFO))
+    forward()
+}
+#* @get /mean
+normalMean <- function(samples=10){
+  mean(rnorm(samples))
+}
+#* @post /sum
+addTwo <- function(a, b){
+  as.numeric(a) + as.numeric(b)
+}
+```
+
+## Running {.bigger}
+
+```{r, eval=FALSE}
+# Install the package
+install.packages("plumber")
+# Load the package
+library(plumber)
+# plumb your file
+r <- plumb("myfile.R")
+# Start the router
+r$run()
+```
+
+# Example 2
+
+## `iris.R`
+
+```{r, eval=FALSE}
+#* @post /iris
+function(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width){
+    model <- randomForest::randomForest(Species ~ ., iris)
+    newData <- data.frame(Sepal.Length,
+                          Sepal.Width,
+                          Petal.Length,
+                          Petal.Width)
+    predict(model, newdata = newData)
+}
+```
+
+# Extras
+
+## Extras
+
+- Programmatic usage
+- Static assert server
+
+# Alternatives
+
+## CRAN Task View: Web Technologies and Services {.bigger}
+
+- DeployR
+- Shiny
+- fiery
+- prarie
+- rcloud
+- Rook
+- RServe
+- httpuv
+- jug
+- FastRWeb
+
+## DeployR {.bigger}
+
+<img src="https://i-msdn.sec.s-msft.com/en-us/microsoft-r/media/deployr-about/deployrworkflowstory.png" style="max-height: 80%; display: block; margin: 0 auto;">
+
+## Summary {.bigger}
+
+- RESTful APIs are great
+- plumber makes it easy to serve up your R code
+
+# Questions?
