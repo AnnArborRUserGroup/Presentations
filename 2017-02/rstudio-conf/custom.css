@@ -1,0 +1,34 @@
+#content {
+  position: relative;
+  z-index: 1;
+}
+
+#content:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: url(https://pbs.twimg.com/media/C2DrAreUoAAYOmH.jpg:large)
+  opacity: 0.7;
+}
+
+.light-inverse {
+  color: #777872;
+  text-shadow: 0 0 20px #333;
+  opacity: 0.5;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+  background: url(https://pbs.twimg.com/media/C2DrAreUoAAYOmH.jpg:large)
+}
+.light-inverse h1, .light-inverse h2, .light-inverse h3 {
+  opacity: 1;
+  color: #000000;
+  line-height: 0.8em;
+}
