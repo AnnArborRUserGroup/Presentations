@@ -1,0 +1,11 @@
+---
+title: "A title"
+date: "6/22/2017"
+output: word_document
+---
+
+# Big Heading
+## Smaller Heading
+### Even Smaller Heading
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris interdum semper urna quis placerat. Aliquam erat volutpat. Fusce nisi erat, auctor ac nisl nec, efficitur hendrerit urna. Quisque in mollis nulla, quis pharetra velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ac mauris sit amet nibh pretium dictum. Suspendisse potenti. Praesent vel rutrum ante. Pellentesque dictum bibendum dui nec congue. Aliquam ut turpis id dui commodo rhoncus. Donec nisi enim, scelerisque dictum nibh et, sollicitudin tincidunt orci. Aenean vitae consectetur risus.
