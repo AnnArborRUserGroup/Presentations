@@ -2,7 +2,7 @@
 title: "Citations in R Markdown"
 subtitle: "Ann Arbor R User Group"
 author: "Andrew Moore"
-date: "June 22, 2017"
+date: "June 29, 2017"
 output:
   ioslides_presentation:
     widescreen: yes
@@ -109,12 +109,12 @@ references:
 
 ```
 Conventions on the 'size' of an experimental effect have 
-been long established [@cohen_power_1992].
+been long established [@cohen_power_1988, @cohen_power_1992].
 ```
 
 <!-- pandoc defaults to Chicago style when rendering -->
 
-> Conventions on the 'size' of an experimental effect have been long established (Cohen 1992).
+> Conventions on the 'size' of an experimental effect have been long established (Cohen, 1988; Cohen, 1992).
 
 *You can negate the author name(s) by adding a `-` in front of the article tag/ID*
 
