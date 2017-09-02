@@ -4,13 +4,22 @@ subtitle: "An introduction to the plumber package"
 author: "Ellis Valentiner"
 date: "November 10, 2016"
 output:
-  ioslides_presentation:
-    widescreen: yes
-    incremental: no
-    css: custom.css
+  xaringan::moon_reader:
+    css: ["default", "custom.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+---
+class: center, middle
+
+# About me
+
 ---
 
-## About me {.reallybig}
+## About me
 
 - Data Scientist at Powerley
 - R user since 2008
@@ -18,46 +27,115 @@ output:
 - BA in psychology from University of Minnesota Morris
 - MS in statistics from Carnegie Mellon University
 
-## Ideas {.reallybig}
+---
+class: center, middle
 
-- Not everyone is a data scientist
-- Code handoffs present opportunities for errors
-- Models can be slow to train but quick to serve
+# Ideas
 
-## Hypothetical {.bigger}
+Not everyone is a data scientist
+
+Code handoffs present opportunities for errors
+
+Models can be slow to train but quick to serve
+
+---
+
+# Hypothetical
 
 You're working as a Data Scientist for Big Health System and you're asked to build a model to identify whether ER patients are likely to experience a "negative outcome". Using electronic medical records and machine learning, you build a *great* model. How will the clinicians use your model?
 
+--
 - Handoff your model to "a real programmer"?
+
+--
 - Create an Excel spreadsheet template for the clinicians?
+
+--
 - Build a Shiny app for the clinicians?
+
+--
 - Construct a RESTful API and integrate it with their existing software?
 
-## Why use a RESTful API? {.bigger}
+---
+class: center, middle
 
-- Simple but powerful architecture
-- Familiar to software developers and engineers
-- No need to hand off your code
-- Not restricted to the R ecosystem
+# Why use a RESTful API?
 
-## What is a REST API? {.bigger}
+--
 
-- **Re**presentational **S**tate **T**ransfer
-- Architecture not a protocol
-- Four verbs: `GET`, `POST`, `PUT`, `DELETE`
-- Uniform Resource Identifiers: `protocol://host:port/version/service/...`
+Simple but powerful architecture
 
-## Meet Plumber {.bigger}
+--
 
-<img src="http://plumber.trestletech.com/components/images/plumber.png" style="max-height: 30%; display: block; margin: 0 auto;">
+Familiar to software developers and engineers
 
-- Add decorators to your existing functions (e.g. "`#* @get`")
-- Supports authentication
-- Supports static, variable, and typed variable routes
-- Built on `httpuv` (R), `libuv` (C), and `http-parser` (C)
-- http://plumber.trestletech.com
+--
 
-## Decorators and Endpoints {.bigger}
+No need to hand off your code
+
+--
+
+Not restricted to the R ecosystem
+
+---
+class: center, middle
+
+# What is a REST API?
+
+--
+
+**Re**presentational **S**tate **T**ransfer
+
+--
+
+Architecture not a protocol
+
+--
+
+Four verbs: `GET`, `POST`, `PUT`, `DELETE`
+
+--
+
+Uniform Resource Identifiers: `protocol://host:port/version/service/...`
+
+---
+class: center, middle, inverse
+
+![](http://plumber.trestletech.com/components/images/plumber.png)
+
+# Meet Plumber
+
+???
+
+Image credit: [plumber](https://www.rplumber.io)
+
+---
+
+# Plumber
+
+--
+
+Add decorators to your existing functions (e.g. "`#* @get`")
+
+--
+
+Supports authentication
+
+--
+
+Supports static, variable, and typed variable routes
+
+--
+
+Built on `httpuv` (R), `libuv` (C), and `http-parser` (C)
+
+--
+
+[http://plumber.trestletech.com](http://plumber.trestletech.com)
+
+---
+
+# Decorators and Endpoints
 
 - Decorators are special comment lines
 - Use either `#*` or `#'` prefixes (`#*` is recommended)
@@ -72,7 +150,9 @@ function(){
 }
 ```
 
-## Routes {.bigger}
+---
+
+# Routes
 
 - Literal routes with fully specified path
 - Variable routes for more flexible routing
@@ -91,7 +171,9 @@ function(id){...}
 function(id){...}
 ```
 
-## Filters {.bigger}
+---
+
+# Filters
 
 `@filter` allows you to use and modify the request (`req`)
 
@@ -112,9 +194,14 @@ function(req){
 function(){}
 ```
 
+---
+class: center, middle, inverse
+
 # Example 1
 
-## `myfile.R`
+---
+
+# `myfile.R`
 
 ```{r, eval=FALSE}
 #* @filter logger
@@ -135,7 +222,9 @@ addTwo <- function(a, b){
 }
 ```
 
-## Running {.bigger}
+---
+
+## Running
 
 ```{r, eval=FALSE}
 # Install the package
@@ -148,9 +237,14 @@ r <- plumb("myfile.R")
 r$run()
 ```
 
+---
+class: center, middle, inverse
+
 # Example 2
 
-## `iris.R`
+---
+
+# `iris.R`
 
 ```{r, eval=FALSE}
 #* @post /iris
@@ -164,16 +258,27 @@ function(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width){
 }
 ```
 
+---
+class: center, middle, inverse
+
 # Extras
+
+---
 
 ## Extras
 
-- Programmatic usage
-- Static assert server
+Programmatic usage
+
+Static assert server
+
+---
+class: center, middle, inverse
 
 # Alternatives
 
-## CRAN Task View: Web Technologies and Services {.bigger}
+---
+
+## CRAN Task View: Web Technologies and Services
 
 - DeployR
 - Shiny
@@ -186,13 +291,26 @@ function(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width){
 - jug
 - FastRWeb
 
-## DeployR {.bigger}
+---
 
-<img src="https://i-msdn.sec.s-msft.com/en-us/microsoft-r/media/deployr-about/deployrworkflowstory.png" style="max-height: 80%; display: block; margin: 0 auto;">
+## DeployR
 
-## Summary {.bigger}
+<img src="https://docs.microsoft.com/en-us/r-server/deployr/media/deployr-about/deployrworkflowstory.png" style="max-height: 80%; display: block; margin: 0 auto;">
 
-- RESTful APIs are great
-- plumber makes it easy to serve up your R code
+???
+
+Image credit: [Microsoft](https://docs.microsoft.com/en-us/r-server/deployr/deployr-about)
+
+---
+class: center, middle
+
+# Summary
+
+RESTful APIs are great
+
+plumber makes it easy to serve up your R code
+
+---
+class: center, middle, inverse
 
 # Questions?
