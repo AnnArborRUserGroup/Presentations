@@ -1,12 +1,15 @@
 ---
 title: "Highlights from rstudio::conf"
+author: "Ellis Valentiner"
+date: "Feb 10th, 2017"
 output:
-    xaringan::moon_reader:
-        css: ["default"]
+  xaringan::moon_reader:
+    css: ["default"]
     lib_dir: libs
     nature:
       highlightStyle: github
       highlightLines: true
+      ratio: '16:9'
 ---
 class: center, middle
 
