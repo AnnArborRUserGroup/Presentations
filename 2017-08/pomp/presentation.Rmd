@@ -8,22 +8,28 @@ output:
   beamer_presentation: default
 ---
 
+# Introduction
+
+## About me
+- GVSU Math / UMich Bioinformatics
+- Worked with Prof. Aaron King to build biological models in R
+- I was an R novice a year and a half ago!
+
+## About Markov Models
+- Markov models are great for time series!
+- They allow us to incorporate understanding of mechanisms in a system.
+
+# Markov Models
+
 ## Markov Chain
 - A stochastic process that satisfies the Markov property
-- All the information about the future state of the system is contained in the present state of the system.
-- States of the system at sequential time points are related by a stochastic process with parameters $\theta$.
-
-$$X_0 \rightarrow X_1 \rightarrow X_2 \rightarrow \cdots$$
-
-## Markov Chain
-- A stochastic process that satisfies tha Markov property
 - All the information about the future state of the system is contained in the present state of the system.
 - States of the system at sequential time points are related by a stochastic process with parameters $\theta$.
 
 $$X_0 \overset{\theta}{\rightarrow} X_1 \overset{\theta}{\rightarrow} X_2 \overset{\theta}{\rightarrow} \cdots$$
 
 ## Markov Chain
-- A stochastic process that satisfies tha Markov property
+- A stochastic process that satisfies the Markov property
 - All the information about the future state of the system is contained in the present state of the system.
 - States of the system at sequential time points are related by a stochastic process with parameters $\theta$.
 
@@ -36,16 +42,7 @@ knitr::include_graphics("images/markov-chain.png")
 
 ## Markov Chain Example
 
-Bull|Bear|Stagnant
-----+----+--------
-1   | 0  | 0
-0   | 1  | 0
-1   | 0  | 0
-0   | 0  | 1
-1   | 0  | 0
-0   | 1  | 0
-1   | 0  | 0
-1   | 0  | 0
+- The state variables in this system are binary-valued:
 
 - Best way to estimate parameters in this case is to calculate MLE for the transition probabilities
 
@@ -62,12 +59,15 @@ Y_0        &             & Y_1        &             & Y_2        &             &
 
 ## Transcription Factor Binding Site Prediction
 
+- Hidden state: position in binding site.
+- Observed state: nucleic acid sequence
+
 $$\begin{array}
 \text{B} & B & B & B & 1 & 2 & 3 & 4 & B & \text{Signal} \\
 A & C & G & A & A & C & T & C & A & \text{Observations}
 \end{array}$$
 
-```{r, out.width = "600px", fig.align='center', include=FALSE}
+```{r, out.width = "500px", fig.align='center', echo=FALSE}
 knitr::include_graphics("images/hmm-tfbs.png")
 ```
 <footnote>Mathelier, A., & Wasserman, W. W. (2013). The next generation of transcription factor binding site prediction. PLoS computational biology, 9(9), e1003214.</footnote>
@@ -85,13 +85,15 @@ X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow &
 \end{matrix} $$
 
 - $f_{X_0}$ : PDF of the system state at time $t=0$
+
 - $f_{X}$ : PDF of $X_t$ given $X_{t-1}$
+
 - $f_{Y}$ : PDF of $Y_t$ given $X_t$
 
 - Probability of initial state $x_0$, state transition $x_0 \rightarrow x_1$, and observation $y_1$:
 $$f_{X_0}(x_0; \theta) f_X(x_1 | x_0; \theta) f_Y(y_1 | x_1; \theta)$$
 
-## Likelihood for HMMs
+## Likelihood for HMsM
 - Probability of initial state $x_0$, transitions $x_1, \ldots x_N$, and observations $y_1, \ldots, y_N$:
 $$f_{X,Y}(x_{0:N}, y_{1:N}; \theta) = f_{X_0}(x_0; \theta) \prod_{t=1}^N f_X(x_t | x_{t-1}; \theta) f_Y(y_t | x_t; \theta)$$
 
@@ -108,35 +110,108 @@ X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow &
            &             & 4          &             & 6       &             &
 \end{matrix} $$
 
-## Using **pomp** to build HMMs
-Let's test `pomp` with some dummy data.
+## Using **pomp**
+- We can use the **pomp** package to encode Hidden Markov Models as R objects.
+- **pomp** comes with tools to evaluate models.
+
+## Ricker model
+- A Ricker model is a population model that relates the population at time $t$ to the population at time $t + 1$.
+$$N_{t+1} = N_t e^{r\left(1-\frac{N_t}{k}\right)}$$
+
+- $r$ is the intrinsic growth rate
+
+- $k$ is the carrying capacity
+
+
+## Ricker model
+```{r include = FALSE}
+library(ggplot2)
+```
 ```{r}
-p <- c('x0'=55, 'm'=2.56, 'sigma' = 8.23)
-n <- 100
+data <- read.csv("./data/rickerdata.csv")
+ggplot(data, aes(time, )) + geom_point()
+```
 
-t = 1:n
 
-x <- c(p['x0'])
-for (i in 2:n) {
-  x[i] <- x[i - 1] + p['m']
+## Using **pomp**
+- **pomp** requires a few things to build a minimal model:
+```{r}
+library(pomp)
+
+rickerModel <- pomp(data = data,
+                    times = 'time',
+                    t0 = 0)
+```
+
+- Specifying a few more arguments will help us in the next step:
+```{r}
+rickerModel <- pomp(rickerModel,
+                    statenames = c('N', 'e'),
+                    obsnames = c('pop'),
+                    paramnames = c('r','k','sigma'))
+```
+
+## Initialization process
+
+```{r}
+init <- function (params, t0,...){
+  return(c('N' = params[['N.0']], 'e' = params[['e.0']]))
 }
 
-y <- c()
-for (i in 1:n) {
-  y[i] <- rnorm(1, x[i], sd = p['sigma'])
+rickerModel <- pomp(rickerModel, initializer = init)
+```
+
+## Specifying the stochastic process
+
+```{r}
+rproc <- discrete.time.sim(
+  step.fun = function(x, t, params, delta.t, ...) {
+
+    sigma <- params[['sigma']]
+    r <- params[['r']]
+    k <- params[['k']]
+
+    N <- x[['N']]
+    e <- x[['e']]
+
+    result <- c('e' = rnorm(1, mean=0, sd=sigma),
+                'N' = r * N * exp(e - N/k))
+
+    return(result)
+  },
+  delta.t = 1
+)
+
+rickerModel <- pomp(rickerModel, rprocess = rproc)
+```
+
+## Specifying the measurement model
+```{r}
+rmeas <- function (x, t, params, ...) {
+  N <- x[['N']]
+  phi <- params[['phi']]
+  result <- c('pop' = rpois(n=1, lambda=phi * N))
+
+  return(result)
 }
 
-df <- data.frame(t, x, y)
+rickerModel <- pomp(rickerModel, rmeasure = rmeas)
 ```
 
-## Using **pomp** to build HMMs
-Hidden states (X)
-```{r echo=F}
-plot(df$x~df$t)
+## Specifying the measurement model distribution function
+```{r}
+dmeas <- function(y, x, t, params, log, ...) {
+  N <- x[['N']]
+  pop <- y[['pop']]
+  phi <- params[['phi']]
+
+  return(dpois(x, phi*N, log=log))
+}
+
+rickerModel <- pomp(rickerModel, dmeasure = dmeas)
 ```
 
-## Using **pomp** to build HMMs
-Observed states (Y) with normally-distributed measurement error
-```{r echo=F}
-plot(df$y~df$t)
-```
+## Simulation
+library(magrittr)
+rickerModel <- pomp(rickerModel, params = c(N.0=1,e.0=0,r=20,k=1,sigma=0.1,phi=200))
+simulate(rickerModel, as.data.frame = T) %>% ggplot(aes(time, pop)) + geom_point()
