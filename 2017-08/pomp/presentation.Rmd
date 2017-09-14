@@ -72,52 +72,6 @@ knitr::include_graphics("images/hmm-tfbs.png")
 ```
 <footnote>Mathelier, A., & Wasserman, W. W. (2013). The next generation of transcription factor binding site prediction. PLoS computational biology, 9(9), e1003214.</footnote>
 
-## Likelihood
-- Calculated in the same way as probability
-$$\mathcal{L}(\theta | x) = P(x | \theta)$$
-
-
-## Likelihood for HMMs
-$$ \begin{matrix}
-X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow & \cdots        \\
-           &             & \downarrow &             & \downarrow &             &               \\
-           &             & Y_1        &             & Y_2        &             &
-\end{matrix} $$
-
-- $f_{X_0}$ : PDF of the system state at time $t=0$
-
-- $f_{X}$ : PDF of $X_t$ given $X_{t-1}$
-
-- $f_{Y}$ : PDF of $Y_t$ given $X_t$
-
-- Probability of initial state $x_0$, state transition $x_0 \rightarrow x_1$, and observation $y_1$:
-$$f_{X_0}(x_0; \theta) f_X(x_1 | x_0; \theta) f_Y(y_1 | x_1; \theta)$$
-
-## Likelihood for HMsM
-- Probability of initial state $x_0$, transitions $x_1, \ldots x_N$, and observations $y_1, \ldots, y_N$:
-$$f_{X,Y}(x_{0:N}, y_{1:N}; \theta) = f_{X_0}(x_0; \theta) \prod_{t=1}^N f_X(x_t | x_{t-1}; \theta) f_Y(y_t | x_t; \theta)$$
-
-- We have data $y_{1:N}^*$, but no observations for $x_{1:N}$. The solution is to compute the marginal PDF of $y_{1:N}$ and evaluate at the data $y_{1:N}^*$:
-
-$$ \mathcal{L}(\theta) = \int_{x_{0:N}} f_{X,Y}(x_{0:N}, y_{1:N}^*; \theta) \; d x_{0:N}$$
-
-## Likelihood for HMMs
-We can sum the log-likelihood of successive transitions to obtain the log-likelihood of the entire sequence (due to the Markov property). But since the hidden state transitions are unknown, we have to sum over all possibilities. This is usually impossible.
-
-$$ \begin{matrix}
-X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow & \cdots        \\
-           &             & \downarrow &             & \downarrow &             &               \\
-           &             & 4          &             & 6       &             &
-\end{matrix} $$
-
-## Ricker model
-- A Ricker model is a population model that relates the population at time $t$ to the population at time $t + 1$.
-$$N_{t+1} = N_t e^{r\left(1-\frac{N_t}{k}\right)}$$
-
-- $r$ is the intrinsic growth rate
-
-- $k$ is the carrying capacity
-
 # Using **pomp**
 
 ## Using **pomp**
@@ -135,6 +89,14 @@ knitr::include_graphics("images/pomp-functions.svg")
 ```{r, out.width = "600px", fig.align='center', echo=FALSE}
 knitr::include_graphics("images/pomp-model.svg")
 ```
+
+## Ricker model
+- A Ricker model is a population model that relates the population at time $t$ to the population at time $t + 1$.
+$$N_{t+1} = N_t e^{r\left(1-\frac{N_t}{k}\right)}$$
+
+- $r$ is the intrinsic growth rate
+
+- $k$ is the carrying capacity
 
 ## Ricker model
 ```{r include = FALSE}
@@ -233,3 +195,48 @@ rickerModel <- pomp(rickerModel, params = c(N.0=1,e.0=0,r=20,k=1,sigma=0.1,phi=2
 sim <- simulate(rickerModel, as.data.frame = T)
 ggplot(sim, aes(time, pop)) + geom_point()
 ```
+
+# A Crash Course on Likelihood
+
+## Likelihood
+- Calculated in the same way as probability
+$$\mathcal{L}(\theta | x) = P(x | \theta)$$
+
+- Probability: How likely is outcome $x$ under this model and parameters $\theta$?
+
+- Likelihood: How likely do the parameters $\theta$ explain the data $x$ under the model?
+
+- The data, model, and parameters together are defined by a single number: likelihood. This can be used to compare models.
+
+## Likelihood for HMMs
+$$ \begin{matrix}
+X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow & \cdots        \\
+           &             & \downarrow &             & \downarrow &             &               \\
+           &             & Y_1        &             & Y_2        &             &
+\end{matrix} $$
+
+- $f_{X_0}$ : PDF of the system state at time $t=0$
+
+- $f_{X}$ : PDF of $X_t$ given $X_{t-1}$
+
+- $f_{Y}$ : PDF of $Y_t$ given $X_t$
+
+- Probability of initial state $x_0$, state transition $x_0 \rightarrow x_1$, and observation $y_1$:
+$$f_{X_0}(x_0; \theta) f_X(x_1 | x_0; \theta) f_Y(y_1 | x_1; \theta)$$
+
+## Likelihood for HMMs
+- Probability of initial state $x_0$, transitions $x_1, \ldots x_N$, and observations $y_1, \ldots, y_N$:
+$$f_{X,Y}(x_{0:N}, y_{1:N}; \theta) = f_{X_0}(x_0; \theta) \prod_{t=1}^N f_X(x_t | x_{t-1}; \theta) f_Y(y_t | x_t; \theta)$$
+
+- We have data $y_{1:N}^*$, but no observations for $x_{1:N}$. The solution is to compute the marginal PDF of $y_{1:N}$ and evaluate at the data $y_{1:N}^*$:
+
+$$ \mathcal{L}(\theta) = \int_{x_{0:N}} f_{X,Y}(x_{0:N}, y_{1:N}^*; \theta) \; d x_{0:N}$$
+
+## Likelihood for HMMs
+We can sum the log-likelihood of successive transitions to obtain the log-likelihood of the entire sequence (due to the Markov property). But since the hidden state transitions are unknown, we have to sum over all possibilities. This is usually impossible.
+
+$$ \begin{matrix}
+X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow & \cdots        \\
+           &             & \downarrow &             & \downarrow &             &               \\
+           &             & 4          &             & 6       &             &
+\end{matrix} $$
