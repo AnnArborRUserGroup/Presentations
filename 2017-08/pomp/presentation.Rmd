@@ -3,9 +3,9 @@ title: "An Introduction to Hidden Markov Models with **pomp**"
 author: "Ashton Baker"
 date: "September 14, 2017"
 output:
-  slidy_presentation: default
   ioslides_presentation: default
   beamer_presentation: default
+  slidy_presentation: default
 ---
 
 # Introduction
@@ -110,10 +110,6 @@ X_0        & \rightarrow & X_1        & \rightarrow & X_2        & \rightarrow &
            &             & 4          &             & 6       &             &
 \end{matrix} $$
 
-## Using **pomp**
-- We can use the **pomp** package to encode Hidden Markov Models as R objects.
-- **pomp** comes with tools to evaluate models.
-
 ## Ricker model
 - A Ricker model is a population model that relates the population at time $t$ to the population at time $t + 1$.
 $$N_{t+1} = N_t e^{r\left(1-\frac{N_t}{k}\right)}$$
@@ -122,6 +118,23 @@ $$N_{t+1} = N_t e^{r\left(1-\frac{N_t}{k}\right)}$$
 
 - $k$ is the carrying capacity
 
+# Using **pomp**
+
+## Using **pomp**
+- We can use the **pomp** package to encode Hidden Markov Models as R objects.
+- 
+
+```{r, out.width = "700px", fig.align='center', echo=FALSE}
+knitr::include_graphics("images/pomp-functions.svg")
+```
+
+## The structure of a **pomp** model
+- Our goal is to use **pomp** to perform "simulation-based inference"
+- We need to encode everything that we need to simulate the process that we hypothesize
+
+```{r, out.width = "600px", fig.align='center', echo=FALSE}
+knitr::include_graphics("images/pomp-model.svg")
+```
 
 ## Ricker model
 ```{r include = FALSE}
@@ -129,9 +142,8 @@ library(ggplot2)
 ```
 ```{r}
 data <- read.csv("./data/rickerdata.csv")
-ggplot(data, aes(time, )) + geom_point()
+ggplot(data, aes(time, pop)) + geom_point()
 ```
-
 
 ## Using **pomp**
 - **pomp** requires a few things to build a minimal model:
@@ -211,7 +223,13 @@ dmeas <- function(y, x, t, params, log, ...) {
 rickerModel <- pomp(rickerModel, dmeasure = dmeas)
 ```
 
-## Simulation
-library(magrittr)
+## Specifying default parameters
+```{r}
 rickerModel <- pomp(rickerModel, params = c(N.0=1,e.0=0,r=20,k=1,sigma=0.1,phi=200))
-simulate(rickerModel, as.data.frame = T) %>% ggplot(aes(time, pop)) + geom_point()
+```
+
+## Simulation
+```{R}
+sim <- simulate(rickerModel, as.data.frame = T)
+ggplot(sim, aes(time, pop)) + geom_point()
+```
