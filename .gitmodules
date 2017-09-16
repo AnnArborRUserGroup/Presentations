@@ -1,3 +1,6 @@
 [submodule "2017-06/ProphetIntroSlides"]
 	path = 2017-06/ProphetIntroSlides
 	url = git@github.com:V3g4/ProphetIntroSlides.git
+[submodule "2017-09/plotly"]
+	path = 2017-09/plotly
+	url = git@github.com:RamiKrispin/Plotly-Meetup.git
