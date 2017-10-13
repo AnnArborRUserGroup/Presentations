@@ -4,3 +4,6 @@
 [submodule "2017-09/plotly"]
 	path = 2017-09/plotly
 	url = git@github.com:RamiKrispin/Plotly-Meetup.git
+[submodule "2017-10/ufo-sightings"]
+	path = 2017-10/ufo-sightings
+	url = https://github.com/mooreaw/ufo-sightings
