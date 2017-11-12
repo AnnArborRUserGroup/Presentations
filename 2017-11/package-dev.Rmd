@@ -1,0 +1,181 @@
+---
+title: "Package Development and spotifyr"
+author: "Rob Weyant"
+date: "11/9/2017"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# Introduction
+
+## Why develop packages?
+
+* Easier to share, easy to use
+
+* Familiar/standard structure 
+
+* Easy to reuse code between projects
+
+  * Very practical within companies, research groups, collaborators 
+  
+  * Do it once, correctly.
+  
+---
+
+# So you want to make a package
+
+## Step 1: Think of a sweet name
+
+* R puns encouraged
+
+* otherwise, see [Hadley's recommendations](http://r-pkgs.had.co.nz/package.html)
+
+  * googleable (if public)
+  
+  * indicate its use
+
+## Step 2: Think of what you want to do
+
+* Maybe this is the first step
+
+## Step 3: Start coding
+
+---
+
+# Create Your Package (devtools)
+
+```{r, eval=FALSE}
+library(devtools)
+create('coolpackage')
+```
+
+Barebones package structure:
+
+```{bash}
+ls ~/coolpackage
+```
+
+---
+
+# Create Your Package (RStudio)
+
+## File --> New Project --> New Directory --> R Package
+
+Slightly less barebones package structure:
+
+```{bash}
+ls ~/coolpackage2
+```
+
+---
+
+# Package Components
+
+* DESCRIPTION: metadata about the project
+
+* NAMESPACE: directives that control the namespace of the project
+
+* R/: Where the R code goes
+
+* man/: where the documentation goes
+
+* tests/: where tests go
+
+---
+
+# spotifyr
+
+Wrapper for Spotify's [Web API](https://developer.spotify.com/web-api/)
+
+... in R!
+
+## But... why?
+
+* learning experience
+
+* Spotify has lots of data!
+
+* New beta features let you control spotify!
+
+* not first package I worked on, but first one I cared about
+
+---
+
+# DESCRIPTION
+
+#### `Imports`
+
+* Need to be installed for your package to function
+
+* Packages in the `Imports` section get loaded when the package is attached
+
+#### `Suggests`
+
+* Nice to have, but not required.
+
+* Why use this?
+
+---
+
+# R/
+
+* Any code in this directory will be executed and saved when the package is built.
+
+  * Ctrl+Shift+B
+
+* Any code in this directory will be _sourced_ `devtools::load_all()`. That is, executed and the results made available
+
+  * Ctrl+Shift+L
+
+---
+
+# Documentation
+
+### [roxygen!](http://roxygen.org/)
+
+* Add in-source documentation that gets translated to Rd files
+
+* devtools::document()
+
+* *Generate Documentation*: Ctrl+Shift+D / Cmd+Shift+D
+
+* Will generate and update NAMESPACE file
+
+* Can execute examples in comments!
+
+---
+
+# tests/
+
+### [testthat!](http://r-pkgs.had.co.nz/tests.html)
+
+* devtools::use_testthat()
+
+* add test files into `./tests/testthat/`
+  
+  * filename: `test*`
+
+* `expect_*`
+  
+  * `expect_equals`, `expect_gt`, `expect_is`
+
+* *Run all tests*: Ctrl+Shift+T / Cmd+Shift+T
+
+---
+
+# Resources
+
+* http://r-pkgs.had.co.nz/
+
+* https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
+
+
