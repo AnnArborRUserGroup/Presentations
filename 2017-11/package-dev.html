@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Package Development and spotifyr</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Rob Weyant" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Package Development and spotifyr
+### Rob Weyant
+### 11/9/2017
+
+---
+
+
+
+
+# Introduction
+
+## Why develop packages?
+
+* Easier to share, easy to use
+
+* Familiar/standard structure 
+
+* Easy to reuse code between projects
+
+  * Very practical within companies, research groups, collaborators 
+  
+  * Do it once, correctly.
+  
+---
+
+# So you want to make a package
+
+## Step 1: Think of a sweet name
+
+* R puns encouraged
+
+* otherwise, see [Hadley's recommendations](http://r-pkgs.had.co.nz/package.html)
+
+  * googleable (if public)
+  
+  * indicate its use
+
+## Step 2: Think of what you want to do
+
+* Maybe this is the first step
+
+## Step 3: Start coding
+
+---
+
+# Create Your Package (devtools)
+
+
+```r
+library(devtools)
+create('coolpackage')
+```
+
+Barebones package structure:
+
+
+```bash
+ls ~/coolpackage
+```
+
+```
+## DESCRIPTION
+## NAMESPACE
+## R
+## coolpackage.Rproj
+```
+
+---
+
+# Create Your Package (RStudio)
+
+## File --&gt; New Project --&gt; New Directory --&gt; R Package
+
+Slightly less barebones package structure:
+
+
+```bash
+ls ~/coolpackage2
+```
+
+```
+## DESCRIPTION
+## NAMESPACE
+## R
+## coolpackage2.Rproj
+## man
+## tests
+```
+
+---
+
+# Package Components
+
+* DESCRIPTION: metadata about the project
+
+* NAMESPACE: directives that control the namespace of the project
+
+* R/: Where the R code goes
+
+* man/: where the documentation goes
+
+* tests/: where tests go
+
+---
+
+# spotifyr
+
+Wrapper for Spotify's [Web API](https://developer.spotify.com/web-api/)
+
+... in R!
+
+## But... why?
+
+* learning experience
+
+* Spotify has lots of data!
+
+* New beta features let you control spotify!
+
+* not first package I worked on, but first one I cared about
+
+---
+
+# DESCRIPTION
+
+#### `Imports`
+
+* Need to be installed for your package to function
+
+* Packages in the `Imports` section get loaded when the package is attached
+
+#### `Suggests`
+
+* Nice to have, but not required.
+
+* Why use this?
+
+---
+
+# R/
+
+* Any code in this directory will be executed and saved when the package is built.
+
+  * Ctrl+Shift+B
+
+* Any code in this directory will be _sourced_ `devtools::load_all()`. That is, executed and the results made available
+
+  * Ctrl+Shift+L
+
+---
+
+# Documentation
+
+### [roxygen!](http://roxygen.org/)
+
+* Add in-source documentation that gets translated to Rd files
+
+* devtools::document()
+
+* *Generate Documentation*: Ctrl+Shift+D / Cmd+Shift+D
+
+* Will generate and update NAMESPACE file
+
+* Can execute examples in comments!
+
+---
+
+# tests/
+
+### [testthat!](http://r-pkgs.had.co.nz/tests.html)
+
+* devtools::use_testthat()
+
+* add test files into `./tests/testthat/`
+  
+  * filename: `test*`
+
+* `expect_*`
+  
+  * `expect_equals`, `expect_gt`, `expect_is`
+
+* *Run all tests*: Ctrl+Shift+T / Cmd+Shift+T
+
+---
+
+# Resources
+
+* http://r-pkgs.had.co.nz/
+
+* https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
