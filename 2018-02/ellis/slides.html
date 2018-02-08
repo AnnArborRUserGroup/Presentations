@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>rstudio::conf(2018L)</title>
+    <meta charset="utf-8">
+    <meta name="date" content="2018-02-08" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# rstudio::conf(2018L)
+### February 8, 2018
+
+---
+
+class: protecttext
+background-image: url(assets/IMG_9539.jpg)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+
+
+
+# Introduction
+
+## data scientist @powerley
+
+## organizer @annarborrusergroup
+
+### "... statistics starts once you have tidy data." - Di Cook
+
+---
+class: center, middle, inverse
+
+# recap: To the Tidyverse and Beyond
+
+## Di Cook
+
+---
+class: center, middle
+
+&lt;h1 style="color:#E69F00;"&gt;"[ggplot2] provides a tight connection between data and statistics, in order to do inference with data plots"&lt;/h1&gt;
+
+---
+class: center, middle
+
+&lt;h1 style="color:#56B4E9;"&gt;"a statistic is a function of the data"&lt;/h1&gt;
+
+&lt;h1 style="color:#009E73;"&gt;"[ggplot2] makes plots another type of statistic"&lt;/h1&gt;
+
+---
+class: center, middle
+
+&lt;h1 style="color:#E69F00"&gt;Inference happens when you have information on a subset of data, and you want to make statements about the full set."&lt;/h1&gt;
+
+&lt;h1 style="color:#0072B2"&gt;Typically, inference is done using the sample statistics, and what we know about the behaviour of that statistic over all possible subsets, of the same size."&lt;/h1&gt;
+
+---
+
+# Nullabor example
+
+
+```r
+d &lt;- lineup(null_permute("waiting"), faithful, n = 16)
+qplot(eruptions, waiting, data = d) + facet_wrap(~ .sample)
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Download speed by time of day
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: center, middle, inverse
+
+# recap: Understanding PCA Using Stack Overflow Data
+
+## Julia Silge
+
+---
+class: center, middle
+
+&lt;div&gt;
+&lt;blockquote class="twitter-tweet" data-conversation="none" data-lang="en"&gt;&lt;p lang="en" dir="ltr"&gt;Every linear algebra class&lt;br&gt;&lt;br&gt;Me: What are eigenvectors&lt;br&gt;&lt;br&gt;Teacher: You can think of them as an n-dimensional kernel subspace&lt;br&gt;&lt;br&gt;Me: No I can&amp;#39;t&lt;/p&gt;&amp;mdash; David Robinson (@drob) &lt;a href="https://twitter.com/drob/status/714559825116434432?ref_src=twsrc%5Etfw"&gt;March 28, 2016&lt;/a&gt;&lt;/blockquote&gt; &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8"&gt;&lt;/script&gt;
+&lt;/div&gt;
+
+---
+class: center, middle
+
+&lt;image src="https://chrisalbon.com/images/machine_learning_flashcards/Principal_Component_Analysis_print.png" style="max-width:80%; max-height:80%;"&gt;
+
+???
+
+credit: https://chrisalbon.com
+
+---
+
+# User tag visits
+
+
+```
+## # A tibble: 6 x 3
+##   AccountId Tag            Value
+##       &lt;dbl&gt; &lt;chr&gt;          &lt;dbl&gt;
+## 1   6461130 sass         0.00244
+## 2   1044010 tsql         0.00179
+## 3    405410 qt           0.00156
+## 4   3224070 http-headers 0.00306
+## 5  10525200 asp.net-mvc  0.00403
+## 6   6349580 amazon-s3    0.00123
+```
+
+
+```r
+sparse_tag_matrix &lt;- user_tag_counts %&gt;%
+  tidytext::cast_sparse(AccountId, Tag, Percent)
+tags_scaled &lt;- scaled(sparse_tag_matrix)
+tags_pca &lt;- irlba::prcomp_irlba(tags_scaled, n = 64)
+tidied_pca &lt;- bind_cols(Tag = colnames(tag_scled),
+                        tidy(tags_pca$rotation))
+```
+
+---
+
+&lt;image src="assets/multiple_components.jpg"&gt;
+
+???
+
+credit: https://speakerdeck.com/juliasilge/understanding-principal-component-analysis-using-stack-overflow-data
+
+---
+
+&lt;image src="assets/single_components.jpg"&gt;
+
+???
+
+credit: https://speakerdeck.com/juliasilge/understanding-principal-component-analysis-using-stack-overflow-data
+
+---
+class: center, middle
+background-color: #363A4C
+
+&lt;h1 style="color:#E69F00"&gt;Uh. Wait. I can do that!&lt;/h1&gt;
+
+---
+class: center, middle
+
+# Demo
+
+---
+class: center, middle, protecttext, lastslide
+background-image: url(assets/IMG_E7538.JPG)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+
+# Thanks!
+
+## @ellisvalentiner
+
+### GitHub
+
+### Twitter
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
