@@ -1,0 +1,197 @@
+---
+title: "rstudio::conf(2018L)"
+date: "February 8, 2018"
+output:
+    xaringan::moon_reader:
+      css: [default, "style.css"]
+      lib_dir: libs
+      nature:
+        beforeInit: "https://platform.twitter.com/widgets.js"
+        highlightStyle: github
+        highlightLines: true
+        ratio: '16:9'
+editor_options: 
+  chunk_output_type: console
+---
+class: protecttext
+background-image: url(assets/IMG_9539.jpg)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+
+```{r, include=FALSE}
+library(ggplot2)
+library(nullabor)
+library(readr)
+library(dplyr)
+library(lubridate)
+library(lubridateExtras)
+```
+
+# Introduction
+
+## data scientist @powerley
+
+## organizer @annarborrusergroup
+
+### "... statistics starts once you have tidy data." - Di Cook
+
+---
+class: center, middle, inverse
+
+# recap: To the Tidyverse and Beyond
+
+## Di Cook
+
+---
+class: center, middle
+
+<h1 style="color:#E69F00;">"[ggplot2] provides a tight connection between data and statistics, in order to do inference with data plots"</h1>
+
+---
+class: center, middle
+
+<h1 style="color:#56B4E9;">"a statistic is a function of the data"</h1>
+
+<h1 style="color:#009E73;">"[ggplot2] makes plots another type of statistic"</h1>
+
+---
+class: center, middle
+
+<h1 style="color:#E69F00">Inference happens when you have information on a subset of data, and you want to make statements about the full set."</h1>
+
+<h1 style="color:#0072B2">Typically, inference is done using the sample statistics, and what we know about the behaviour of that statistic over all possible subsets, of the same size."</h1>
+
+---
+
+# Nullabor example
+
+```{r, echo=TRUE, eval=FALSE}
+d <- lineup(null_permute("waiting"), faithful, n = 16)
+qplot(eruptions, waiting, data = d) + facet_wrap(~ .sample)
+```
+
+```{r, echo=FALSE, message=FALSE, fig.height=6, fig.width=6, fig.align='center'}
+d <- lineup(null_permute("waiting"), faithful, n = 16)
+qplot(eruptions, waiting, data = d) + facet_wrap(~ .sample)
+```
+
+---
+
+# Download speed by time of day
+
+```{r, echo=FALSE, message=FALSE, fig.align='center'}
+speeddata <- read_csv(
+  file = "data/speedresults.csv",
+  col_types = cols(
+    timestamp = col_datetime(format = ""),
+    city = col_character(),
+    ip = col_character(),
+    fqdn = col_character(),
+    site = col_character(),
+    upload = col_double(),
+    download = col_double()
+    )
+  )
+d <- speeddata %>%
+  mutate(
+    hour = hour(timestamp)
+  ) %>%
+  lineup(null_permute("download"), ., n = 20)
+
+d %>% 
+  ggplot(aes(x = hour, y = download, fill = factor(hour))) +
+  stat_summary(fun.y="mean", geom="bar") +
+  scale_x_continuous("Hour") +
+  scale_y_continuous("Download (Mbps)") +
+  ggthemes::theme_hc() +
+  facet_wrap(~.sample) +
+  guides(fill = FALSE)
+```
+
+---
+class: center, middle, inverse
+
+# recap: Understanding PCA Using Stack Overflow Data
+
+## Julia Silge
+
+---
+class: center, middle
+
+<div>
+<blockquote class="twitter-tweet" data-conversation="none" data-lang="en"><p lang="en" dir="ltr">Every linear algebra class<br><br>Me: What are eigenvectors<br><br>Teacher: You can think of them as an n-dimensional kernel subspace<br><br>Me: No I can&#39;t</p>&mdash; David Robinson (@drob) <a href="https://twitter.com/drob/status/714559825116434432?ref_src=twsrc%5Etfw">March 28, 2016</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+
+---
+class: center, middle
+
+<image src="https://chrisalbon.com/images/machine_learning_flashcards/Principal_Component_Analysis_print.png" style="max-width:80%; max-height:80%;">
+
+???
+
+credit: https://chrisalbon.com
+
+---
+
+# User tag visits
+
+```{r, echo=FALSE}
+user_tag_counts <- tibble(
+  AccountId = c(6461130, 1044010, 405410, 3224070, 10525200, 6349580),
+  Tag = c("sass", "tsql", "qt", "http-headers", "asp.net-mvc", "amazon-s3"),
+  Value = c(0.00244, 0.00179, 0.00156, 0.00306, 0.00403, 0.00123)
+)
+user_tag_counts
+```
+
+```{r, eval=FALSE}
+sparse_tag_matrix <- user_tag_counts %>%
+  tidytext::cast_sparse(AccountId, Tag, Percent)
+tags_scaled <- scaled(sparse_tag_matrix)
+tags_pca <- irlba::prcomp_irlba(tags_scaled, n = 64)
+tidied_pca <- bind_cols(Tag = colnames(tag_scled),
+                        tidy(tags_pca$rotation))
+```
+
+---
+
+<image src="assets/multiple_components.jpg">
+
+???
+
+credit: https://speakerdeck.com/juliasilge/understanding-principal-component-analysis-using-stack-overflow-data
+
+---
+
+<image src="assets/single_components.jpg">
+
+???
+
+credit: https://speakerdeck.com/juliasilge/understanding-principal-component-analysis-using-stack-overflow-data
+
+---
+class: center, middle
+background-color: #363A4C
+
+<h1 style="color:#E69F00">Uh. Wait. I can do that!</h1>
+
+---
+class: center, middle
+
+# Demo
+
+---
+class: center, middle, protecttext, lastslide
+background-image: url(assets/IMG_E7538.JPG)
+background-position: center
+background-repeat: no-repeat
+background-size: cover
+
+# Thanks!
+
+## @ellisvalentiner
+
+### GitHub
+
+### Twitter
