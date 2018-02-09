@@ -10,3 +10,6 @@
 [submodule "2018-02/clayton"]
 	path = 2018-02/clayton
 	url = git@github.com:ClaytonJY/rstudioconf-2018-recaps.git
+[submodule "2018-02/sameer"]
+	path = 2018-02/sameer
+	url = https://github.com/sameer-t/rstudio_conf_tidy.git
