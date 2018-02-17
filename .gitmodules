@@ -16,3 +16,6 @@
 [submodule "2018-01/flexdashboard"]
 	path = 2018-01/flexdashboard
 	url = https://github.com/kingjoshuaj/AARUG_Jan18.git
+[submodule "2018-01/tidy-eval"]
+	path = 2018-01/tidy-eval
+	url = https://github.com/grosscol/tidy-eval.git
