@@ -13,3 +13,6 @@
 [submodule "2018-02/sameer"]
 	path = 2018-02/sameer
 	url = https://github.com/sameer-t/rstudio_conf_tidy.git
+[submodule "2018-01/flexdashboard"]
+	path = 2018-01/flexdashboard
+	url = https://github.com/kingjoshuaj/AARUG_Jan18.git
