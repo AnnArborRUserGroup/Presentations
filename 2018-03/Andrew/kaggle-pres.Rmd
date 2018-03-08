@@ -1,0 +1,87 @@
+---
+title: "Demystifying Kaggle: Kaggle as a community and learning resource"
+subtitle: "Ann Arbor R User Group"
+author: "Andrew Moore"
+date: "`r format(Sys.Date(), '%m-%d-%Y')`"
+output:
+  ioslides_presentation:
+    widescreen: yes
+    incremental: yes
+---
+
+```{r opts, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+# Introduction
+
+## What is Kaggle? & why should I care about it?
+
+- Should be on your radar, if it's not already
+- Opportunity to apply skills to areas outside your day-to-day activities
+- Can peek over people's shoulders
+    - Kernals preserve the work that people have already done
+    - Easy way to quickly see how an approach is implemented in practice
+- It's an excellent source for unique datasets
+
+## Competitions
+
+- Data science, gameified
+- You can win $ (hypothetically)
+- Recruitment
+- Research
+    - Kiva competition (ongoing)
+    - Malware classification (3 yrs ago)
+    - American Epilepsy Society's Seizure Prediction using EEG
+- Rankings & Tiers
+    - Complete your profile: Novice, Contributor 
+    - Win some medals, discuss content: Expert
+    - Be more baller than 'Experts': Master, Grandmaster
+
+## You can work in the cloud (kernals!)
+
+- Kaggle docker images
+- Come pre-loaded with popular libraries
+    - All of CRAN
+    - Plus, development versions of other packages: `rstan`, `h2o`, among others
+- Can run Jupyter notebooks using either Python or R, executing code in cells
+- Or draft scripts
+- Version control is baked in
+- 17 gigs of RAM, ? CPU, 55mb~ storage space, operations time out after 2 hours
+
+## Jobs
+
+- Kaggle hosts job listings from companies that want to advertise positions to its userbase
+- No experience applying through one, but would be curious to hear about people's experience
+- Can see how many people have looked at a posting at a given time, kind of interesting?
+- Would guess that companies advertising might have a better grasp on their needs?
+  - Maybe preferable to recruiters contacting you?
+
+## Datasets
+
+- You can get points for uploading data that people think is cool
+- Weird, interesting, great for side projects and curious folks
+- Has an API?
+    - `$ kaggle datasets download -d mobile-phone-activity`
+    - Install the python client via [GitHub](https://github.com/Kaggle/kaggle-api)
+- Google BigQuery for ***big data*** (using a python client)
+    - E.g. BitCoin Blockchain, or Hacker News posts (14 gigs)
+- Highlights:
+    - [NYC Noise complaints dataset](https://www.kaggle.com/somesnm/partynyc)
+    - [Scripts and information about every episode of *Seinfeld*](https://www.kaggle.com/thec03u5/seinfeld-chronicles)
+    - [Four Shapes (useful for beginners who want to start looking at image classification)](https://www.kaggle.com/thec03u5/seinfeld-chronicles)
+      - No comments on this! Someone make me a tutorial for me to upvote!
+
+# Kernal/Competitions interface demonstration
+
+## Questions
+
+- Other platforms for crowd-sourced data science?
+
+- Help me be less wrong on the internet:
+    - github: @mooreaw
+    - twitter: @theysayHeyDrew
+    - [Blog](https://www.semidocumentedlife.com/)
+    - A2MADS slack: `@andrew`
+
+Thanks!
