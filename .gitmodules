@@ -19,3 +19,6 @@
 [submodule "2018-01/tidy-eval"]
 	path = 2018-01/tidy-eval
 	url = https://github.com/grosscol/tidy-eval.git
+[submodule "2018-03/CRANberryPiSlides"]
+	path = 2018-03/CRANberryPiSlides
+	url = https://github.com/ellisvalentiner/CRANberryPiSlides
