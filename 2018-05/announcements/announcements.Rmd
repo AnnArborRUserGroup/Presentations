@@ -1,6 +1,6 @@
 ---
 title: "Ann Arbor R User Group"
-subtitle: "April 12, 2018"
+subtitle: "May 10, 2018"
 output:
     xaringan::moon_reader:
       css: ["default", "static/style.css"]
