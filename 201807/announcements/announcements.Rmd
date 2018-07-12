@@ -1,0 +1,66 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "July 12, 2018"
+output:
+    xaringan::moon_reader:
+      css: ["default", "static/style.css"]
+      lib_dir: libs
+      nature:
+        highlightStyle: github
+        highlightLines: true
+        ratio: '16:9'
+---
+class: center, middle
+
+# Sponsors
+
+<img src="static/RConsortium_Horizontal_Pantone.png"  style="max-width: 30%; display: block; margin: 0 auto;">
+
+<img src="static/spark-logo.jpeg" style="max-width: 30%; display: block; margin: 0 auto;">
+
+---
+
+# R Community Code of Conduct
+
+**Open:** Members of the community are open to collaboration, whether it's on projects, working groups, packages, problems, or otherwise. We're receptive to constructive comment and criticism, as the experiences and skill sets of other members contribute to the whole of our efforts. We're accepting of anyone who wishes to take part in our activities, fostering an environment where all can participate and everyone can make a difference.
+
+**Considerate:** Members of the community are considerate of their peers — other R users. We're thoughtful when addressing the efforts of others, keeping in mind that oftentimes the labor was completed simply for the good of the community. We're attentive in our communications, whether in person or online, and we're tactful when approaching differing views.
+
+**Respectful:** Members of the community are respectful. We're respectful of others, their positions, their skills, their commitments, and their efforts. We're respectful of the volunteer efforts that permeate the R community. We're respectful of the processes set forth in the community, and we work within them. When we disagree, we are courteous in raising our issues.
+
+Overall, we're good to each other. We contribute to this community not because we have to, but because we want to. If we remember that, these guidelines will come naturally.
+
+---
+
+# Upcoming Meetups
+
+### August 9 @ SPARK
+#### Peter Higgens, ???
+
+### September 13 @ SPARK
+#### Topic TBD
+
+### October 9 
+#### Julia Silge w/ PyData
+
+### November 8 @ SPARK
+#### Sam Firke, `janitor` package
+
+***
+
+## Let us know if you're interested in presenting!
+
+---
+
+# Other Meetups Around Town
+
+### PyData Ann Arbor - What's the Science in Data Science?
+#### [Tuesday, July 19 @ TD Ameritrade](https://www.meetup.com/PyData-Ann-Arbor/events/249050571/)
+
+### A2D-NLP - Factors Influencing the Surprising Instability of Word Embeddings
+#### [Tuesday, August 14 @ Bob & Betty Beyster Building, North Campus](https://www.meetup.com/Ann-Arbor-Detroit-NLPers-A2D-NLP/events/251076014/)
+
+---
+class: inverse, center, middle
+
+# Presentation
