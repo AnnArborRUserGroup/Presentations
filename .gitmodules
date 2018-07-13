@@ -25,3 +25,6 @@
 [submodule "2018-04-12/blogdown-Xiaosong"]
 	path = 2018-04-12/blogdown-Xiaosong
 	url = https://github.com/xiaosongz/aarug_0418_blogdown
+[submodule "2018-07/tidymodels-talk"]
+	path = 2018-07/tidymodels-talk
+	url = git@github.com:ClaytonJY/tidymodels-talk.git
