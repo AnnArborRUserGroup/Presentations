@@ -4,7 +4,7 @@ subtitle: "August 9, 2018"
 output:
     xaringan::moon_reader:
       seal: true
-      css: ["default", "a2rug", "a2rug-fonts"]
+      css: ["default", "static/style.css"]
       lib_dir: libs
       nature:
         highlightStyle: github
@@ -76,7 +76,7 @@ https://github.com/RConsortium/RCDI-WG
 ---
 class: center, middle
 
-# Upcomping Workshops
+# Upcoming Workshops
 
 **What:** 2 day introduction to R workshop
 
