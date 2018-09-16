@@ -28,3 +28,6 @@
 [submodule "2018-07/tidymodels-talk"]
 	path = 2018-07/tidymodels-talk
 	url = git@github.com:ClaytonJY/tidymodels-talk.git
+[submodule "2018-09/fira-code"]
+	path = 2018-09/fira-code
+	url = https://github.com/kraigrs/fira-code
