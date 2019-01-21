@@ -1,0 +1,105 @@
+---
+title: "Ann Arbor R User Group"
+subtitle: "January 10, 2019"
+output:
+    xaringan::moon_reader:
+      css: ["default", "static/style.css"]
+      lib_dir: libs
+      nature:
+        highlightStyle: github
+        highlightLines: true
+        ratio: '16:9'
+---
+
+.pull-left[
+## Group Info
+
+- [AnnArborRUserGroup.github.io](https://AnnArborRUserGroup.github.io)
+
+- [meetup.com/Ann-Arbor-R-User-Group](http://meetup.com/Ann-Arbor-R-User-Group)
+
+- [AnnArborRUserGroup@gmail.com](AnnArborRUserGroup@gmail.com)
+
+<div style="display: block; margin: auto;">
+  <img src="static/slack_cmyk.png" width="200">
+
+  <img src="static/everywhere@2x.png" width="200">
+  <a href="https://a2mads.herokuapp.com/">https://a2mads.herokuapp.com/</a>
+</div>
+]
+
+.pull-right[
+## Organizers
+
+<div class="grid">
+  <div class="card">
+  <img src="https://avatars3.githubusercontent.com/u/9932219?v=3&s=96"></img>
+  <br>Ellis
+  </div>
+  
+  <div class="col s6 card">
+  <img src="https://avatars3.githubusercontent.com/u/5169330?v=3&s=96"></img>
+  <br>Clayton
+  </div>
+  
+  <div class="card">
+  <img src="https://avatars3.githubusercontent.com/u/5975297?v=3&s=96"></img>
+  <br>Rob
+  </div>
+  
+  <div class="card">
+  <img src="https://avatars3.githubusercontent.com/u/8618665?v=3&s=96"></img>
+  <br>Andrew
+  </div>
+</div>
+
+]
+
+---
+class: center, middle
+
+# Sponsors
+
+<img src="static/RConsortium_Horizontal_Pantone.png"  style="max-width: 30%; display: block; margin: 0 auto;">
+
+<img src="static/spark-logo.jpeg" style="max-width: 30%; display: block; margin: 0 auto;">
+
+---
+class: center, middle
+
+# R Community Code of Conduct
+
+**Open:** Members of the community are open to collaboration, whether it's on projects, working groups, packages, problems, or otherwise. We're receptive to constructive comment and criticism, as the experiences and skill sets of other members contribute to the whole of our efforts. We're accepting of anyone who wishes to take part in our activities, fostering an environment where all can participate and everyone can make a difference.
+
+**Considerate:** Members of the community are considerate of their peers — other R users. We're thoughtful when addressing the efforts of others, keeping in mind that oftentimes the labor was completed simply for the good of the community. We're attentive in our communications, whether in person or online, and we're tactful when approaching differing views.
+
+**Respectful:** Members of the community are respectful. We're respectful of others, their positions, their skills, their commitments, and their efforts. We're respectful of the volunteer efforts that permeate the R community. We're respectful of the processes set forth in the community, and we work within them. When we disagree, we are courteous in raising our issues.
+
+Overall, we're good to each other. We contribute to this community not because we have to, but because we want to. If we remember that, these guidelines will come naturally.
+
+---
+class: center, middle
+
+# Upcoming AARUG Meetups
+
+### February
+#### Cancelled, due to falling on Valentine's Day & abundant meetups that week!
+
+### March
+#### TBD
+
+---
+class: inverse, center, middle
+
+# Other Community Events
+
+### January 15, ASA
+#### "Communication Challenges and Strategies for the Applied Statistician"
+
+- Mary Ann Ritter, Lecturer Statistics Dept.
+- West Hall, UMich -- see meetup for details
+
+---
+class: inverse, center, middle
+
+# Presentations
